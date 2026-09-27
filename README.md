@@ -5,9 +5,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-v9%2B%20%7C%20v10%2B-red.svg?logo=prolog&logoColor=white)](https://www.swi-prolog.org/)
-[![Docker Compose](https://img.shields.io/badge/Docker%20Compose-Enabled-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-65%2F65%20Passing-brightgreen.svg)]()
-[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2F%20Decoupled-orange.svg)]()
+
 
 > **Mestrado em Engenharia de Inteligência Artificial (MEIA)** 
 > **Unidades Curriculares:** Engenharia do Conhecimento em IA (ENGCIA) & Paradigmas de Programação em IA (PPROGIA) 
