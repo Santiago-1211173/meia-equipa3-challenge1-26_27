@@ -37,21 +37,21 @@ O sistema assenta numa arquitetura modular de micro-serviços orientada a orques
 ```mermaid
 flowchart TD
     subgraph UI ["Camada de Apresentação"]
-        Frontend["Frontend Web / POS App\n(Interface de Atendimento de Loja)"]
+        Frontend["Frontend Web / POS App\nInterface de Atendimento de Loja"]
     end
 
     subgraph Orchestration ["Orquestração de Negócio"]
-        FastAPI["Backend Orquestrador\n(Python / FastAPI)\nValidação de Schemas, DTOs & Coordenação"]
+        FastAPI["Backend Orquestrador\nPython / FastAPI\nValidação de Schemas, DTOs & Coordenação"]
     end
 
     subgraph InferenceEngines ["Motores de Inferência Periciais"]
-        Prolog["Micro-serviço SWI-Prolog\n(REST API Daemon Contentorizado)\nMotor Lógico Dedutivo & Explicabilidade"]
-        Drools["Micro-serviço Drools\n(Java Rule Engine)\nMotor Rete / Regras de Produção"]
+        Prolog["Micro-serviço SWI-Prolog\nREST API Daemon Contentorizado\nMotor Lógico Dedutivo & Explicabilidade"]
+        Drools["Micro-serviço Drools\nJava Rule Engine\nMotor Rete / Regras de Produção"]
     end
 
-    Frontend <-->|HTTP POST / JSON| FastAPI
-    FastAPI <-->|POST /evaluate (JSON)| Prolog
-    FastAPI <-->|HTTP / REST (JSON)| Drools
+    Frontend <-->|"HTTP POST / JSON"| FastAPI
+    FastAPI <-->|"POST /evaluate — JSON"| Prolog
+    FastAPI <-->|"HTTP / REST — JSON"| Drools
 ```
 
 * **Frontend:** Interface com o utilizador que submete o cenário da devolução exclusivamente ao backend orquestrador.
@@ -275,6 +275,7 @@ meia-equipa3-challenge1-26_27/
 * [`docs/Main_context.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/Main_context.md) — Contexto de negócio, enquadramento curricular MEIA e heurísticas do perito de retalho.
 * [`docs/architecture.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/architecture.md) — Desenho arquitetural, Clean Architecture, diagramas de sequência e guia operacional.
 * [`docs/api_contracts.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/api_contracts.md) — Contratos JSON formais de comunicação entre componentes.
+* [`docs/fastapi_orchestrator_plan.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/fastapi_orchestrator_plan.md) — Plano de implementação faseado do backend orquestrador FastAPI para execução por agente LLM.
 * [`Implementation_plan_start.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/Implementation_plan_start.md) — Histórico de execução de cada fase da infraestrutura base.
 
 ---

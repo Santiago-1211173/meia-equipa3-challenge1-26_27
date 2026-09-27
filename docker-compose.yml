@@ -1,0 +1,36 @@
+services:
+  prolog-engine:
+    build:
+      context: ./prolog_engine
+      dockerfile: Dockerfile
+    container_name: retail-prolog-engine
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+    networks:
+      - retail-network
+
+  orchestrator:
+    build:
+      context: ./backend_orchestrator
+      dockerfile: Dockerfile
+    container_name: retail-backend-orchestrator
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PROLOG_ENGINE_URL=http://prolog-engine:8080
+      - PROLOG_TIMEOUT_SECONDS=5.0
+      - DEBUG=true
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8000"]
+    depends_on:
+      - prolog-engine
+    restart: unless-stopped
+    networks:
+      - retail-network
+
+networks:
+  retail-network:
+    driver: bridge
