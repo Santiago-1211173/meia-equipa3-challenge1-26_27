@@ -1,7 +1,7 @@
 # Sistema Pericial de Diagnóstico para Devoluções e Trocas no Retalho
 ### *Retail Returns & Exchanges Diagnostic Expert System*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-v9%2B%20%7C%20v10%2B-red.svg?logo=prolog&logoColor=white)](https://www.swi-prolog.org/)
@@ -222,3 +222,10 @@ Para aprofundar qualquer aspeto do sistema, consulte a documentação dedicada e
 1. **Formalização das Regras de Retalho em Prolog:** Transpor as árvores concetuais recolhidas com o perito Dustin Hopper para predicados lógicos dedutivos (regras de vestuário, etiquetas, prazos de 30/14 dias e métodos de pagamento).
 2. **Implementação do Micro-Serviço Drools:** Desenvolver o segundo motor de inferência em Java com regras de produção (Rete algorithm) para validação cruzada.
 3. **Frontend de Simulação:** Construir uma aplicação web interativa para operadores de loja simularem devoluções em tempo real com auditoria explicativa transparente.
+
+---
+
+## 9. Licença
+
+Este projeto está licenciado sob os termos da licença **GNU General Public License v3.0 (GPL-3.0)**. Consulte o ficheiro [LICENSE](LICENSE) para obter o texto integral e condições legais de utilização e distribuição.
+

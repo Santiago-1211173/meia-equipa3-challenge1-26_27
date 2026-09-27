@@ -68,7 +68,7 @@ app = FastAPI(
 # Configure Cross-Origin Resource Sharing (CORS) for Frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[str(origin) for origin in settings.CORS_ORIGINS],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
