@@ -21,6 +21,7 @@ Aqui residem os planos de implementação faseados originais, os critérios de v
 | [Plano de Implementação do Prolog (`prolog_implementation_plan.md`)](prolog_implementation_plan.md) | Fases 1 a 4 | **100% Concluído** | Setup base, regras de inferência pura (`rules.pl`), camada de transporte HTTP (`server.pl`, `routes.pl`), testes PLUnit (12 testes) e contentorização Docker (`swipl:latest`). |
 | [Plano de Implementação do Orquestrador FastAPI (`fastapi_implementation_plan.md`)](fastapi_implementation_plan.md) | Fases 1 a 6 | **100% Concluído** | Setup de configurações tipadas, schemas Pydantic DTOs, cliente HTTP assíncrono `httpx`, endpoints REST v1, suíte de 53 testes Pytest e orquestração integrada via Docker Compose. |
 | [Plano de Implementação da Documentação (`documentation_implementation_plan.md`)](documentation_implementation_plan.md) | Fases 0 a 7 | **100% Concluído** | Reorganização da documentação técnica profissional em subdiretórios temáticos, redação de guias de arquitetura, contratos de APIs, deploy, domínio, desenvolvimento e revisão final. |
+| [Plano do Motor de Inferência Pericial (`inference_engine_implementation_plan.md`)](inference_engine_implementation_plan.md) | Fases 1 a 5 | **100% Concluído** | Adaptação modular de `sp_exp2.pl` para microserviços, base de conhecimento `vehicles`, rotas REST Prolog `/inference/*`, cliente e serviço Python, schemas Pydantic v2, endpoints FastAPI `/api/v1/inference/*`, toggle `INFERENCE_ENGINE_ENABLED`, testes automatizados PLUnit + Pytest e documentação. |
 
 ---
 
@@ -34,6 +35,7 @@ graph LR
         H_PL["prolog_implementation_plan.md<br/>(POC Prolog Fases 1-4)"]
         H_PY["fastapi_implementation_plan.md<br/>(Orquestrador FastAPI Fases 1-6)"]
         H_DOC["documentation_implementation_plan.md<br/>(Documentação Fases 0-7)"]
+        H_INF["inference_engine_implementation_plan.md<br/>(Motor de Inferência Fases 1-5)"]
     end
 
     subgraph DocsAtivos ["Documentação Técnica Ativa"]
@@ -58,6 +60,11 @@ graph LR
     H_DOC --> API
     H_DOC --> DEP
     H_DOC --> DEV
+
+    H_INF --> ARCH
+    H_INF --> API
+    H_INF --> DEP
+    H_INF --> DEV
 ```
 
 ---

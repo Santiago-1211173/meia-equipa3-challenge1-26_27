@@ -43,6 +43,19 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.prolog_client = prolog_client
     app.state.orchestrator_service = orchestrator_service
 
+    if settings.INFERENCE_ENGINE_ENABLED:
+        from app.clients.inference_client import InferenceClient
+        from app.services.inference_service import InferenceService
+
+        inference_client = InferenceClient(
+            base_url=settings.PROLOG_ENGINE_URL,
+            timeout=settings.PROLOG_TIMEOUT_SECONDS,
+            client=http_client,
+        )
+        inference_service = InferenceService(inference_client=inference_client)
+        app.state.inference_client = inference_client
+        app.state.inference_service = inference_service
+
     yield
 
     # Shutdown: Cleanly release network sockets and connection pools
@@ -50,15 +63,43 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         await http_client.aclose()
 
 
+tags_metadata = [
+    {
+        "name": "Academic Example Engine (sp_exp2 / Moodle)",
+        "description": (
+            "**Motor de Inferência de Exemplo dos Professores** (adaptado diretamente dos ficheiros de apoio do Moodle: "
+            "`prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/sp_exp2.pl`). "
+            "Este motor serve de referência pedagógica e está estritamente segmentado do motor de retalho, podendo ser ativado/desativado "
+            "via variável de ambiente `INFERENCE_ENGINE_ENABLED`."
+        ),
+    },
+    {
+        "name": "Evaluation",
+        "description": (
+            "**Motor Pericial do Domínio de Retalho** (Devoluções e Trocas de Mercadorias — Heurísticas Dustin Hopper). "
+            "Atualmente implementa a Prova de Conceito (POC) de avaliação das regras de elegibilidade (`rules.pl`). "
+            "O desenvolvimento integral deste segundo motor de retalho fica reservado para as fases subsequentes do projeto."
+        ),
+    },
+    {
+        "name": "Health",
+        "description": "Endpoints de diagnóstico de conectividade, prontidão e integridade do sistema.",
+    },
+]
+
 # Create FastAPI application instance with rich metadata
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description=(
         "Orchestration layer for the Retail Returns & Exchanges Diagnostic Expert System. "
         "Coordinates rule evaluation across deductive logic engines (SWI-Prolog and future Drools), "
-        "enforcing explainability chains, transparent justifications, and resilient fallback handling."
+        "enforcing explainability chains, transparent justifications, and resilient fallback handling.\n\n"
+        "### Segmentação dos Motores Prolog no Sistema:\n"
+        "1. **Motor 1 (Exemplo Académico / Moodle):** Adaptado de `sp_exp2.pl` dos professores, exposto em `/api/v1/inference/*`.\n"
+        "2. **Motor 2 (Domínio de Retalho / Dustin Hopper):** Regras de devoluções de retalho, exposto em `/api/v1/evaluate` (desenvolvimento de produção diferido)."
     ),
     version="1.0.0",
+    openapi_tags=tags_metadata,
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",

@@ -15,7 +15,8 @@ backend_orchestrator/app/schemas/
 ├── common.py             # Enums de decisão e modelo canónico EvaluationResponse
 ├── scenario.py           # Schemas de entrada do POC (ScenarioInput)
 ├── retail.py             # Modelos avançados do domínio de devoluções no retalho
-└── health.py             # Schema de resposta de saúde e conectividade (HealthResponse)
+├── health.py             # Schema de resposta de saúde e conectividade (HealthResponse)
+└── inference.py          # Schemas do motor de inferência pericial
 ```
 
 ```mermaid
@@ -312,9 +313,116 @@ Payload completo para avaliação de devoluções no retalho:
 
 ---
 
-## 6. Validação e Tratamento de Erros de Schema
+## 6. Schemas do Motor de Exemplo dos Professores (`sp_exp2.pl` do Moodle — `inference.py`)
 
-Quando um cliente submete um pedido ao endpoint `POST /api/v1/evaluate` que viole as restrições de schema:
+Ficheiro fonte: [`backend_orchestrator/app/schemas/inference.py`](../../backend_orchestrator/app/schemas/inference.py)
+
+Estes modelos tipados em Pydantic v2 suportam a família de endpoints `/api/v1/inference/*` do **motor de inferência de exemplo dos professores (`sp_exp2.pl`)** fornecido no Moodle (`prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/`), validando parâmetros de entrada, restringindo identificadores e garantindo serialização canónica com documentação OpenAPI integrada sob a tag `Academic Example Engine (sp_exp2 / Moodle)`.
+
+Os schemas do domínio de retalho (`RetailReturnScenarioInput`, `ItemSchema`, etc.) mantêm-se documentados na [Secção 5](#5-schemas-de-extensão-para-o-domínio-de-retalho-retailpy).
+
+### 6.1 `LoadKnowledgeBaseRequest` e `LoadKnowledgeBaseResponse`
+Modelos para carregamento de bases de conhecimento periciais.
+
+```python
+class LoadKnowledgeBaseRequest(BaseModel):
+    knowledge_base: str = Field(..., min_length=1, description="Name of the knowledge base to load")
+
+class LoadKnowledgeBaseResponse(BaseModel):
+    status: str
+    message: str
+    initial_facts_count: int
+```
+
+| Campo | Tipo | Validação | Descrição |
+|:---|:---|:---:|:---|
+| `knowledge_base` | `str` | `min_length=1` | Nome identificador da base de conhecimento (ex.: `"vehicles"`). |
+| `status` | `str` | — | Estado do carregamento (`"success"` ou `"error"`). |
+| `message` | `str` | — | Mensagem descritiva do resultado da operação. |
+| `initial_facts_count` | `int` | — | Quantidade de factos pré-definidos carregados na memória. |
+
+---
+
+### 6.2 `RunEngineResponse` e `DerivedFactSchema`
+Modelos representativos da execução do ciclo dedutivo forward-chaining.
+
+```python
+class DerivedFactSchema(BaseModel):
+    id: int = Field(..., ge=1, description="Sequential identifier of the derived fact")
+    fact: str = Field(..., min_length=1, description="String representation of the derived fact")
+    rule_id: int = Field(..., ge=1, description="Identifier of the rule that fired")
+    justified_by: list[int | str] = Field(default_factory=list, description="List of fact IDs or conditions")
+
+class RunEngineResponse(BaseModel):
+    status: str
+    initial_facts_count: int
+    derived_facts_count: int
+    total_facts: int
+    derived_facts: list[DerivedFactSchema]
+```
+
+---
+
+### 6.3 `GetFactsResponse` e `FactSchema`
+Modelos para obtenção de todos os factos ativos em memória de trabalho.
+
+```python
+class FactSchema(BaseModel):
+    id: int = Field(..., ge=1, description="Sequential identifier of the fact")
+    fact: str = Field(..., min_length=1, description="String representation of the fact")
+
+class GetFactsResponse(BaseModel):
+    status: str
+    facts_count: int
+    facts: list[FactSchema]
+```
+
+---
+
+### 6.4 `ExplainHowRequest` e `ExplainHowResponse`
+Modelos para pedido e resposta de rastreabilidade causal (*How*).
+
+```python
+class ExplainHowRequest(BaseModel):
+    fact_id: int = Field(..., ge=1, description="Sequential ID of the fact to explain")
+
+class ExplainHowResponse(BaseModel):
+    status: str
+    fact_id: int
+    explanation: list[str]
+```
+
+---
+
+### 6.5 `ExplainWhynotRequest` e `ExplainWhynotResponse`
+Modelos para investigação de falha na dedução de um facto (*Why Not*).
+
+```python
+class ExplainWhynotRequest(BaseModel):
+    fact: str = Field(..., min_length=1, description="Prolog term string of the fact to investigate")
+
+class ExplainWhynotResponse(BaseModel):
+    status: str
+    fact: str
+    explanation: list[str]
+```
+
+---
+
+### 6.6 `ResetEngineResponse`
+Modelo de confirmação de reposição da memória de trabalho.
+
+```python
+class ResetEngineResponse(BaseModel):
+    status: str
+    message: str
+```
+
+---
+
+## 7. Validação e Tratamento de Erros de Schema
+
+Quando um cliente submete um pedido a qualquer endpoint da API pública que viole as restrições de schema:
 
 1. O Pydantic rejeita o pedido no momento da instanciação antes de atingir o serviço.
 2. O FastAPI converte automaticamente os erros numa resposta estruturada com código `HTTP 422 Unprocessable Entity`:
@@ -336,7 +444,7 @@ Quando um cliente submete um pedido ao endpoint `POST /api/v1/evaluate` que viol
 
 ---
 
-## 7. Documentos Relacionados
+## 8. Documentos Relacionados
 
 * [API Pública v1 do Orquestrador](orchestrator_api_v1.md) — Documentação dos endpoints que consomem estes schemas.
 * [API Interna do Motor Prolog](prolog_engine_api.md) — Mapeamento dos contratos com o motor lógico.

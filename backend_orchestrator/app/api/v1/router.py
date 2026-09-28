@@ -10,3 +10,11 @@ api_v1_router = APIRouter()
 
 api_v1_router.include_router(health.router, tags=["Health"])
 api_v1_router.include_router(evaluate.router, tags=["Evaluation"])
+
+from app.core.config import settings
+
+if settings.INFERENCE_ENGINE_ENABLED:
+    from app.api.v1.endpoints import inference
+
+    api_v1_router.include_router(inference.router)
+

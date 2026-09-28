@@ -13,6 +13,7 @@
 
 :- use_module(api/server, [server_start/1, server_stop/1]).
 :- use_module(api/routes, [handle_evaluate/1]).
+:- use_module(api/inference_routes, []).   % Inference engine HTTP endpoints (modular plug-in)
 :- use_module(core/rules, [evaluate_scenario/3]).
 
 %!  get_port(-Port) is det.

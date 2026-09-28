@@ -164,9 +164,160 @@ A resposta do endpoint segue sempre o modelo [`EvaluationResponse`](schemas.md#1
 
 ---
 
-## 4. Cenários de Utilização e Exemplos Práticos
+## 4. Endpoints do Motor de Exemplo dos Professores (`sp_exp2.pl` do Moodle — `/api/v1/inference/*`)
 
-### 4.1 Cenário 1: Aprovação de Regra (`value = 42`)
+Quando a variável de ambiente `INFERENCE_ENGINE_ENABLED` está definida como `true` (valor por defeito), o orquestrador regista e expõe os endpoints REST para o **motor de inferência pedagógico dos professores (`sp_exp2.pl`)** fornecido no Moodle (`prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/`), agrupados sob a tag Swagger **`Academic Example Engine (sp_exp2 / Moodle)`**.
+
+Estes endpoints realizam o proxy assíncrono para o micro-serviço SWI-Prolog sobre a base de conhecimento de teste de veículos (`vehicles`, adaptada de `veiculos2.txt`), mantendo-se rigorosamente separados do endpoint de avaliação de retalho ([Secção 3 — `POST /api/v1/evaluate`](#3-endpoints-de-avaliação-de-regras)).
+
+> [!NOTE]
+> **Feature Toggle:** Se `INFERENCE_ENGINE_ENABLED=false`, o router deste motor de exemplo não é montado no agregador v1 e todos os caminhos `/api/v1/inference/*` devolvem automaticamente `HTTP 404 Not Found`. O endpoint de retalho `/api/v1/evaluate` continua a funcionar normalmente.
+
+### 4.1 `POST /api/v1/inference/load`
+Carrega e compila uma base de conhecimento pericial no motor Prolog.
+
+* **Método:** `POST`
+* **Caminho:** `/api/v1/inference/load`
+* **Schema de Pedido:** [`LoadKnowledgeBaseRequest`](schemas.md#61-loadknowledgebaserequest-e-loadknowledgebaseresponse)
+  ```json
+  {
+    "knowledge_base": "vehicles"
+  }
+  ```
+* **Schema de Resposta (`200 OK`):** [`LoadKnowledgeBaseResponse`](schemas.md#61-loadknowledgebaserequest-e-loadknowledgebaseresponse)
+  ```json
+  {
+    "status": "success",
+    "message": "Knowledge base 'vehicles' loaded successfully",
+    "initial_facts_count": 3
+  }
+  ```
+
+---
+
+### 4.2 `POST /api/v1/inference/run`
+Executa o ciclo dedutivo forward-chaining sobre os factos ativos na memória de trabalho.
+
+* **Método:** `POST`
+* **Caminho:** `/api/v1/inference/run`
+* **Schema de Resposta (`200 OK`):** [`RunEngineResponse`](schemas.md#62-runengineresponse-e-derivedfactschema)
+  ```json
+  {
+    "status": "success",
+    "initial_facts_count": 3,
+    "derived_facts_count": 2,
+    "total_facts": 5,
+    "derived_facts": [
+      {
+        "id": 4,
+        "fact": "classe(meu_veiculo,pesado)",
+        "rule_id": 6,
+        "justified_by": [2]
+      },
+      {
+        "id": 5,
+        "fact": "pesado(meu_veiculo,camiao)",
+        "rule_id": 2,
+        "justified_by": [3, 4]
+      }
+    ]
+  }
+  ```
+
+---
+
+### 4.3 `GET /api/v1/inference/facts`
+Obtém o conjunto completo de factos presentes na memória de trabalho.
+
+* **Método:** `GET`
+* **Caminho:** `/api/v1/inference/facts`
+* **Schema de Resposta (`200 OK`):** [`GetFactsResponse`](schemas.md#63-getfactsresponse-e-factschema)
+  ```json
+  {
+    "status": "success",
+    "facts_count": 5,
+    "facts": [
+      {"id": 1, "fact": "lotacao(meu_veiculo,3)"},
+      {"id": 2, "fact": "peso(meu_veiculo,4500)"},
+      {"id": 3, "fact": "tipo(meu_veiculo,mercadorias)"},
+      {"id": 4, "fact": "classe(meu_veiculo,pesado)"},
+      {"id": 5, "fact": "pesado(meu_veiculo,camiao)"}
+    ]
+  }
+  ```
+
+---
+
+### 4.4 `POST /api/v1/inference/how`
+Constrói a cadeia causal de justificação recursiva para um facto específico (*How*).
+
+* **Método:** `POST`
+* **Caminho:** `/api/v1/inference/how`
+* **Schema de Pedido:** [`ExplainHowRequest`](schemas.md#64-explainhowrequest-e-explainhowresponse)
+  ```json
+  {
+    "fact_id": 4
+  }
+  ```
+* **Schema de Resposta (`200 OK`):** [`ExplainHowResponse`](schemas.md#64-explainhowrequest-e-explainhowresponse)
+  ```json
+  {
+    "status": "success",
+    "fact_id": 4,
+    "explanation": [
+      "Fact 4 -> classe(meu_veiculo,pesado) concluded by rule 6",
+      "Based on facts: [2]",
+      "Fact 2 -> peso(meu_veiculo,4500) was an initial fact"
+    ]
+  }
+  ```
+
+---
+
+### 4.5 `POST /api/v1/inference/whynot`
+Investiga por que razão um facto alvo não foi deduzido pelas regras (*Why Not*).
+
+* **Método:** `POST`
+* **Caminho:** `/api/v1/inference/whynot`
+* **Schema de Pedido:** [`ExplainWhynotRequest`](schemas.md#65-explainwhynotrequest-e-explainwhynotresponse)
+  ```json
+  {
+    "fact": "classe(meu_veiculo,ligeiro)"
+  }
+  ```
+* **Schema de Resposta (`200 OK`):** [`ExplainWhynotResponse`](schemas.md#65-explainwhynotrequest-e-explainwhynotresponse)
+  ```json
+  {
+    "status": "success",
+    "fact": "classe(meu_veiculo,ligeiro)",
+    "explanation": [
+      "Investigating why 'classe(meu_veiculo,ligeiro)' was not concluded:",
+      "Rule 7 could conclude 'classe(meu_veiculo,ligeiro)':",
+      "  Failed premise: avalia(peso(meu_veiculo,=<,3500))"
+    ]
+  }
+  ```
+
+---
+
+### 4.6 `POST /api/v1/inference/reset`
+Repõe a memória de trabalho do motor pericial num estado limpo.
+
+* **Método:** `POST`
+* **Caminho:** `/api/v1/inference/reset`
+* **Schema de Resposta (`200 OK`):** [`ResetEngineResponse`](schemas.md#66-resetengineresponse)
+  ```json
+  {
+    "status": "success",
+    "message": "Inference engine session reset"
+  }
+  ```
+
+---
+
+## 5. Cenários de Utilização e Exemplos Práticos
+
+### 5.1 Cenário 1: Aprovação de Regra (`value = 42`)
 
 Demonstra o disparo com sucesso de uma regra no motor Prolog que satisfaz os critérios de aprovação.
 
@@ -217,7 +368,7 @@ Invoke-RestMethod -Uri http://localhost:8000/api/v1/evaluate -Method Post -Conte
 
 ---
 
-### 4.2 Cenário 2: Rejeição com Explicabilidade (*Why Not*) (`value = 15`)
+### 5.2 Cenário 2: Rejeição com Explicabilidade (*Why Not*) (`value = 15`)
 
 Quando o valor não cumpre a regra de aprovação, o motor aplica a regra de salvaguarda (*fallback*) e produz a cadeia de justificação correspondente.
 
@@ -262,7 +413,7 @@ curl.exe -X POST http://localhost:8000/api/v1/evaluate `
 
 ---
 
-### 4.3 Cenário 3: Erro de Validação de Dados (`HTTP 422 Unprocessable Entity`)
+### 5.3 Cenário 3: Erro de Validação de Dados (`HTTP 422 Unprocessable Entity`)
 
 Se o cliente enviar tipos incompatíveis (ex.: `value` como string não numérica) ou omitir campos obrigatórios, o FastAPI interseta o pedido antes de invocar o Prolog.
 
@@ -290,7 +441,7 @@ Se o cliente enviar tipos incompatíveis (ex.: `value` como string não numéric
 
 ---
 
-### 4.4 Cenário 4: Erro de Rejeição pelo Motor Lógico (`HTTP 400 Bad Request`)
+### 5.4 Cenário 4: Erro de Rejeição pelo Motor Lógico (`HTTP 400 Bad Request`)
 
 Se o motor Prolog rejeitar o payload por dados semânticos inválidos ou contrato violado internamente, o orquestrador captura `PrologResponseError` e converte em HTTP 400.
 
@@ -303,7 +454,7 @@ Se o motor Prolog rejeitar o payload por dados semânticos inválidos ou contrat
 
 ---
 
-### 4.5 Cenário 5: Motor Prolog Indisponível ou Timeout (`HTTP 503 Service Unavailable`)
+### 5.5 Cenário 5: Motor Prolog Indisponível ou Timeout (`HTTP 503 Service Unavailable`)
 
 Se o contentor Prolog estiver desligado, inacessível na rede ou a inferência exceder o tempo limite configurado (`PROLOG_TIMEOUT_SECONDS = 5.0`), o cliente HTTP assíncrono dispara uma exceção tratada elegantemente.
 
@@ -316,18 +467,19 @@ Se o contentor Prolog estiver desligado, inacessível na rede ou a inferência e
 
 ---
 
-## 5. Matriz de Códigos de Estado HTTP
+## 6. Matriz de Códigos de Estado HTTP
 
 | Código HTTP | Significado | Causa Principal | Formato da Resposta |
 |:---|:---|:---|:---|
 | **`200 OK`** | Sucesso | Inferência concluída com sucesso (decisão `"approved"`, `"rejected"`, etc.) ou healthcheck operacional. | Schema `EvaluationResponse` ou `HealthResponse` |
 | **`400 Bad Request`** | Pedido Inválido | O motor de inferência reportou erro de processamento semântico (`PrologResponseError`). | `{"detail": "..."}` |
-| **`422 Unprocessable Entity`** | Validação Falhou | O payload não respeita os tipos ou restrições dos modelos Pydantic (`ScenarioInput`). | Matriz de erros padrão do FastAPI / Pydantic |
+| **`404 Not Found`** | Rota Inexistente / Desativada | Rota não reconhecida ou `INFERENCE_ENGINE_ENABLED=false` para rotas `/inference/*`. | `{"detail": "Not Found"}` |
+| **`422 Unprocessable Entity`** | Validação Falhou | O payload não respeita os tipos ou restrições dos modelos Pydantic (`ScenarioInput`, `LoadKnowledgeBaseRequest`, etc.). | Matriz de erros padrão do FastAPI / Pydantic |
 | **`503 Service Unavailable`** | Motor Inacessível | O orquestrador não conseguiu comunicar com o Prolog (`PrologConnectionError` ou `PrologTimeoutError`). | `{"detail": "..."}` |
 
 ---
 
-## 6. Documentos Relacionados
+## 7. Documentos Relacionados
 
 * [Catálogo de Schemas Pydantic](schemas.md) — Definição exaustiva de todos os modelos de dados e DTOs.
 * [API Interna do Motor Prolog](prolog_engine_api.md) — Contrato direto do micro-serviço SWI-Prolog.

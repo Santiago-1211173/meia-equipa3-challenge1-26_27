@@ -34,7 +34,7 @@
 ### Referências Obrigatórias do Repositório
 Antes de implementares qualquer fase, deves ter conhecimento dos seguintes ficheiros. **Lê cada ficheiro listado na secção "Fontes de Referência" da fase que estás a executar.**
 
-**Localização do repositório:** `c:\Users\santi\Desktop\meia-equipa3-challenge1-26_27\`
+**Localização do repositório:** `.` (raiz do repositório)
 
 | Ficheiro | Caminho Absoluto | Propósito |
 |:---|:---|:---|

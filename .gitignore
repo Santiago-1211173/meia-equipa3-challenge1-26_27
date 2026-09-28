@@ -43,7 +43,8 @@ out/
 *.qlf
 *.state
 prolog.dump
-core
+/core
+core.[0-9]*
 
 # Python & FastAPI (Backend Orquestrador)
 # --------------------------------------

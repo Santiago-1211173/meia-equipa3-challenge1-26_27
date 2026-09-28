@@ -22,18 +22,28 @@ prolog_engine/
 ├── src/
 │   ├── api/                    # Camada de Transporte HTTP / Rede (I/O)
 │   │   ├── server.pl           # Gestão do daemon HTTP multi-threaded (thread_httpd)
-│   │   └── routes.pl           # Endpoints REST e serialização/desserialização JSON
+│   │   ├── routes.pl           # Endpoints REST e serialização/desserialização JSON (POC)
+│   │   └── inference_routes.pl # Endpoints REST do motor de inferência pericial (/inference/*)
 │   ├── core/                   # Camada de Domínio / Regras de Negócio Puras
-│   │   └── rules.pl            # Base de conhecimento declarativa e motor de inferência
+│   │   ├── rules.pl            # Base de conhecimento declarativa e motor de inferência (POC)
+│   │   └── inference/          # Motor pericial forward-chaining modular
+│   │       ├── engine.pl       # Motor sp_exp2 adaptado (não-interativo, dados estruturados)
+│   │       └── kb/             # Bases de conhecimento declarativas
+│   │           └── vehicles.pl # Base de conhecimento de veículos com metaconhecimento
 │   └── main.pl                 # Entry point, bootstrapping e leitura de ambiente
 └── tests/                      # Suíte de Testes Automatizados (PLUnit)
     ├── test_rules.pl           # Testes unitários do core de regras (7 cenários)
-    └── test_api.pl             # Testes de integração HTTP e despacho (5 cenários)
+    ├── test_api.pl             # Testes de integração HTTP e despacho (5 cenários)
+    └── test_inference_engine.pl# Testes unitários do motor pericial forward-chaining (8 cenários)
 ```
 
-### 2.1 Camada de Domínio / Lógica Pura (`src/core/rules.pl`)
+### 2.1 Camada de Domínio / Lógica Pura (`src/core/`)
 * **Isolamento Total:** A camada Core desconhece por completo a existência de sockets TCP, portas de rede, servidores HTTP ou formatos de transmissão como JSON.
 * **Prolog Declarativo Puro:** Opera unicamente com termos nativos do Prolog e dicionários abstratos (*Prolog Dicts*).
+* **Módulos:**
+  * `rules.pl`: Regras determinísticas da POC inicial (`evaluate_scenario/3`).
+  * `inference/engine.pl`: Motor de inferência pericial baseado em encadeamento para a frente (*forward-chaining*), não-interativo e desacoplado de I/O.
+  * `inference/kb/vehicles.pl`: Base de conhecimento de teste contendo factos, regras e metaconhecimento de disparo.
 * **Testabilidade:** Pode ser testada diretamente na consola interativa `swipl` ou através de testes unitários PLUnit sem necessidade de iniciar o servidor web.
 
 ### 2.2 Camada de Transporte e Rede (`src/api/`)
@@ -41,10 +51,11 @@ prolog_engine/
 * **Módulos:**
   * `server.pl`: Inicializa o servidor HTTP concorrente através das bibliotecas nativas `library(http/thread_httpd)` e `library(http/http_dispatch)`.
   * `routes.pl`: Mapeia o caminho `/evaluate`, lê o fluxo JSON recebido, invoca a camada de domínio e converte a dedução num payload JSON de saída.
+  * `inference_routes.pl`: Mapeia a família de rotas REST `/inference/*` (`load`, `run`, `facts`, `how`, `whynot`, `reset`), gerindo a deserialização segura e resposta em JSON.
 * **Regra Fundamental:** A camada de API **não** aplica nem contém regras de negócio; a sua única função é o transporte e adaptação de dados.
 
 ### 2.3 Ponto de Entrada (`src/main.pl`)
-* Responsável pelo carregamento de todos os módulos (`api/server`, `api/routes`, `core/rules`).
+* Responsável pelo carregamento de todos os módulos (`api/server`, `api/routes`, `api/inference_routes`, `core/rules`, `core/inference/engine`).
 * Lê a variável de ambiente `PORT` (por omissão `8080`).
 * Inicializa o daemon na porta configurada e bloqueia a thread principal para manter o contentor Docker em execução contínua.
 
@@ -166,10 +177,69 @@ O ficheiro [`prolog_engine/src/core/rules.pl`](../../prolog_engine/src/core/rule
 
 ---
 
-## 6. Documentos Relacionados
+## 6. Diferenciação dos Motores Prolog: Exemplo dos Professores (sp_exp2) vs. Domínio do Retalho
+
+O micro-serviço SWI-Prolog aloja dois motores distintos, com propósitos e ciclos de vida claramente segmentados:
+
+| Dimensão | 1. Motor de Exemplo dos Professores (`sp_exp2.pl` / Moodle) | 2. Motor de Domínio de Negócio (Retalho / Dustin Hopper) |
+|:---|:---|:---|
+| **Origem e Providência** | Ficheiros de apoio do Moodle: `prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/` (`sp_exp2.pl`, `veiculos2.txt`). | Desenho de domínio do projeto MEIA (Challenges 4Teams, Equipa 3) baseado nas entrevistas com o perito Dustin Hopper. |
+| **Módulos Core** | `src/core/inference/engine.pl`<br/>`src/core/inference/kb/vehicles.pl` | `src/core/rules.pl` |
+| **Camada de Transporte (API)** | `src/api/inference_routes.pl` (`/inference/*`) | `src/api/routes.pl` (`/evaluate`) |
+| **Exposição no Orquestrador** | `/api/v1/inference/*` (controlado por `INFERENCE_ENGINE_ENABLED`) | `/api/v1/evaluate` (endpoint principal de negócio) |
+| **Mecanismo de Raciocínio** | Encadeamento para a frente (*forward-chaining*) guiado por metaconhecimento (`facto_dispara_regras/2`), operadores DSL (`regra`, `se`, `entao`, `e`, `nao`). | Avaliação determinística baseada em cláusulas e pattern matching sobre *Prolog Dicts*. |
+| **Explicabilidade** | Rastreabilidade recursiva bidirecional: `como/1` (*How*) e `whynot/1` (*Why Not*). | Vetor sequencial de justificações auditáveis (`justification[]`). |
+| **Bases de Conhecimento** | Modulares e dinâmicas (`vehicles.pl` adaptada de `veiculos2.txt`, expansível a novas KBs). | Regras estáticas da POC de devoluções (expansão pericial completa planeada para fases subsequentes). |
+| **Estado Atual** | **Concluído e 100% Funcional** (adaptado para micro-serviço não-interativo com DTOs). | **POC Inicial Concluída** (o desenvolvimento pericial aprofundado do retalho fica para a fase seguinte). |
+
+---
+
+### 6.1 Arquitetura do Motor de Exemplo dos Professores (`src/core/inference/`)
+
+Este motor corresponde à adaptação direta, limpa e modular do ficheiro `sp_exp2.pl` fornecido no Moodle, preservando a sua semântica original e tornando-o operável num contexto de micro-serviços:
+
+#### Desacoplamento e Operação Não-Interativa
+O código original dos professores foi transformado para dispensar I/O de consola:
+* **Eliminação de I/O em Terminal:** Substituição de chamadas interativas (`write/1`, `read/1`, `get0/1`) por estruturas de dados puras (termos, listas e Prolog Dicts).
+* **Normalização DTO:** Todos os resultados, factos inferidos e justificações são normalizados antes da transmissão, convertendo termos e condições negativas (`nao Cond`) em strings legíveis para serialização JSON via `library(http/http_json)`.
+
+### 6.2 DSL Declarativa e Operadores Customizados
+O motor define operadores que criam uma Domain-Specific Language (DSL) expressiva para regras periciais:
+```prolog
+:- op(220, xfx, entao).   % Conclusão de regra: LHS entao RHS
+:- op(35,  xfy, se).      % Corpo de regra: regra ID se LHS entao RHS
+:- op(240, fx,  regra).   % Identificador prefixo: regra N
+:- op(500, fy,  nao).     % Negação por falha: nao Cond
+:- op(600, xfy, e).       % Conjunção lógica: Cond1 e Cond2
+```
+
+Exemplo canónico de regra na DSL:
+```prolog
+regra 2 se [tipo(V, mercadorias) e classe(V, pesado)] entao [cria_facto(pesado(V, camiao))].
+```
+
+### 6.3 Ciclo de Dedução e Resolução Dinâmica
+O ciclo de inferência assenta no padrão ISO de atualização lógica:
+1. **Predicados Dinâmicos:** A memória de trabalho gere `facto/2`, `ultimo_facto/1` e `justifica/3`.
+2. **Metaconhecimento (`facto_dispara_regras/2`):** Mapeia padrões estruturais de factos para as listas de identificadores de regras candidatas, otimizando drasticamente o espaço de procura.
+3. **Ciclo Recursivo Indexado (`arranca_motor/1`):** Itera sequencialmente pelos factos $N = 1, 2, \dots$, acionando regras candidatas via `dispara_regras/3` e asserindo novos factos através de `cria_facto/3` sem loops infinitos nem duplicações.
+4. **Avaliação Numérica (`avalia/2`):** Permite expressões relacionais (`lotacao(V, >, 9)`, `peso(V, =<, 3500)`).
+
+### 6.4 Módulos e Predicados Públicos
+O módulo `inference_engine` em [`prolog_engine/src/core/inference/engine.pl`](../../prolog_engine/src/core/inference/engine.pl) expõe:
+* `load_knowledge_base(+KBName)`: Carrega e compila dinamicamente bases de conhecimento localizadas em `kb/` (ex.: `vehicles`).
+* `run_engine(-ResultDict)`: Executa a dedução forward-chaining e devolve métricas e factos inferidos em formato dict.
+* `get_all_facts(-FactsList)`: Enumera todos os factos ativos na memória de trabalho.
+* `explain_how(+FactId, -ExplanationList)`: Constrói recursivamente a árvore causal de justificação para um facto derivado ou inicial.
+* `explain_whynot(+FactTerm, -ExplanationList)`: Identifica as regras candidatas para um facto e discrimina as premissas em falta ou não satisfeitas.
+* `reset_engine`: Repõe a memória de trabalho num estado limpo.
+
+---
+
+## 7. Documentos Relacionados
 
 * [Visão Global da Arquitetura do Sistema](system_overview.md) — Posicionamento do micro-serviço no ecossistema global.
 * [Arquitetura do Orquestrador FastAPI](fastapi_orchestrator.md) — Camada cliente que consome este serviço.
 * [Interações entre Serviços e Fluxos de Dados](service_interactions.md) — Comunicação e contratos de transporte.
-* [Referência da API do Motor Prolog](../api/prolog_engine_api.md) — Especificação técnica do endpoint `POST /evaluate`.
+* [Referência da API do Motor Prolog](../api/prolog_engine_api.md) — Especificação técnica dos endpoints `/evaluate` e `/inference/*`.
 * [Contentorização e Dockerfiles](../deployment/docker.md) — Configuração do contentor `swipl:latest`.

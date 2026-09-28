@@ -59,6 +59,25 @@ Ficheiro modelo: [`backend_orchestrator/.env.example`](../../backend_orchestrato
 | `PROLOG_ENGINE_URL` | `string` | `"http://localhost:8080"` | `"http://prolog-engine:8080"` | URL base para contactar a API HTTP interna do micro-serviço SWI-Prolog. |
 | `PROLOG_TIMEOUT_SECONDS` | `float` | `5.0` | `5.0` | Tempo limite máximo de espera (em segundos) para respostas do motor Prolog antes de disparar `HTTP 503`. |
 | `CORS_ORIGINS` | `list[str]` | `["http://localhost:3000", ...]` | `["http://localhost:3000", "http://localhost:5173", "http://localhost:8000"]` | Lista de origens autorizadas pelo middleware CORS. Suporta formato JSON string ou strings separadas por vírgula. |
+| `INFERENCE_ENGINE_ENABLED` | `boolean` | `true` | `true` | Ativação/desativação funcional (*feature toggle*) do **motor de inferência de exemplo dos professores (`sp_exp2.pl` do Moodle)** e dos respetivos endpoints REST `/api/v1/inference/*`. Permite isolar o motor de exemplo académico sem qualquer impacto no motor de regras do retalho (`/api/v1/evaluate`). |
+
+### 3.1 Segmentação Funcional: Motor de Exemplo dos Professores vs. Motor de Retalho
+
+A variável `INFERENCE_ENGINE_ENABLED` atua como um interruptor de isolamento estrito entre os dois subsistemas Prolog coexistentes no projeto:
+
+* **Motor 1: Motor de Exemplo dos Professores (`sp_exp2.pl` do Moodle):**
+  * **Origem:** Diretamente adaptado do material fornecido pelos docentes no Moodle:  
+    `prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/` (`sp_exp2.pl` e `veiculos2.txt`).
+  * **Objetivo:** Fornecer a implementação de referência académica do sistema pericial *forward-chaining* lecionado nas aulas, incluindo rastreamento causal de deduções, justificações How (`como/1`), justificações Why-Not (`porque_nao/1`) e base de conhecimento de teste de veículos (`vehicles.pl`).
+  * **Endpoints expostos:** `/api/v1/inference/load`, `/api/v1/inference/run`, `/api/v1/inference/facts`, `/api/v1/inference/how`, `/api/v1/inference/whynot`, `/api/v1/inference/reset`.
+  * **Controlo:** Quando `INFERENCE_ENGINE_ENABLED=false`, estes endpoints são completamente omitidos do FastAPI e da documentação OpenAPI/Swagger.
+
+* **Motor 2: Motor Pericial do Domínio de Retalho (Devoluções e Trocas — Regras Dustin Hopper):**
+  * **Origem:** Regras do domínio de negócio das devoluções e trocas a retalho (`prolog_engine/src/core/rules.pl`).
+  * **Objetivo:** Avaliar a elegibilidade de devolução de produtos de vestuário e calçado (período de devolução, estado de etiquetas, recibo, higiene).
+  * **Endpoints expostos:** `/api/v1/evaluate`.
+  * **Estado Atual:** Atualmente opera como **Prova de Conceito (POC)** inicial. **O desenvolvimento aprofundado e completo deste motor fica reservado para fases posteriores do projeto.**
+  * **Controlo:** Permanece sempre ativo independentemente do valor de `INFERENCE_ENGINE_ENABLED`.
 
 ---
 

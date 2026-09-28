@@ -176,11 +176,177 @@ curl.exe -X POST http://localhost:8080/evaluate `
 
 ---
 
-## 5. Evolução Futura: Contrato do Domínio de Retalho
+---
+
+## 5. Endpoints do Motor de Exemplo dos Professores (`sp_exp2.pl` do Moodle — `/inference/*`)
+
+O módulo [`prolog_engine/src/api/inference_routes.pl`](../../prolog_engine/src/api/inference_routes.pl) expõe a API REST para o **motor pericial de exemplo dos professores (`sp_exp2.pl`)** fornecido no Moodle (`prolog_engine/Ficheiros de Apoio Sistemas Periciais_ sp_exp1.pl, sp_exp2.pl e base de conhecimento-20260928/`). 
+
+Este subsistema opera sobre bases de conhecimento de teste (como `vehicles`, adaptada de `veiculos2.txt`), disponibilizando operações de *forward-chaining*, metaconhecimento e explicabilidade bidirecional (*How* / *Why Not*), mantendo-se perfeitamente isolado do motor de avaliação do retalho ([Secção 2](#2-endpoint-de-avaliação-de-regras)).
+
+### 5.1 `POST /inference/load`
+Carrega e compila uma base de conhecimento em memória dinâmica.
+
+* **Método:** `POST`
+* **Caminho:** `/inference/load`
+* **Pedido (JSON):**
+  ```json
+  {
+    "knowledge_base": "vehicles"
+  }
+  ```
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "message": "Knowledge base 'vehicles' loaded successfully",
+    "initial_facts_count": 3
+  }
+  ```
+* **Resposta de Erro (`HTTP 400 Bad Request`):**
+  ```json
+  {
+    "status": "error",
+    "message": "Knowledge base 'inexistente' not found"
+  }
+  ```
+
+---
+
+### 5.2 `POST /inference/run`
+Executa o ciclo de encadeamento para a frente (*forward-chaining*) sobre os factos correntes, acionando o metaconhecimento e derivando novos factos fundamentados.
+
+* **Método:** `POST`
+* **Caminho:** `/inference/run`
+* **Pedido (JSON):** `{}` ou corpo vazio
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "initial_facts_count": 3,
+    "derived_facts_count": 2,
+    "total_facts": 5,
+    "derived_facts": [
+      {
+        "id": 4,
+        "fact": "classe(meu_veiculo,pesado)",
+        "rule_id": 6,
+        "justified_by": [2]
+      },
+      {
+        "id": 5,
+        "fact": "pesado(meu_veiculo,camiao)",
+        "rule_id": 2,
+        "justified_by": [3, 4]
+      }
+    ]
+  }
+  ```
+
+---
+
+### 5.3 `GET /inference/facts`
+Devolve a listagem integral de todos os factos atualmente presentes na memória de trabalho (iniciais e derivados).
+
+* **Método:** `GET`
+* **Caminho:** `/inference/facts`
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "facts_count": 5,
+    "facts": [
+      {"id": 1, "fact": "lotacao(meu_veiculo,3)"},
+      {"id": 2, "fact": "peso(meu_veiculo,4500)"},
+      {"id": 3, "fact": "tipo(meu_veiculo,mercadorias)"},
+      {"id": 4, "fact": "classe(meu_veiculo,pesado)"},
+      {"id": 5, "fact": "pesado(meu_veiculo,camiao)"}
+    ]
+  }
+  ```
+
+---
+
+### 5.4 `POST /inference/how`
+Explica o raciocínio causal de derivação de um facto (*How*), construindo recursivamente a árvore de justificações a partir de `justifica/3`.
+
+* **Método:** `POST`
+* **Caminho:** `/inference/how`
+* **Pedido (JSON):**
+  ```json
+  {
+    "fact_id": 4
+  }
+  ```
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "fact_id": 4,
+    "explanation": [
+      "Fact 4 -> classe(meu_veiculo,pesado) concluded by rule 6",
+      "Based on facts: [2]",
+      "Fact 2 -> peso(meu_veiculo,4500) was an initial fact"
+    ]
+  }
+  ```
+* **Resposta de Erro (`HTTP 400 Bad Request`):**
+  ```json
+  {
+    "status": "error",
+    "message": "Fact ID 99 not found"
+  }
+  ```
+
+---
+
+### 5.5 `POST /inference/whynot`
+Explica por que razão um determinado facto não foi deduzido (*Why Not*), identificando as regras candidatas com essa conclusão e as premissas em falta ou não satisfeitas.
+
+* **Método:** `POST`
+* **Caminho:** `/inference/whynot`
+* **Pedido (JSON):**
+  ```json
+  {
+    "fact": "classe(meu_veiculo,ligeiro)"
+  }
+  ```
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "fact": "classe(meu_veiculo,ligeiro)",
+    "explanation": [
+      "Investigating why 'classe(meu_veiculo,ligeiro)' was not concluded:",
+      "Rule 7 could conclude 'classe(meu_veiculo,ligeiro)':",
+      "  Failed premise: avalia(peso(meu_veiculo,=<,3500))"
+    ]
+  }
+  ```
+
+---
+
+### 5.6 `POST /inference/reset`
+Limpa toda a memória de trabalho do motor pericial (`facto/2`, `ultimo_facto/1`, `justifica/3`), restabelecendo uma sessão limpa.
+
+* **Método:** `POST`
+* **Caminho:** `/inference/reset`
+* **Pedido (JSON):** `{}` ou corpo vazio
+* **Resposta de Sucesso (`HTTP 200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "message": "Inference engine session reset"
+  }
+  ```
+
+---
+
+## 6. Evolução Futura: Contrato do Domínio de Retalho
 
 Com a formalização completa das heurísticas do perito Dustin Hopper para devoluções e trocas, o endpoint `/evaluate` suportará cenários ricos de retalho.
 
-### 5.1 Proposta de Payload de Retalho (`scenario = "retail_return"`)
+### 6.1 Proposta de Payload de Retalho (`scenario = "retail_return"`)
 
 ```json
 {
@@ -201,7 +367,7 @@ Com a formalização completa das heurísticas do perito Dustin Hopper para devo
 }
 ```
 
-### 5.2 Mapeamento Interno em Prolog Dicts
+### 6.2 Mapeamento Interno em Prolog Dicts
 
 O SWI-Prolog consome o payload diretamente como um dicionário estruturado:
 
@@ -216,7 +382,7 @@ evaluate_scenario(Request, Decision, Justifications) :-
     resolve_decision(ItemJustifications, TimelineJustifications, Decision, Justifications).
 ```
 
-### 5.3 Proposta de Resposta com Decisões de Negócio
+### 6.3 Proposta de Resposta com Decisões de Negócio
 
 O contrato de resposta manterá a estrutura uniforme (`status`, `decision`, `justification`), expandindo os valores de `decision` para o domínio de retalho:
 
@@ -241,7 +407,7 @@ Possíveis decisões suportadas pelo sistema pericial:
 
 ---
 
-## 6. Documentos Relacionados
+## 7. Documentos Relacionados
 
 * [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) — Camadas de transporte (`api/`) e domínio (`core/`).
 * [API Pública v1 do Orquestrador](orchestrator_api_v1.md) — Ponto de entrada público do sistema.

@@ -68,8 +68,8 @@ Documenta o desenho técnico da solução, princípios de engenharia (Clean Arch
 
 | Documento | Ficheiro | Descrição e Propósito |
 |:---|:---|:---|
-| **Visão Global do Sistema** | [`system_overview.md`](architecture/system_overview.md) | Arquitetura macro em micro-serviços, princípios de desenho ("Regra de Ouro"), stack tecnológica completa e portas de rede. |
-| **Arquitetura do Motor Prolog** | [`prolog_engine.md`](architecture/prolog_engine.md) | Micro-serviço SWI-Prolog, isolamento Clean Architecture (`api/` vs `core/`), *Prolog Dicts* como DTOs nativos e predicados de inferência pura. |
+| **Visão Global do Sistema** | [`system_overview.md`](architecture/system_overview.md) | Arquitetura macro em micro-serviços, princípios de desenho ("Regra de Ouro"), stack tecnológica, segmentação dos dois motores Prolog (Retalho vs Exemplo dos Professores), feature toggles e portas de rede. |
+| **Arquitetura do Motor Prolog** | [`prolog_engine.md`](architecture/prolog_engine.md) | Micro-serviço SWI-Prolog, Clean Architecture, isolando o motor de domínio de retalho (`rules.pl`) e o motor de exemplo dos professores (`sp_exp2.pl` / Moodle) com explicabilidade causal (*How* / *Why Not*). |
 | **Arquitetura do Orquestrador FastAPI** | [`fastapi_orchestrator.md`](architecture/fastapi_orchestrator.md) | Backend orquestrador Python, camadas de software, ciclo de vida (*lifespan*), connection pooling com `httpx.AsyncClient` e injeção de dependências. |
 | **Interações e Fluxos de Dados** | [`service_interactions.md`](architecture/service_interactions.md) | Diagrama de sequência ponta-a-ponta, pipeline de dados Pydantic $\rightarrow$ Prolog Dict $\rightarrow$ EvaluationResponse, DNS interno Docker e tratamento de falhas. |
 
@@ -82,9 +82,9 @@ Especificação exaustiva de endpoints, contratos JSON, modelos Pydantic e matri
 
 | Documento | Ficheiro | Descrição e Propósito |
 |:---|:---|:---|
-| **API Pública v1 do Orquestrador** | [`orchestrator_api_v1.md`](api/orchestrator_api_v1.md) | Endpoints públicos do FastAPI (`GET /health`, `POST /api/v1/evaluate`), exemplos práticos cURL/PowerShell, payloads de aprovação/rejeição e erros HTTP. |
-| **API Interna do Motor Prolog** | [`prolog_engine_api.md`](api/prolog_engine_api.md) | Interface HTTP interna do daemon SWI-Prolog (`POST /evaluate`), contratos da POC e evolução para contratos de retalho. |
-| **Modelos de Dados e Schemas** | [`schemas.md`](api/schemas.md) | Catálogo de modelos Pydantic v2 (DTOs): `ScenarioInput`, `EvaluationResponse`, `DecisionEnum`, `HealthResponse` e modelos do domínio de retalho. |
+| **API Pública v1 do Orquestrador** | [`orchestrator_api_v1.md`](api/orchestrator_api_v1.md) | Endpoints públicos do FastAPI: avaliação do retalho (`POST /api/v1/evaluate`) e motor de exemplo dos professores (`/api/v1/inference/*` sob a tag Swagger `Academic Example Engine`), feature toggle `INFERENCE_ENGINE_ENABLED` e erros HTTP. |
+| **API Interna do Motor Prolog** | [`prolog_engine_api.md`](api/prolog_engine_api.md) | Interface HTTP interna do daemon SWI-Prolog: endpoint de retalho (`POST /evaluate`), endpoints do motor de exemplo dos professores (`POST/GET /inference/*`), contratos da POC e evolução para contratos de retalho. |
+| **Modelos de Dados e Schemas** | [`schemas.md`](api/schemas.md) | Catálogo de modelos Pydantic v2 (DTOs): `ScenarioInput`, `EvaluationResponse`, `DecisionEnum`, `HealthResponse`, modelos de retalho e schemas do motor de exemplo dos professores (`LoadKnowledgeBaseRequest`, `RunEngineResponse`, etc.). |
 
 ---
 
@@ -97,7 +97,7 @@ Instruções e guias operacionais para build, arranque de contentores Docker e m
 |:---|:---|:---|
 | **Contentorização e Dockerfiles** | [`docker.md`](deployment/docker.md) | Análise dos Dockerfiles (`prolog_engine` e `backend_orchestrator`), camadas de cache, `.dockerignore` e compilação independente de imagens. |
 | **Orquestração com Docker Compose** | [`docker_compose.md`](deployment/docker_compose.md) | Guia operacional completo de `docker-compose.yml`, rede bridge `retail-network`, ordem de arranque (`depends_on`) e comandos operacionais. |
-| **Variáveis de Ambiente** | [`environment_variables.md`](deployment/environment_variables.md) | Mapeamento exaustivo de variáveis suportadas (`PORT`, `PROLOG_ENGINE_URL`, `CORS_ORIGINS`, etc.), defaults e precedência. |
+| **Variáveis de Ambiente** | [`environment_variables.md`](deployment/environment_variables.md) | Mapeamento exaustivo de variáveis suportadas (`PORT`, `PROLOG_ENGINE_URL`, `CORS_ORIGINS`, `INFERENCE_ENGINE_ENABLED` para toggle do motor de exemplo dos professores), defaults e precedência. |
 | **Resolução de Problemas** | [`troubleshooting.md`](deployment/troubleshooting.md) | Diagnóstico e resolução de incidentes comuns: portas em conflito, falhas DNS entre contentores, timeouts e erros de CORS. |
 
 ---
@@ -110,7 +110,7 @@ Manuais para novos contribuidores, configuração do ambiente local, convençõe
 | Documento | Ficheiro | Descrição e Propósito |
 |:---|:---|:---|
 | **Primeiros Passos (Getting Started)** | [`getting_started.md`](development/getting_started.md) | Configuração do ambiente local (Python venv, SWI-Prolog, Docker), arranque nativo dos serviços e validação rápida (*smoke test*). |
-| **Estratégia e Execução de Testes** | [`testing.md`](development/testing.md) | Pirâmide de testes do projeto (65 testes automatizados): suíte PLUnit em Prolog e testes unitários e de integração assíncronos com Pytest. |
+| **Estratégia e Execução de Testes** | [`testing.md`](development/testing.md) | Estratégia e pirâmide de testes do projeto (104+ testes automatizados): suíte PLUnit em Prolog (regras e motor de inferência) e testes unitários e de integração assíncronos com Pytest (89 testes no orquestrador). |
 | **Convenções de Código e Boas Práticas** | [`coding_conventions.md`](development/coding_conventions.md) | Padrões linguísticos (código em inglês, documentação em pt-PT), estrutura de módulos, tipagem estática e convenções Git. |
 
 ---
@@ -125,6 +125,7 @@ Arquivo imutável com os planos de implementação faseados e relatórios de exe
 | **Plano do Micro-Serviço Prolog** | [`prolog_implementation_plan.md`](history/prolog_implementation_plan.md) | Roteiro de 4 fases concluídas: setup, motor core, camada HTTP e contentorização Docker. |
 | **Plano do Orquestrador FastAPI** | [`fastapi_implementation_plan.md`](history/fastapi_implementation_plan.md) | Roteiro de 6 fases concluídas: configuração, schemas, cliente HTTP, rotas REST, suíte Pytest e Compose. |
 | **Plano da Documentação Profissional** | [`documentation_implementation_plan.md`](history/documentation_implementation_plan.md) | Roteiro de reorganização e criação da estrutura hierárquica e profissional da documentação técnica. |
+| **Plano do Motor de Inferência Pericial** | [`inference_engine_implementation_plan.md`](history/inference_engine_implementation_plan.md) | Roteiro de 5 fases concluídas: integração modular do motor pedagógico dos professores `sp_exp2.pl` do Moodle (`vehicles`), rotas Prolog, proxy FastAPI, suíte PLUnit + Pytest e documentação. |
 
 ---
 
@@ -169,10 +170,18 @@ docker compose up --build -d
 # 2. Verificar a saúde de ambos os serviços
 curl -X GET http://localhost:8000/health
 
-# 3. Executar uma inferência de teste
+# 3. Executar uma inferência POC de teste
 curl -X POST http://localhost:8000/api/v1/evaluate \
   -H "Content-Type: application/json" \
   -d '{"scenario": "test", "value": 42}'
+
+# 4. Executar o ciclo do motor pericial forward-chaining
+curl -X POST http://localhost:8000/api/v1/inference/run
+
+# 5. Obter rastreabilidade causal explicativa (How)
+curl -X POST http://localhost:8000/api/v1/inference/how \
+  -H "Content-Type: application/json" \
+  -d '{"fact_id": 4}'
 ```
 
 Para mais detalhes sobre endpoints, parâmetros e documentação interativa, aceda à interface Swagger em [http://localhost:8000/docs](http://localhost:8000/docs).

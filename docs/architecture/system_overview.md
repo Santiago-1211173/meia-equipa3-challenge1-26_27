@@ -31,13 +31,13 @@ flowchart TD
         DOCKER["Docker Compose Bridge Network<br/>(retail-network)"]
     end
 
-    UI -->|"HTTP POST /api/v1/evaluate<br/>(JSON)"| API
-    CLI -->|"HTTP POST /api/v1/evaluate<br/>(JSON)"| API
+    UI -->|"HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
+    CLI -->|"HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
 
     API --- VAL
     API --- POOL
 
-    POOL -->|"HTTP POST /evaluate<br/>(http://prolog-engine:8080)"| PROLOG
+    POOL -->|"HTTP POST /evaluate<br/>HTTP /inference/*<br/>(http://prolog-engine:8080)"| PROLOG
     POOL -.->|"HTTP POST /evaluate<br/>(http://drools-engine:8090)"| DROOLS
 
     PROLOG --- DOCKER
@@ -62,16 +62,21 @@ flowchart TD
   2. Gestão de ciclo de vida e connection pooling via cliente HTTP assíncrono (`httpx.AsyncClient`).
   3. Conversão de erros de rede ou timeouts em códigos HTTP normativos (`503 Service Unavailable`, `400 Bad Request`).
   4. Suporte a Cross-Origin Resource Sharing (CORS) para interfaces web.
-  5. Ponto de extensão para auditoria comparativa entre motores (Prolog vs Drools).
+  5. Camada de serviço e clientes tipados para orquestração de cenários (`OrchestratorService`) e inferência pericial (`InferenceService` / `InferenceClient`).
+  6. Controle funcional através de feature toggles (`INFERENCE_ENGINE_ENABLED`).
+  7. Ponto de extensão para auditoria comparativa entre motores (Prolog vs Drools).
 
 ### 2.3 Micro-serviço Motor SWI-Prolog (`prolog-engine`)
-* **Função:** Motor dedutivo de primeira ordem para diagnóstico pericial e explicabilidade.
+* **Função:** Motor lógico de primeira ordem que aloja dois subsistemas de inferência pericial segmentados:
+  * **Motor A (Exemplo dos Professores / Moodle — `sp_exp2.pl`):** Motor *forward-chaining* modular adaptado diretamente dos ficheiros de apoio do Moodle (`sp_exp2.pl`, `veiculos2.txt`), com metaconhecimento e explicabilidade bidirecional (*How* / *Why Not*), exposto em `/inference/*`.
+  * **Motor B (Domínio de Negócio — Devoluções no Retalho):** Motor de regras do caso de uso real de retalho com o perito Dustin Hopper (`rules.pl`, exposto em `/evaluate`), cuja POC atual será expandida em fases futuras do projeto.
 * **Tecnologia:** SWI-Prolog (versão oficial `swipl:latest`), estruturado em **Clean Architecture**.
 * **Responsabilidades:**
   1. Exposição de um daemon HTTP nativo multi-threaded (`thread_httpd`) na porta `8080`.
   2. Receção de factos em JSON e conversão declarativa em dicionários Prolog (*Prolog Dicts*).
-  3. Execução de regras de inferência pura (`rules.pl`) sem dependências de rede.
-  4. Dedução da decisão (`approved`, `rejected`, `store_credit_only`, `manager_override`) e geração da lista de justificações (`justification`).
+  3. Execução de regras de inferência pura (`rules.pl`) para cenários do domínio de retalho (`POST /evaluate`).
+  4. Execução do motor de exemplo dos professores (`engine.pl`) com metaconhecimento e explicabilidade causal (`how`/`whynot`) sobre bases carregáveis como veículos (`POST /inference/*`).
+  5. Dedução de decisões (`approved`, `rejected`, `store_credit_only`, `manager_override`) e geração da cadeia de justificações (`justification`).
 
 ### 2.4 Micro-serviço Motor Drools (`drools-engine` — Futuro)
 * **Função:** Segundo motor de inferência baseado em regras de produção (*Forward Chaining* via algoritmo Rete-OO).

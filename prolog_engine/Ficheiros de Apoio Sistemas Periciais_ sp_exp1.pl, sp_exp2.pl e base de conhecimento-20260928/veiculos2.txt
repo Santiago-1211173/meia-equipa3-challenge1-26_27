@@ -1,0 +1,61 @@
+:-dynamic facto/2,ultimo_facto/1.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Metaconhecimento
+
+facto_dispara_regras(tipo(_, passageiros), [1, 3, 8]).
+facto_dispara_regras(tipo(_, mercadorias), [2, 8]).
+facto_dispara_regras(tipo(_, misto), [4]).
+facto_dispara_regras(lotação(_, _), [5, 7]).
+facto_dispara_regras(peso(_, _), [6, 7]).
+facto_dispara_regras(classe(_, ligeiro), [1]).
+facto_dispara_regras(classe(_, pesado), [2, 3, 4]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+ultimo_facto(3).
+% ultima_regra(8).
+
+regra 1
+	se [tipo(Veículo,passageiros) e classe(Veículo,ligeiro)]
+	entao [cria_facto(ligeiro(Veículo,carro))].
+
+regra 2
+	se [tipo(Veículo,mercadorias) e classe(Veículo,pesado)]
+	entao [cria_facto(pesado(Veículo,camião))].
+
+regra 3
+	se [tipo(Veículo,passageiros) e classe(Veículo,pesado)]
+	entao [cria_facto(pesado(Veículo,autocarro))].
+
+regra 4
+	se [tipo(Veículo,misto) e classe(Veículo,pesado)]
+	entao [cria_facto(pesado(Veículo,camioneta))].
+
+regra 5
+	se [avalia(lotação(Veículo,>,9))]
+	entao [cria_facto(classe(Veículo,pesado))].
+
+regra 6
+	se [avalia(peso(Veículo,>,3500))]
+	entao [cria_facto(classe(Veículo,pesado))].
+
+regra 7
+	se [avalia(lotação(Veículo,=<,9)) e avalia(peso(Veículo,=<,3500))]
+	entao [cria_facto(classe(Veículo,ligeiro))].
+
+regra 8
+	se [tipo(Veículo,mercadorias) e tipo(Veículo,passageiros)]
+	entao [cria_facto(tipo(Veículo,misto))].
+
+
+
+
+facto(1,lotação(meu_veículo,3)).
+facto(2,peso(meu_veículo,4500)).
+facto(3,tipo(meu_veículo,mercadorias)).
+
+
+
+
