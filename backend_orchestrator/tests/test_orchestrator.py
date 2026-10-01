@@ -254,16 +254,28 @@ class TestOrchestratorServiceUnit:
     async def test_check_health_connected_and_disconnected(
         self,
         mock_prolog_client: AsyncMock,
+        mock_drools_client: AsyncMock,
         orchestrator_service: OrchestratorService,
     ) -> None:
         """Verify health status reporting for connected and disconnected engine states."""
         mock_prolog_client.check_health.return_value = True
+        mock_drools_client.check_health.return_value = True
         status_connected = await orchestrator_service.check_health()
-        assert status_connected == {"status": "healthy", "prolog_engine": "connected"}
+        assert status_connected == {
+            "status": "healthy",
+            "prolog_engine": "connected",
+            "drools_engine": "connected",
+        }
 
         mock_prolog_client.check_health.return_value = False
+        mock_drools_client.check_health.return_value = False
         status_disconnected = await orchestrator_service.check_health()
-        assert status_disconnected == {"status": "healthy", "prolog_engine": "disconnected"}
+        assert status_disconnected == {
+            "status": "healthy",
+            "prolog_engine": "disconnected",
+            "drools_engine": "disconnected",
+        }
+
 
 
 class TestAppLifespan:

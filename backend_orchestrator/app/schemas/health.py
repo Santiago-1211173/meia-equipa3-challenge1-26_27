@@ -20,6 +20,11 @@ class HealthResponse(BaseModel):
         description="Connectivity status to the SWI-Prolog reasoning engine ('connected' or 'disconnected').",
         examples=["connected"],
     )
+    drools_engine: str = Field(
+        default="disconnected",
+        description="Connectivity status to the Drools reasoning engine ('connected' or 'disconnected').",
+        examples=["connected"],
+    )
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         description="UTC timestamp of the diagnostic check.",
@@ -30,7 +35,9 @@ class HealthResponse(BaseModel):
             "example": {
                 "status": "healthy",
                 "prolog_engine": "connected",
+                "drools_engine": "connected",
                 "timestamp": "2026-09-27T20:00:00Z",
             }
         }
     )
+

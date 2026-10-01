@@ -1,0 +1,136 @@
+package rules;
+
+import com.expert.drools.models.Evidences;
+import com.expert.drools.models.Hypothesis;
+import com.expert.drools.models.Conclusion;
+
+// Queries for retrieving results from Working Memory
+query "Conclusions"
+    $conclusion : Conclusion()
+end
+
+query "Hypotheses"
+    $hypothesis : Hypothesis()
+end
+
+// --- Category Classification Rules (Upper vs Lower Haemorrhage) ---
+
+rule "r1_upper_type_classification"
+    salience 100
+    when
+        Evidences(bloodEar == "yes")
+    then
+        insert(new Hypothesis("upper type"));
+end
+
+rule "r2_lower_type_classification"
+    salience 100
+    when
+        Evidences(bloodEar == "no")
+    then
+        insert(new Hypothesis("lower type"));
+end
+
+// --- Upper Type Haemorrhage Diagnostic Rules ---
+
+rule "r3_otorrhagia_ear_ache"
+    salience 90
+    when
+        Hypothesis(description == "upper type")
+        Evidences(earAche == "yes")
+    then
+        insert(new Conclusion(Conclusion.OTORRHAGIA));
+end
+
+rule "r4_otorrhagia_deafness"
+    salience 90
+    when
+        Hypothesis(description == "upper type")
+        Evidences(deafness == "yes")
+    then
+        insert(new Conclusion(Conclusion.OTORRHAGIA));
+end
+
+rule "r5_skull_fracture"
+    salience 90
+    when
+        Hypothesis(description == "upper type")
+        Evidences(cerebrospinal == "yes")
+    then
+        insert(new Conclusion(Conclusion.SKULL_FRACTURE));
+end
+
+// --- Lower Type Haemorrhage Diagnostic Rules ---
+
+rule "r6_epistaxe"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodNose == "yes")
+    then
+        insert(new Conclusion(Conclusion.EPISTAXE));
+end
+
+rule "r7_hemathese"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodMouth == "yes", bloodBrown == "yes", vomiting == "yes")
+    then
+        insert(new Conclusion(Conclusion.HEMATHESE));
+end
+
+rule "r8_mouth_haemorrhage"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodMouth == "yes", bloodBrown == "no", vomiting == "no")
+    then
+        insert(new Conclusion(Conclusion.MOUTH_HAEMORRHAGE));
+end
+
+rule "r9_metrorrhagia"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodVagina == "yes")
+    then
+        insert(new Conclusion(Conclusion.METRORRHAGIA));
+end
+
+rule "r10_hematuria"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodPenis == "yes")
+    then
+        insert(new Conclusion(Conclusion.HEMATURIA));
+end
+
+rule "r11_melena"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodAnus == "yes", bloodCoffee == "yes")
+    then
+        insert(new Conclusion(Conclusion.MELENA));
+end
+
+rule "r12_rectal_bleeding"
+    salience 90
+    when
+        Hypothesis(description == "lower type")
+        Evidences(bloodAnus == "yes", bloodCoffee == "no")
+    then
+        insert(new Conclusion(Conclusion.RECTAL_BLEEDING));
+end
+
+// --- Fallback / Unknown Diagnosis Rule ---
+
+rule "r13_unknown_diagnosis_fallback"
+    salience -100
+    when
+        not Conclusion()
+    then
+        insert(new Conclusion(Conclusion.UNKNOWN));
+end

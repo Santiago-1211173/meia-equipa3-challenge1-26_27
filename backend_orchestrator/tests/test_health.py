@@ -26,7 +26,28 @@ class TestHealthEndpoint:
         data = response.json()
         assert data["status"] == "healthy"
         assert data["prolog_engine"] == "connected"
+        assert data["drools_engine"] == "connected"
         assert "timestamp" in data
+
+    @pytest.mark.asyncio
+    async def test_health_check_healthy_with_disconnected_drools(
+        self,
+        async_client: AsyncClient,
+        mock_prolog_client: AsyncMock,
+        mock_drools_client: AsyncMock,
+    ) -> None:
+        """Test that /health reflects disconnected Drools engine when Drools is unreachable."""
+        mock_prolog_client.check_health.return_value = True
+        mock_drools_client.check_health.return_value = False
+
+        response = await async_client.get("/health")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "healthy"
+        assert data["prolog_engine"] == "connected"
+        assert data["drools_engine"] == "disconnected"
+
 
     @pytest.mark.asyncio
     async def test_health_check_healthy_with_disconnected_prolog(

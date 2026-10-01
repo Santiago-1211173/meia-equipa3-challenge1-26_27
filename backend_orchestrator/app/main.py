@@ -11,8 +11,10 @@ import httpx
 
 from app.api.v1.endpoints.health import router as health_router
 from app.api.v1.router import api_v1_router
+from app.clients.drools_client import DroolsClient
 from app.clients.prolog_client import PrologClient
 from app.core.config import settings
+from app.services.drools_service import DroolsService
 from app.services.orchestrator_service import OrchestratorService
 
 
@@ -23,7 +25,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     Initializes persistent HTTP transport pooling for reasoning engines
     and ensures clean connection closure on service termination.
     """
-    # Startup: Initialize shared HTTP client and clients/services
+    # Startup: Initialize shared HTTP client and clients/services for Prolog
     http_client = httpx.AsyncClient(
         base_url=settings.PROLOG_ENGINE_URL,
         timeout=settings.PROLOG_TIMEOUT_SECONDS,
@@ -37,10 +39,33 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         timeout=settings.PROLOG_TIMEOUT_SECONDS,
         client=http_client,
     )
-    orchestrator_service = OrchestratorService(prolog_client=prolog_client)
+
+    # Initialize dedicated HTTP client and service for Drools
+    drools_http_client = httpx.AsyncClient(
+        base_url=settings.DROOLS_ENGINE_URL,
+        timeout=settings.DROOLS_TIMEOUT_SECONDS,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+    drools_client = DroolsClient(
+        base_url=settings.DROOLS_ENGINE_URL,
+        timeout=settings.DROOLS_TIMEOUT_SECONDS,
+        client=drools_http_client,
+    )
+    drools_service = DroolsService(drools_client=drools_client)
+
+    orchestrator_service = OrchestratorService(
+        prolog_client=prolog_client,
+        drools_client=drools_client,
+    )
 
     app.state.http_client = http_client
     app.state.prolog_client = prolog_client
+    app.state.drools_http_client = drools_http_client
+    app.state.drools_client = drools_client
+    app.state.drools_service = drools_service
     app.state.orchestrator_service = orchestrator_service
 
     if settings.INFERENCE_ENGINE_ENABLED:
@@ -61,6 +86,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # Shutdown: Cleanly release network sockets and connection pools
     if not http_client.is_closed:
         await http_client.aclose()
+    if not drools_http_client.is_closed:
+        await drools_http_client.aclose()
 
 
 tags_metadata = [
@@ -82,6 +109,14 @@ tags_metadata = [
         ),
     },
     {
+        "name": "Drools Inference Engine (Haemorrhage)",
+        "description": (
+            "**Motor de Inferência Drools (Exemplo Clínico Haemorrhage)**. "
+            "Avalia regras de produção em Java / Drools para diagnósticos clínicos de hemorragia, "
+            "com rastreio completo de regras disparadas, hipóteses intermediárias deduzidas e diagnóstico final."
+        ),
+    },
+    {
         "name": "Health",
         "description": "Endpoints de diagnóstico de conectividade, prontidão e integridade do sistema.",
     },
@@ -92,11 +127,12 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description=(
         "Orchestration layer for the Retail Returns & Exchanges Diagnostic Expert System. "
-        "Coordinates rule evaluation across deductive logic engines (SWI-Prolog and future Drools), "
+        "Coordinates rule evaluation across deductive logic engines (SWI-Prolog and Drools), "
         "enforcing explainability chains, transparent justifications, and resilient fallback handling.\n\n"
-        "### Segmentação dos Motores Prolog no Sistema:\n"
-        "1. **Motor 1 (Exemplo Académico / Moodle):** Adaptado de `sp_exp2.pl` dos professores, exposto em `/api/v1/inference/*`.\n"
-        "2. **Motor 2 (Domínio de Retalho / Dustin Hopper):** Regras de devoluções de retalho, exposto em `/api/v1/evaluate` (desenvolvimento de produção diferido)."
+        "### Segmentação dos Motores Periciais no Sistema:\n"
+        "1. **Motor 1 (Exemplo Académico Prolog / Moodle):** Adaptado de `sp_exp2.pl`, exposto em `/api/v1/inference/*`.\n"
+        "2. **Motor 2 (Domínio de Retalho Prolog / Dustin Hopper):** Regras de devoluções de retalho, exposto em `/api/v1/evaluate`.\n"
+        "3. **Motor 3 (Motor Drools / Haemorrhage):** Regras de inferência clínica em Java Drools, exposto em `/api/v1/drools/*`."
     ),
     version="1.0.0",
     openapi_tags=tags_metadata,
@@ -105,6 +141,7 @@ app = FastAPI(
     openapi_url="/openapi.json",
     lifespan=lifespan,
 )
+
 
 # Configure Cross-Origin Resource Sharing (CORS) for Frontend integration
 app.add_middleware(

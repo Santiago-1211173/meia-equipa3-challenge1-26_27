@@ -12,6 +12,19 @@ services:
     networks:
       - retail-network
 
+  drools-engine:
+    build:
+      context: ./drools_engine
+      dockerfile: Dockerfile
+    container_name: expert-drools-engine
+    ports:
+      - "8082:8080"
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+    networks:
+      - retail-network
+
   orchestrator:
     build:
       context: ./backend_orchestrator
@@ -23,11 +36,13 @@ services:
       - PORT=8000
       - PROLOG_ENGINE_URL=http://prolog-engine:8080
       - PROLOG_TIMEOUT_SECONDS=5.0
+      - DROOLS_ENGINE_URL=http://drools-engine:8080
       - DEBUG=true
       - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8000"]
       - INFERENCE_ENGINE_ENABLED=true
     depends_on:
       - prolog-engine
+      - drools-engine
     restart: unless-stopped
     networks:
       - retail-network
@@ -35,3 +50,4 @@ services:
 networks:
   retail-network:
     driver: bridge
+

@@ -26,4 +26,6 @@ async def get_health(
     return HealthResponse(
         status=health_data.get("status", "healthy"),
         prolog_engine=health_data.get("prolog_engine", "disconnected"),
+        drools_engine=health_data.get("drools_engine", "disconnected"),
     )
+

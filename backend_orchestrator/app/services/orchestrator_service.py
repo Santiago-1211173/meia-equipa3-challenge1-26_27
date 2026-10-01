@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, Union
 
 from pydantic import BaseModel
 
+from app.clients.drools_client import DroolsClient
 from app.clients.prolog_client import PrologClient
 from app.schemas.common import DecisionEnum, EngineSourceEnum, EvaluationResponse
 from app.schemas.scenario import ScenarioInput
@@ -16,17 +17,24 @@ class OrchestratorService:
     """Service coordinating inference across knowledge engines.
 
     Acts as the orchestration layer between the public API and
-    specialized reasoning engines (SWI-Prolog and future Drools engine).
+    specialized reasoning engines (SWI-Prolog and Drools engines).
     Ensures schema adaptation, explainability chain aggregation, and error handling.
     """
 
-    def __init__(self, prolog_client: Optional[PrologClient] = None) -> None:
+    def __init__(
+        self,
+        prolog_client: Optional[PrologClient] = None,
+        drools_client: Optional[DroolsClient] = None,
+    ) -> None:
         """Initialize orchestrator service with reasoning engine clients.
 
         Args:
             prolog_client: Optional injected PrologClient instance.
+            drools_client: Optional injected DroolsClient instance.
         """
         self.prolog_client = prolog_client or PrologClient()
+        self.drools_client = drools_client or DroolsClient()
+
 
     async def evaluate_scenario(
         self, scenario_data: Union[ScenarioInput, BaseModel, Dict[str, Any]]
@@ -98,7 +106,10 @@ class OrchestratorService:
             Dict containing orchestrator status and engine connectivity.
         """
         is_prolog_connected = await self.prolog_client.check_health()
+        is_drools_connected = await self.drools_client.check_health() if self.drools_client else False
         return {
             "status": "healthy",
             "prolog_engine": "connected" if is_prolog_connected else "disconnected",
+            "drools_engine": "connected" if is_drools_connected else "disconnected",
         }
+

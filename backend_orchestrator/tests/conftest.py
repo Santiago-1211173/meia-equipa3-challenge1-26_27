@@ -20,14 +20,18 @@ if str(orchestrator_root) not in sys.path:
     sys.path.insert(0, str(orchestrator_root))
 
 from app.api.deps import (
+    get_drools_client,
+    get_drools_service,
     get_inference_client,
     get_inference_service,
     get_orchestrator_service,
     get_prolog_client,
 )
+from app.clients.drools_client import DroolsClient
 from app.clients.inference_client import InferenceClient
 from app.clients.prolog_client import PrologClient
 from app.main import app
+from app.services.drools_service import DroolsService
 from app.services.inference_service import InferenceService
 from app.services.orchestrator_service import OrchestratorService
 
@@ -48,9 +52,46 @@ def mock_prolog_client() -> AsyncMock:
 
 
 @pytest.fixture
-def orchestrator_service(mock_prolog_client: AsyncMock) -> OrchestratorService:
-    """Fixture providing an OrchestratorService initialized with the mock PrologClient."""
-    return OrchestratorService(prolog_client=mock_prolog_client)
+def mock_drools_client() -> AsyncMock:
+    """Fixture providing a mock DroolsClient preconfigured with successful defaults."""
+    mock = AsyncMock(spec=DroolsClient)
+    mock.check_health.return_value = True
+    mock.get_health.return_value = {
+        "status": "UP",
+        "service": "drools-engine",
+        "version": "1.0.0",
+        "activeKieBase": "haemorrhageKBase",
+        "totalRules": 13,
+        "timestamp": "2026-10-01T12:00:00Z",
+    }
+    mock.evaluate.return_value = {
+        "status": "SUCCESS",
+        "primaryDiagnosis": "Otorrhagia",
+        "conclusions": ["Otorrhagia"],
+        "hypothesis": "upper type",
+        "firedRules": ["r1_upper_type_classification", "r3_otorrhagia_ear_ache"],
+        "timestamp": "2026-10-01T12:00:01Z",
+        "evidencesEvaluated": {"bloodEar": "yes", "earAche": "yes"},
+    }
+    return mock
+
+
+@pytest.fixture
+def orchestrator_service(
+    mock_prolog_client: AsyncMock,
+    mock_drools_client: AsyncMock,
+) -> OrchestratorService:
+    """Fixture providing an OrchestratorService initialized with mock clients."""
+    return OrchestratorService(
+        prolog_client=mock_prolog_client,
+        drools_client=mock_drools_client,
+    )
+
+
+@pytest.fixture
+def drools_service(mock_drools_client: AsyncMock) -> DroolsService:
+    """Fixture providing a DroolsService initialized with the mock DroolsClient."""
+    return DroolsService(drools_client=mock_drools_client)
 
 
 @pytest.fixture
@@ -58,6 +99,7 @@ def mock_inference_client() -> AsyncMock:
     """Fixture providing a mock InferenceClient preconfigured with successful defaults."""
     mock = AsyncMock(spec=InferenceClient)
     mock.load_kb.return_value = {
+
         "status": "success",
         "message": "Knowledge base 'vehicles' loaded successfully",
         "initial_facts_count": 3,
@@ -116,21 +158,27 @@ def inference_service(mock_inference_client: AsyncMock) -> InferenceService:
 @pytest.fixture
 def test_app(
     mock_prolog_client: AsyncMock,
+    mock_drools_client: AsyncMock,
     orchestrator_service: OrchestratorService,
     mock_inference_client: AsyncMock,
     inference_service: InferenceService,
+    drools_service: DroolsService,
 ) -> FastAPI:
     """Fixture providing the FastAPI application configured with mock dependencies."""
     app.dependency_overrides[get_prolog_client] = lambda: mock_prolog_client
+    app.dependency_overrides[get_drools_client] = lambda: mock_drools_client
     app.dependency_overrides[get_orchestrator_service] = lambda: orchestrator_service
     app.dependency_overrides[get_inference_client] = lambda: mock_inference_client
     app.dependency_overrides[get_inference_service] = lambda: inference_service
+    app.dependency_overrides[get_drools_service] = lambda: drools_service
 
     # Also assign to state for robust resolution
     app.state.prolog_client = mock_prolog_client
+    app.state.drools_client = mock_drools_client
     app.state.orchestrator_service = orchestrator_service
     app.state.inference_client = mock_inference_client
     app.state.inference_service = inference_service
+    app.state.drools_service = drools_service
 
     return app
 
@@ -139,9 +187,11 @@ def test_app(
 async def async_client(
     test_app: FastAPI,
     mock_prolog_client: AsyncMock,
+    mock_drools_client: AsyncMock,
     orchestrator_service: OrchestratorService,
     mock_inference_client: AsyncMock,
     inference_service: InferenceService,
+    drools_service: DroolsService,
 ) -> AsyncGenerator[AsyncClient, None]:
     """Fixture providing an asynchronous HTTP client configured for testing FastAPI endpoints."""
     transport = ASGITransport(app=test_app)
@@ -152,12 +202,17 @@ async def async_client(
     test_app.dependency_overrides.clear()
     if hasattr(test_app.state, "prolog_client"):
         delattr(test_app.state, "prolog_client")
+    if hasattr(test_app.state, "drools_client"):
+        delattr(test_app.state, "drools_client")
     if hasattr(test_app.state, "orchestrator_service"):
         delattr(test_app.state, "orchestrator_service")
     if hasattr(test_app.state, "inference_client"):
         delattr(test_app.state, "inference_client")
     if hasattr(test_app.state, "inference_service"):
         delattr(test_app.state, "inference_service")
+    if hasattr(test_app.state, "drools_service"):
+        delattr(test_app.state, "drools_service")
+
 
 
 @pytest.fixture
