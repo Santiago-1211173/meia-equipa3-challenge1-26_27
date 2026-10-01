@@ -5,6 +5,9 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-v9%2B%20%7C%20v10%2B-red.svg?logo=prolog&logoColor=white)](https://www.swi-prolog.org/)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg?logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-brightgreen.svg?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Drools](https://img.shields.io/badge/Drools-8.44-blue.svg?logo=apache&logoColor=white)](https://www.drools.org/)
 
 
 > **Mestrado em Engenharia de Inteligência Artificial (MEIA)** 
@@ -46,18 +49,26 @@ flowchart TD
 
     subgraph InferenceEngines ["Motores de Inferência Periciais"]
         Prolog["Micro-serviço SWI-Prolog (Porta 8080)\nREST API Daemon Contentorizado\nMotor Lógico Dedutivo & Explicabilidade"]
-        Drools["Micro-serviço Drools (Porta 8082)\nJava Rule Engine (futuro)\nMotor Rete / Regras de Produção"]
+        Drools["Micro-serviço Drools (Porta 8082 Host / 8080 Contentor)\nJava 21 / Spring Boot 3 / Drools 8.44\nMotor Rete-OO / Regras de Produção"]
     end
 
     Frontend <-->|"HTTP / JSON\nPOST /api/v1/evaluate"| FastAPI
     FastAPI <-->|"HTTP / JSON\nPOST /evaluate"| Prolog
-    FastAPI <-.->|"HTTP / REST (futuro)\nPOST /evaluate"| Drools
+    FastAPI <-->|"HTTP / REST\nPOST /api/v1/inference/evaluate"| Drools
 ```
 
 * **Frontend:** Ponto de interação do utilizador, comunicando exclusivamente com a API pública do backend orquestrador.
-* **Backend Orquestrador (FastAPI):** Valida schemas de entrada/saída (DTOs Pydantic v2), gere timeouts e pools de ligação HTTP assíncronos (`httpx`), e agrega justificações. **Regra de Ouro:** O orquestrador não embuti regras de negócio de retalho.
+* **Backend Orquestrador (FastAPI):** Valida schemas de entrada/saída (DTOs Pydantic v2), gere timeouts e pools de ligação HTTP assíncronos (`httpx`), e agrega justificações. **Regra de Ouro:** O orquestrador não embute regras de negócio de retalho.
 * **Motor SWI-Prolog (Implementado):** Daemon HTTP multi-threaded com Clean Architecture (`api/` vs `core/`), focado na inferência dedutiva e geração explicativa de diagnósticos.
-* **Motor Java Drools (Próxima Fase):** Motor de regras de produção para comparação e auditoria cruzada.
+* **Motor Java Drools (Implementado):** Micro-serviço baseado em Java 21, Spring Boot 3 e Apache KIE Drools 8.44. Avalia cenários clínicos através de regras de produção compiladas no algoritmo Rete-OO, com rastreabilidade completa das regras disparadas (`firedRules`).
+
+### 2.1 Mapeamento de Portas e Serviços
+
+| Micro-serviço | Nome do Contentor | Runtime | Porta Interna | Porta Host | Finalidade Principal |
+|:---|:---|:---|:---:|:---:|:---|
+| **Backend Orquestrador** | `expert-backend-orchestrator` | Python 3.11 / FastAPI | `8000` | `8000` | Gateway público, agregação e orquestração |
+| **Motor Prolog** | `expert-prolog-engine` | SWI-Prolog 9.x | `8080` | `8080` | Inferência dedutiva e causalidade (*How/Why Not*) |
+| **Motor Drools** | `expert-drools-engine` | Java 21 / Spring Boot 3 | `8080` | `8082` | Regras de produção Rete-OO e auditoria clínica |
 
 ---
 
@@ -66,16 +77,22 @@ flowchart TD
 O ecossistema está totalmente contentorizado e pronto para execução via **Docker Compose**:
 
 ```bash
-# 1. Compilar as imagens e iniciar todo o ecossistema em segundo plano
+# 1. Compilar as imagens e iniciar todo o ecossistema em segundo plano (3 contentores)
 docker compose up --build -d
 
-# 2. Verificar a saúde dos serviços e a ligação entre FastAPI e Prolog
+# 2. Verificar a saúde dos serviços
 curl -X GET http://localhost:8000/health
+curl -X GET http://localhost:8082/api/v1/inference/health
 
 # 3. Executar uma inferência de teste (POC) com retorno de justificação
 curl -X POST http://localhost:8000/api/v1/evaluate \
   -H "Content-Type: application/json" \
   -d '{"scenario": "test", "value": 42}'
+
+# 4. Executar uma avaliação clínica no motor Drools
+curl -X POST http://localhost:8082/api/v1/inference/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"bloodEar": "yes", "earAche": "yes"}'
 ```
 
 A documentação interativa Swagger UI fica imediatamente acessível em: **[http://localhost:8000/docs](http://localhost:8000/docs)** (ou ReDoc em **[http://localhost:8000/redoc](http://localhost:8000/redoc)**).
@@ -94,6 +111,7 @@ Caso pretenda executar os serviços nativamente na sua máquina local:
 ### 4.1 Pré-requisitos
 * **Python 3.11+** e gestor de pacotes `pip`
 * **SWI-Prolog 9.x ou 10.x** (64-bit) com executável `swipl` no PATH de sistema
+* **Java JDK 21+** e **Maven 3.9+** (opcional, para execução nativa do motor Drools)
 
 ### 4.2 Terminal 1 — Iniciar o Motor SWI-Prolog (Porta 8080)
 ```bash
@@ -113,13 +131,20 @@ source .venv/bin/activate
 uvicorn app.main:app --app-dir backend_orchestrator --reload --port 8000
 ```
 
+### 4.4 Terminal 3 — Iniciar o Motor Drools (Porta 8082)
+```bash
+cd drools_engine
+mvn clean package -DskipTests
+java -jar target/drools_engine-1.0.0.jar --server.port=8082
+```
+
 *(Consulte o [Guia de Primeiros Passos](docs/development/getting_started.md) para instruções detalhadas de setup).*
 
 ---
 
-## 5. Suíte de Testes Automatizados (65/65 Passing)
+## 5. Suíte de Testes Automatizados
 
-O projeto possui uma cobertura integral de testes automatizados unitários e de integração:
+O projeto possui uma cobertura integral de testes automatizados unitários e de integração nos três componentes:
 
 ### 5.1 Testes do Motor Prolog (12 Testes PLUnit)
 ```bash
@@ -136,6 +161,13 @@ swipl -g "run_tests, halt" -s prolog_engine/tests/test_api.pl
 pytest backend_orchestrator/tests -v
 ```
 
+### 5.3 Testes do Motor Drools (JUnit 5 / Spring Boot Test)
+```bash
+# Execução dos testes unitários e de integração MockMvc
+cd drools_engine
+mvn test
+```
+
 *(Consulte o documento de [Estratégia e Execução de Testes](docs/development/testing.md) para detalhes da cobertura).*
 
 ---
@@ -145,7 +177,7 @@ pytest backend_orchestrator/tests -v
 ```text
 meia-equipa3-challenge1-26_27/
 ├── .gitignore                      # Regras de exclusão Git (Python, Prolog, SO, IDEs)
-├── docker-compose.yml              # Orquestração multi-contentor (Prolog :8080 + FastAPI :8000)
+├── docker-compose.yml              # Orquestração multi-contentor (Prolog :8080 + FastAPI :8000 + Drools :8082)
 ├── pyrightconfig.json              # Configuração de type checking rigoroso para Python
 ├── README.md                       # Apresentação do projeto e guia rápido de onboarding
 │
@@ -163,6 +195,23 @@ meia-equipa3-challenge1-26_27/
 │   │   └── services/               # Orquestração e coordenação de inferência
 │   └── tests/                      # Suíte de testes Pytest (53 testes automatizados)
 │
+├── drools_engine/                  # Micro-serviço de Inferência em Regras de Produção (Java 21 / Spring Boot 3 / Drools 8.44)
+│   ├── Dockerfile                  # Contentorização multi-stage (Maven build + JRE 21 runtime)
+│   ├── .dockerignore               # Otimização de contexto de build Docker
+│   ├── pom.xml                     # Configuração Maven, dependências Spring Boot e Drools KIE
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/expert/drools/
+│   │   │   │   ├── DroolsEngineApplication.java  # Bootstrap Spring Boot
+│   │   │   │   ├── config/                       # KieContainer e inicialização
+│   │   │   │   ├── controllers/                  # Endpoints REST (/health, /evaluate) e ExceptionHandler
+│   │   │   │   ├── dtos/                         # DTOs de transporte com validação @Pattern
+│   │   │   │   ├── models/                       # Factos de domínio Drools (Working Memory)
+│   │   │   │   └── services/                     # Invocação KieSession e inferência
+│   │   │   └── resources/                        # application.properties, kmodule.xml e regras DRL
+│   │   └── test/                                 # Testes JUnit 5, MockMvc e contexto Spring Boot
+│   └── README.md                   # Documentação técnica do micro-serviço Drools
+│
 ├── prolog_engine/                  # Micro-serviço de Inferência Lógica (SWI-Prolog)
 │   ├── Dockerfile                  # Contentorização baseada em swipl:latest
 │   ├── .dockerignore               # Otimização de contexto de build Docker
@@ -175,8 +224,8 @@ meia-equipa3-challenge1-26_27/
 └── docs/                           # Documentação Técnica Profissional
     ├── README.md                   # Índice geral e mapa da documentação
     ├── domain/                     # Contexto de negócio, perito Dustin Hopper e explicabilidade
-    ├── architecture/               # Arquitetura global, Prolog Clean Arch, FastAPI e sequências
-    ├── api/                        # Especificação de APIs, OpenAPI v1, Prolog interno e schemas
+    ├── architecture/               # Arquitetura global, Prolog, Drools, FastAPI e sequências
+    ├── api/                        # Especificação de APIs, OpenAPI v1, Prolog, Drools e schemas
     ├── deployment/                 # Dockerfiles, Docker Compose, variáveis de ambiente e troubleshooting
     ├── development/                # Primeiros passos, testes automatizados e convenções de código
     └── history/                    # Planos de implementação faseados e relatórios de progresso
@@ -195,11 +244,13 @@ Para aprofundar qualquer aspeto do sistema, consulte a documentação dedicada e
 * **Arquitetura de Software:**
   * [Visão Global do Sistema](docs/architecture/system_overview.md)
   * [Arquitetura do Motor Prolog](docs/architecture/prolog_engine.md)
+  * [Arquitetura do Motor Drools](docs/architecture/drools_engine.md)
   * [Arquitetura do Orquestrador FastAPI](docs/architecture/fastapi_orchestrator.md)
   * [Interação entre Serviços e Fluxos de Dados](docs/architecture/service_interactions.md)
 * **Referência de APIs e Schemas:**
   * [API Pública v1 do Orquestrador](docs/api/orchestrator_api_v1.md)
   * [API Interna do Motor Prolog](docs/api/prolog_engine_api.md)
+  * [API Interna do Motor Drools](docs/api/drools_engine_api.md)
   * [Catálogo de Modelos Pydantic e Schemas](docs/api/schemas.md)
 * **Deploy e Operações:**
   * [Contentorização e Dockerfiles](docs/deployment/docker.md)
@@ -212,13 +263,14 @@ Para aprofundar qualquer aspeto do sistema, consulte a documentação dedicada e
   * [Convenções de Código e Boas Práticas](docs/development/coding_conventions.md)
 * **Arquivo Histórico:**
   * [Planos de Implementação Anteriores](docs/history/README.md)
+  * [Plano do Motor Drools](docs/history/drools_implementation_plan.md)
 
 ---
 
 ## 8. Próximos Passos (Roadmap)
 
 1. **Formalização das Regras de Retalho em Prolog:** Transpor as árvores concetuais recolhidas com o perito Dustin Hopper para predicados lógicos dedutivos (regras de vestuário, etiquetas, prazos de 30/14 dias e métodos de pagamento).
-2. **Implementação do Micro-Serviço Drools:** Desenvolver o segundo motor de inferência em Java com regras de produção (Rete algorithm) para validação cruzada.
+2. **Expansão das Regras de Produção:** Integrar o motor Drools com a base de dados de regras de retalho para auditoria cruzada automatizada entre o motor dedutivo Prolog e o motor de produção Drools.
 3. **Frontend de Simulação:** Construir uma aplicação web interativa para operadores de loja simularem devoluções em tempo real com auditoria explicativa transparente.
 
 ---

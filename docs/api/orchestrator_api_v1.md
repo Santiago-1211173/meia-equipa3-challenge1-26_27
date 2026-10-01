@@ -5,7 +5,7 @@
 
 ## 1. Visão Geral
 
-A camada de orquestração do sistema é exposta através de uma API REST desenvolvida em **FastAPI** (Python 3.11+). Esta API funciona como ponto de contacto único para clientes externos e futuras interfaces web (*Frontends*), ocultando a complexidade dos motores de inferência subjacentes (SWI-Prolog e futuramente Drools).
+A camada de orquestração do sistema é exposta através de uma API REST desenvolvida em **FastAPI** (Python 3.11+). Esta API funciona como ponto de contacto único para clientes externos e interfaces web (*Frontends*), ocultando a complexidade dos motores de inferência subjacentes (SWI-Prolog e Drools).
 
 ```mermaid
 flowchart LR

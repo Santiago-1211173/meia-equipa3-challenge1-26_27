@@ -7,7 +7,7 @@
 
 O sistema adota uma arquitetura de micro-serviços distribuídos orientada a **inferência baseada em conhecimento**, separando de forma estrita o canal de comunicação e validação de dados da execução das regras de diagnóstico.
 
-A solução é desenhada para permitir que múltiplos motores de inteligência artificial simbólica (inicialmente **SWI-Prolog** e, numa fase subsequente, **Java / Drools**) avaliem simultaneamente cenários de devolução de mercadorias no retalho, fornecendo decisões determinísticas e cadeias de justificação auditáveis (*Why / Why not*).
+A solucao e desenhada para permitir que multiplos motores de inteligencia artificial simbolica -- **SWI-Prolog** (logica declarativa de primeira ordem) e **Apache KIE Drools** (regras de producao Rete-OO) -- avaliem cenarios clinicos e de devolucao de mercadorias no retalho, fornecendo decisoes deterministicas e cadeias de justificacao auditaveis (*Why / Why not*).
 
 ```mermaid
 flowchart TD
@@ -23,8 +23,8 @@ flowchart TD
     end
 
     subgraph InferenceLayer ["Camada de Inferência Pericial (Sistemas Simbólicos)"]
-        PROLOG["Micro-serviço SWI-Prolog<br/>Daemon HTTP Multi-threaded<br/>Porta 8080 (Implementado)"]
-        DROOLS["Micro-serviço Drools<br/>Java Rule Engine / Rete-OO<br/>Porta 8090 (Futuro / Roadmap)"]
+        PROLOG["Micro-servico SWI-Prolog<br/>Daemon HTTP Multi-threaded<br/>Porta 8080 (Implementado)"]
+        DROOLS["Micro-servico Drools Engine<br/>Java 21 / Spring Boot 3.3 / Drools 8.44<br/>Porta 8082 Host / 8080 Contentor (Implementado)"]
     end
 
     subgraph NetworkInfra ["Infraestrutura de Rede Virtualizada"]
@@ -38,11 +38,11 @@ flowchart TD
     API --- POOL
 
     POOL -->|"HTTP POST /evaluate<br/>HTTP /inference/*<br/>(http://prolog-engine:8080)"| PROLOG
-    POOL -.->|"HTTP POST /evaluate<br/>(http://drools-engine:8090)"| DROOLS
+    POOL -->|"HTTP POST /api/v1/inference/evaluate<br/>HTTP GET /api/v1/inference/health<br/>(http://drools-engine:8080)"| DROOLS
 
     PROLOG --- DOCKER
     API --- DOCKER
-    DROOLS -.-> DOCKER
+    DROOLS --- DOCKER
 ```
 
 ---
@@ -78,10 +78,16 @@ flowchart TD
   4. Execução do motor de exemplo dos professores (`engine.pl`) com metaconhecimento e explicabilidade causal (`how`/`whynot`) sobre bases carregáveis como veículos (`POST /inference/*`).
   5. Dedução de decisões (`approved`, `rejected`, `store_credit_only`, `manager_override`) e geração da cadeia de justificações (`justification`).
 
-### 2.4 Micro-serviço Motor Drools (`drools-engine` — Futuro)
-* **Função:** Segundo motor de inferência baseado em regras de produção (*Forward Chaining* via algoritmo Rete-OO).
-* **Tecnologia:** Java 17+ com Apache KIE / Drools Engine.
-* **Responsabilidades:** Permitir comparação de desempenho, robustez e auditoria cruzada com o motor dedutivo Prolog.
+### 2.4 Micro-servico Motor Drools (`drools-engine` -- Implementado)
+* **Funcao:** Segundo motor de inferencia baseado em regras de producao (*Forward Chaining* via algoritmo Rete-OO), especializado no dominio clinico de diagnostico diferencial de hemorragias.
+* **Tecnologia:** Java 21 com Spring Boot 3.3.4, Apache KIE Drools 8.44.0.Final, Lombok e Bean Validation (Jakarta).
+* **Responsabilidades:**
+  1. Exposicao de uma API REST na porta `8080` (contentor) / `8082` (host) com dois endpoints: `POST /api/v1/inference/evaluate` e `GET /api/v1/inference/health`.
+  2. Rececao de evidencias clinicas em JSON (`EvidencesRequestDto`) com 13 campos binarios (`yes`/`no`) validados por `@Pattern`.
+  3. Conversao defensiva para factos de dominio (`Evidences`) via metodo `toDomain()` com normalizacao de valores ausentes.
+  4. Insercao de factos na Working Memory, disparo do algoritmo Rete-OO (`fireAllRules`) e extracao de `Hypothesis` e `Conclusion`.
+  5. Rastreabilidade completa via lista `firedRules` (explicabilidade) incluida na resposta JSON.
+  6. Tratamento global de erros (`GlobalExceptionHandler`) com payloads padronizados para erros 400 e 500.
 
 ---
 
@@ -110,16 +116,18 @@ Cada componente do sistema possui limites arquiteturais bem definidos:
 | **Orquestração** | Backend Orchestrator | Python / FastAPI / Pydantic v2 | Python 3.11-slim | `8000` |
 | **Cliente HTTP** | Async Transport Client | HTTPX (`AsyncClient`) | httpx >= 0.27.0 | — |
 | **Servidor ASGI** | Web Server Gateway | Uvicorn (Standard Worker) | uvicorn >= 0.30.0 | `8000` |
-| **Motor Lógico** | Micro-serviço Prolog | SWI-Prolog (`thread_httpd`) | `swipl:latest` | `8080` |
-| **Contentorização** | Virtualização de Serviços | Docker / Docker Compose | v2+ (Compose file 3.8+) | — |
+| **Motor Logico (Prolog)** | Micro-servico Prolog | SWI-Prolog (`thread_httpd`) | `swipl:latest` | `8080` |
+| **Motor Logico (Drools)** | Micro-servico Drools Engine | Java 21 / Spring Boot 3.3 / Drools 8.44 | `eclipse-temurin:21-jre-alpine` | `8080` (contentor) / `8082` (host) |
+| **Contentorizacao** | Virtualizacao de Servicos | Docker / Docker Compose | v2+ (Compose file 3.8+) | -- |
 | **Rede Interna** | Bridge Network | Docker Bridge (`retail-network`) | Driver nativo | — |
 
 ---
 
 ## 5. Documentos Relacionados
 
-* [Arquitetura do Motor Prolog](prolog_engine.md) — Clean Architecture interna e ciclo de vida do micro-serviço SWI-Prolog.
-* [Arquitetura do Orquestrador FastAPI](fastapi_orchestrator.md) — Estrutura interna de camadas, lifespan e connection pooling em Python.
-* [Interações entre Serviços e Fluxos de Dados](service_interactions.md) — Diagrama de sequência ponta-a-ponta e tratamento de erros.
-* [Contexto de Negócio e Enquadramento Académico](../domain/business_context.md) — Justificação teórica e caso de uso.
-* [Orquestração com Docker Compose](../deployment/docker_compose.md) — Topologia e instruções operacionais de deploy.
+* [Arquitetura do Motor Prolog](prolog_engine.md) -- Clean Architecture interna e ciclo de vida do micro-servico SWI-Prolog.
+* [Arquitetura do Motor Drools](drools_engine.md) -- Arquitectura interna do micro-servico Drools Engine baseado em regras de producao.
+* [Arquitetura do Orquestrador FastAPI](fastapi_orchestrator.md) -- Estrutura interna de camadas, lifespan e connection pooling em Python.
+* [Interacoes entre Servicos e Fluxos de Dados](service_interactions.md) -- Diagrama de sequencia ponta-a-ponta e tratamento de erros.
+* [Contexto de Negocio e Enquadramento Academico](../domain/business_context.md) -- Justificacao teorica e caso de uso.
+* [Orquestracao com Docker Compose](../deployment/docker_compose.md) -- Topologia e instrucoes operacionais de deploy.

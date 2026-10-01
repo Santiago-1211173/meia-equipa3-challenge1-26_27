@@ -5,7 +5,7 @@
 
 ## 1. Visão Geral e Responsabilidades
 
-O **Backend Orquestrador** ([`backend_orchestrator/`](../../backend_orchestrator)) atua como a espinha dorsal de comunicação do sistema, estabelecendo o canal exclusivo de comunicação entre clientes externos (Frontend POS, CLI, sistemas de caixa) e os múltiplos motores de inferência periciais (SWI-Prolog e, no futuro, Drools).
+O **Backend Orquestrador** ([`backend_orchestrator/`](../../backend_orchestrator)) atua como a espinha dorsal de comunicação do sistema, estabelecendo o canal exclusivo de comunicação entre clientes externos (Frontend POS, CLI, sistemas de caixa) e os múltiplos motores de inferência periciais (SWI-Prolog e Drools).
 
 Construído em **Python 3.11** sobre o framework **FastAPI** e com validação declarativa através do **Pydantic v2**, o orquestrador obedece a uma arquitetura por camadas estritamente desacoplada:
 

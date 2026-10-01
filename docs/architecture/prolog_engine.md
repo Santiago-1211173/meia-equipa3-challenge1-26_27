@@ -111,12 +111,12 @@ sequenceDiagram
         deactivate Core
 
         Disp->>Disp: format_response(Decision, ExplanationList, ResponseDict)
-        Disp->>Srv: reply_json_dict(ResponseDict) [HTTP 200 OK]
+        Disp->>Srv: reply_json_dict(ResponseDict) (HTTP 200 OK)
     else JSON Malformado / Sintaxe Inválida
         rect rgb(255, 240, 240)
             note over Disp: Interceção com catch/3
         end
-        Disp->>Srv: reply_json_dict(ErrorDict, [status(400)]) [HTTP 400 Bad Request]
+        Disp->>Srv: reply_json_dict(ErrorDict, status 400) (HTTP 400 Bad Request)
     end
 
     Srv-->>Orch: Resposta HTTP/JSON (application/json)

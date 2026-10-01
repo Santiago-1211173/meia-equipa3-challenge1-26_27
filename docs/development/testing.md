@@ -7,14 +7,15 @@
 
 A integridade, previsibilidade e explicabilidade das decisões periciais no ecossistema **Retail Returns & Exchanges Diagnostic Expert System** são garantidas por uma estratégia de testes automatizados em múltiplas camadas.
 
-O projeto adota a pirâmide de testes de engenharia de software moderna, separando testes em dois domínios tecnológicos especializados:
+O projeto adota a pirâmide de testes de engenharia de software moderna, separando testes em três domínios tecnológicos especializados:
 
 1. **Motor de Inferência Dedutiva (SWI-Prolog):** Testes unitários para regras de inferência lógica e testes de integração para o ciclo de vida do servidor HTTP e desserialização de JSON. Implementados com a biblioteca nativa `library(plunit)`.
 2. **Backend Orquestrador (Python / FastAPI):** Testes unitários para validação de esquemas Pydantic v2, testes unitários mockados para o cliente HTTP assíncrono e testes de integração com transporte ASGI em memória (`httpx.ASGITransport`). Implementados com `pytest`, `pytest-asyncio` e `pytest-mock`.
+3. **Motor de Inferência por Regras de Produção (Java 21 / Spring Boot 3 / Drools):** Testes unitários para regras de produção e raciocínio clínico *forward-chaining* (`haemorrhage_rules.drl`), testes de integração REST com MockMvc e validação de arranque do contexto Spring Boot. Implementados com `JUnit 5`, `MockMvc` e `Spring Boot Test`.
 
 ```mermaid
 flowchart TD
-    subgraph "Suíte Global de Testes (65 Testes / 100% Sucesso)"
+    subgraph "Suíte Global de Testes (79 Testes / 100% Sucesso)"
         direction TB
         subgraph "Camada Orquestrador FastAPI (53 Testes Pytest)"
             T_SCHEMAS["test_schemas.py\n(20 testes unitários Pydantic)"]
@@ -26,6 +27,12 @@ flowchart TD
         subgraph "Camada Motor SWI-Prolog (12 Testes PLUnit)"
             T_RULES["test_rules.pl\n(7 testes unitários de lógica dedutiva)"]
             T_API["test_api.pl\n(5 testes integração HTTP REST)"]
+        end
+
+        subgraph "Camada Motor Drools (14 Testes JUnit 5)"
+            T_DRL_SVC["InferenceServiceTest.java\n(10 testes unitários de inferência clínica)"]
+            T_DRL_CTRL["InferenceControllerTest.java\n(3 testes integração REST / MockMvc)"]
+            T_DRL_CTX["DroolsEngineApplicationTests.java\n(1 teste de bootstrap de contexto)"]
         end
     end
 ```
@@ -153,7 +160,45 @@ Valida os endpoints de infraestrutura e monitorização:
 
 ---
 
-## 4. Matriz Consolidada de Cobertura de Testes
+## 4. Testes do Motor Drools (`drools_engine/src/test/java/`)
+
+A suíte de testes do micro-serviço Drools utiliza a biblioteca **JUnit 5 (Jupiter)** combinada com as anotações e utilitários de teste do **Spring Boot Test** (`@SpringBootTest`, `@WebMvcTest`, `MockMvc`).
+
+### 4.1 Testes Unitários da Camada de Serviço e Regras (`InferenceServiceTest.java`) — 10 Testes
+
+O ficheiro [`drools_engine/src/test/java/com/expert/drools/services/InferenceServiceTest.java`](../../drools_engine/src/test/java/com/expert/drools/services/InferenceServiceTest.java) valida a execução das regras DRL (`haemorrhage_rules.drl`) em isolamento sobre o `KieContainer` real:
+
+| Método de Teste | Sinais Clínicos Injetados | Hipótese Inferida | Diagnóstico Primário | Regras Disparadas (`firedRules`) |
+|:---|:---|:---:|:---:|:---|
+| `testOtorrhagiaWithEarAche` | `bloodEar="yes"`, `earAche="yes"` | `upper haemorrhage` | `otorrhagia` | `r1_upper_type`, `r3_otorrhagia_ear_ache` |
+| `testOtorrhagiaWithDeafness` | `bloodEar="yes"`, `deafness="yes"` | `upper haemorrhage` | `otorrhagia` | `r1_upper_type`, `r4_otorrhagia_deafness` |
+| `testSkullFracture` | `bloodEar="yes"`, `trauma="yes"` | `upper haemorrhage` | `skull fracture` | `r1_upper_type`, `r2_skull_fracture` |
+| `testEpistaxe` | `bloodNose="yes"` | `upper haemorrhage` | `epistaxis` | `r1_upper_type`, `r5_epistaxis` |
+| `testHemathese` | `vomitBlood="yes"` | `upper haemorrhage` | `hematemesis` | `r1_upper_type`, `r6_hematemesis` |
+| `testMouthHaemorrhage` | `coughBlood="yes"` | `upper haemorrhage` | `mouth haemorrhage` | `r1_upper_type`, `r7_mouth_haemorrhage` |
+| `testMetrorrhagia` | `bloodVagina="yes"`, `pregnant="no"` | `lower haemorrhage` | `metrorrhagia` | `r8_lower_type`, `r9_metrorrhagia` |
+| `testHematuria` | `bloodUrine="yes"` | `lower haemorrhage` | `hematuria` | `r8_lower_type`, `r10_hematuria` |
+| `testMelena` | `bloodFeces="yes"`, `darkBlood="yes"` | `lower haemorrhage` | `melena` | `r8_lower_type`, `r11_melena` |
+| `testRectalBleeding` | `bloodFeces="yes"`, `redBlood="yes"` | `lower haemorrhage` | `rectal bleeding` | `r8_lower_type`, `r12_rectal_bleeding` |
+| `testUnknownFallback` | Todos `"no"` (sem sinais) | *(nenhuma)* | `unknown` | `r13_fallback_unknown` |
+
+### 4.2 Testes de Integração da Camada REST (`InferenceControllerTest.java`) — 3 Testes
+
+O ficheiro [`drools_engine/src/test/java/com/expert/drools/controllers/InferenceControllerTest.java`](../../drools_engine/src/test/java/com/expert/drools/controllers/InferenceControllerTest.java) utiliza `@WebMvcTest` e `MockMvc` para testar as rotas HTTP e a validação sintática do Spring:
+
+| Método de Teste | Rota & Método | Cenário de Teste | Validação Realizada |
+|:---|:---:|:---|:---|
+| `testHealthEndpoint` | `GET /api/v1/inference/health` | Verificação do estado do motor | HTTP 200 OK, `status: "UP"`, `service: "drools-engine"`, `totalRules: 13`. |
+| `testEvaluateEndpointSuccess` | `POST /api/v1/inference/evaluate` | Payload válido com `bloodEar="yes"`, `earAche="yes"` | HTTP 200 OK, `status: "COMPLETED"`, diagnóstico `otorrhagia` e array `firedRules`. |
+| `testEvaluateEndpointValidationFailure` | `POST /api/v1/inference/evaluate` | Payload com valor inválido (`bloodEar: "maybe"`) | HTTP 400 Bad Request com corpo estruturado de erro `MethodArgumentNotValidException`. |
+
+### 4.3 Teste de Bootstrap do Contexto Spring (`DroolsEngineApplicationTests.java`) — 1 Teste
+
+O ficheiro [`drools_engine/src/test/java/com/expert/drools/DroolsEngineApplicationTests.java`](../../drools_engine/src/test/java/com/expert/drools/DroolsEngineApplicationTests.java) anota com `@SpringBootTest` e valida que todos os beans do contexto Spring Boot (incluindo o `KieContainer` em `DroolsConfig`) inicializam corretamente sem exceções.
+
+---
+
+## 5. Matriz Consolidada de Cobertura de Testes
 
 | Componente | Ficheiro de Teste | Tecnologia | Casos de Teste | Taxa de Sucesso |
 |:---|:---|:---:|:---:|:---:|
@@ -163,13 +208,16 @@ Valida os endpoints de infraestrutura e monitorização:
 | **Orquestrador (Cliente HTTP)** | [`backend_orchestrator/tests/test_prolog_client.py`](../../backend_orchestrator/tests/test_prolog_client.py) | Pytest | 15 | 100% |
 | **Orquestrador (Serviço & API)** | [`backend_orchestrator/tests/test_orchestrator.py`](../../backend_orchestrator/tests/test_orchestrator.py) | Pytest | 14 | 100% |
 | **Orquestrador (Saúde)** | [`backend_orchestrator/tests/test_health.py`](../../backend_orchestrator/tests/test_health.py) | Pytest | 4 | 100% |
-| **TOTAL CONSOLIDADO** | **6 Ficheiros de Teste** | **PLUnit + Pytest** | **65 Testes** | **100%** |
+| **Motor Drools (Serviço & Regras)** | [`InferenceServiceTest.java`](../../drools_engine/src/test/java/com/expert/drools/services/InferenceServiceTest.java) | JUnit 5 | 10 | 100% |
+| **Motor Drools (Controlador & API)** | [`InferenceControllerTest.java`](../../drools_engine/src/test/java/com/expert/drools/controllers/InferenceControllerTest.java) | JUnit 5 / MockMvc | 3 | 100% |
+| **Motor Drools (Contexto Spring)** | [`DroolsEngineApplicationTests.java`](../../drools_engine/src/test/java/com/expert/drools/DroolsEngineApplicationTests.java) | Spring Boot Test | 1 | 100% |
+| **TOTAL CONSOLIDADO** | **9 Ficheiros de Teste** | **PLUnit + Pytest + JUnit 5** | **79 Testes** | **100%** |
 
 ---
 
-## 5. Guia Prático de Execução
+## 6. Guia Prático de Execução
 
-### 5.1 Executar a Suíte Completa do Orquestrador (Pytest)
+### 6.1 Executar a Suíte Completa do Orquestrador (Pytest)
 
 Com o ambiente virtual ativado:
 
@@ -198,7 +246,7 @@ pytest backend_orchestrator/tests --tb=short
 pytest backend_orchestrator/tests -s
 ```
 
-### 5.2 Executar a Suíte Completa do Prolog (PLUnit)
+### 6.2 Executar a Suíte Completa do Prolog (PLUnit)
 
 A partir da raiz do repositório:
 
@@ -210,28 +258,51 @@ swipl -g "run_tests, halt" -s prolog_engine/tests/test_rules.pl
 swipl -g "run_tests, halt" -s prolog_engine/tests/test_api.pl
 ```
 
+### 6.3 Executar a Suíte Completa do Drools (Maven / JUnit 5)
+
+A partir do diretório `drools_engine`:
+
+```bash
+# Executar todos os 14 testes do motor Drools
+cd drools_engine
+mvn test
+
+# Executar apenas os testes unitários de inferência de regras DRL
+mvn test -Dtest=InferenceServiceTest
+
+# Executar apenas os testes de integração do controlador REST
+mvn test -Dtest=InferenceControllerTest
+
+# Executar apenas o teste de arranque do contexto Spring
+mvn test -Dtest=DroolsEngineApplicationTests
+```
+
 ---
 
-## 6. Boas Práticas para Novos Testes
+## 7. Boas Práticas para Novos Testes
 
 Ao adicionar novas regras periciais ou novos endpoints, observe as seguintes diretrizes:
 
 1. **Separação Obrigatória:**
-   - Adicione regras e testes lógicos no módulo Prolog correspondente.
+   - Adicione regras lógicas declarativas no módulo Prolog correspondente e respetivo teste `test_rules.pl`.
+   - Adicione regras de produção DRL em `haemorrhage_rules.drl` e os testes de cobertura clínica em `InferenceServiceTest.java`.
    - Adicione testes de validação sintática e serialização nos testes Pydantic do orquestrador.
 2. **Determinismo:**
    - Não crie testes que dependam de servidores ou portas fixas em execução na máquina de quem testa.
    - Utilize mocks para chamadas remotas no Pytest e portas dinâmicas/efémeras nos testes de integração Prolog.
+   - Isole as sessões Drools (`KieSession`) garantindo `dispose()` em bloco `finally`.
 3. **Cobertura de Casos de Fronteira:**
-   - Cada nova regra pericial deve incluir pelo menos: 1 caso de aprovação, 1 caso de rejeição e 1 teste com payload malformado ou campos em falta.
+   - Cada nova regra pericial deve incluir pelo menos: 1 caso de aprovação/conclusão positiva, 1 caso de rejeição/fallback e 1 teste com payload malformado ou valores inválidos.
 4. **Verificação de Explicabilidade:**
-   - Todo o teste de avaliação deve validar explicitamente o campo `justification`, confirmando que a lista contém motivos inteligíveis e alinhados com o diagnóstico pretendido.
+   - Todo o teste de avaliação deve validar explicitamente o campo de justificação (`justification` no Prolog, `firedRules` no Drools), confirmando que a lista contém motivos inteligíveis e alinhados com o diagnóstico pretendido.
 
 ---
 
-## 7. Referências Cruzadas
+## 8. Referências Cruzadas
 
 * [Guia de Primeiros Passos](getting_started.md) — Configuração do ambiente local de execução.
 * [Convenções de Código](coding_conventions.md) — Padrões de código e estruturação de módulos.
-* [Referência de Esquemas Pydantic](../api/schemas.md) — Definição dos modelos de dados validados na suíte.
+* [Referência de Esquemas e Contratos](../api/schemas.md) — Definição dos modelos Pydantic e DTOs Java validados na suíte.
+* [API Interna do Motor Drools](../api/drools_engine_api.md) — Especificação REST do motor de regras.
+* [Arquitetura do Motor Drools](../architecture/drools_engine.md) — Ciclo de vida da KieSession e regras DRL.
 * [Orquestração com Docker Compose](../deployment/docker_compose.md) — Validação em ambiente contentorizado.

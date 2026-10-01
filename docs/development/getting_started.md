@@ -24,11 +24,13 @@ Antes de iniciar a configuração, certifique-se de que dispõe das seguintes fe
 | **Git** | 2.30+ | Controlo de versões e clonagem do repositório | `git --version` |
 | **Python** | 3.11+ *(suporta 3.9+)* | Runtime do backend orquestrador FastAPI | `python --version` |
 | **SWI-Prolog** | 9.x ou 10.x (64-bit) | Interpretador do motor de inferência dedutiva | `swipl --version` |
+| **Java JDK** *(Opcional se Docker)* | 21 LTS | Runtime e compilação do motor Drools Engine | `java -version` |
+| **Apache Maven** *(Opcional se Docker)* | 3.9+ | Gestor de dependências e build do motor Drools | `mvn -version` |
 | **Docker Desktop** *(Opcional)* | 24.0+ | Contentorização e execução via Docker Compose | `docker --version` |
 | **Docker Compose** *(Opcional)* | v2.20+ | Orquestração multi-contentor dos micro-serviços | `docker compose version` |
 
 > [!NOTE]
-> No Windows, certifique-se de que o executável `swipl.exe` se encontra adicionado à variável de ambiente `PATH` do sistema durante a instalação do SWI-Prolog.
+> No Windows, certifique-se de que os executáveis `swipl.exe`, `java.exe` e `mvn.cmd` se encontram adicionados à variável de ambiente `PATH` do sistema durante as respetivas instalações.
 
 ---
 
@@ -49,11 +51,12 @@ A estrutura de alto nível do repositório organiza-se da seguinte forma:
 ```text
 meia-equipa3-challenge1-26_27/
 ├── backend_orchestrator/ # Serviço FastAPI (Python)
-├── prolog_engine/ # Serviço de Inferência (SWI-Prolog)
-├── docs/ # Documentação técnica e arquitetural
-├── docker-compose.yml # Definição multi-serviço Docker Compose
-├── pyrightconfig.json # Configuração de type checking Pyright
-└── README.md # Visão geral do repositório
+├── drools_engine/        # Motor de Inferência Drools (Java 21 / Spring Boot 3)
+├── prolog_engine/        # Serviço de Inferência (SWI-Prolog)
+├── docs/                 # Documentação técnica e arquitetural
+├── docker-compose.yml    # Definição multi-serviço Docker Compose
+├── pyrightconfig.json    # Configuração de type checking Pyright
+└── README.md             # Visão geral do repositório
 ```
 
 ---
@@ -122,7 +125,7 @@ O ficheiro `.env` pré-configura as portas padrão para desenvolvimento local na
 
 ## 5. Execução Local Passo-a-Passo (Sem Docker)
 
-Para depurar e iterar rapidamente no código, os dois serviços podem ser executados lado a lado em dois terminais distintos.
+Para depurar e iterar rapidamente no código, os três serviços podem ser executados lado a lado em três terminais distintos.
 
 ```mermaid
 flowchart LR
@@ -130,12 +133,18 @@ flowchart LR
         PL["SWI-Prolog Engine\nswipl src/main.pl"]
     end
 
-    subgraph "Terminal 2 (Porta 8000)"
+    subgraph "Terminal 2 (Porta 8082)"
+        DR["Drools Engine\njava -jar ... --server.port=8082"]
+    end
+
+    subgraph "Terminal 3 (Porta 8000)"
         FA["FastAPI Orchestrator\nuvicorn app.main:app --reload"]
     end
 
     FA -->|"POST http://127.0.0.1:8080/evaluate"| PL
+    FA -.->|"DROOLS_ENGINE_URL :8082"| DR
     Client["Cliente HTTP / Browser"] -->|"http://localhost:8000"| FA
+    Client -->|"POST http://localhost:8082/api/v1/inference/evaluate"| DR
 ```
 
 ### Passo 1: Iniciar o Motor SWI-Prolog (Terminal 1)
@@ -160,9 +169,44 @@ Deverá observar a seguinte confirmação nos registos do terminal:
 
 O micro-serviço Prolog permanece ativo e à escuta de pedidos HTTP na porta `8080`.
 
-### Passo 2: Iniciar o Backend Orquestrador FastAPI (Terminal 2)
+### Passo 2: Iniciar o Motor Drools Engine (Terminal 2)
 
-Abra um segundo terminal, ative o ambiente virtual e execute o servidor ASGI Uvicorn em modo de recarregamento automático (`--reload`):
+Abra um segundo terminal, navegue para o diretório `drools_engine` e inicie o servidor Spring Boot na porta `8082` (evitando conflito com a porta `8080` do Prolog):
+
+**Opção A — Compilação e execução do JAR (Recomendado):**
+```bash
+cd drools_engine
+mvn clean package -DskipTests
+java -jar target/drools-engine-0.0.1-SNAPSHOT.jar --server.port=8082
+```
+
+**Opção B — Execução direta via Spring Boot Maven Plugin:**
+```bash
+cd drools_engine
+mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8082
+```
+
+Deverá observar a confirmação de arranque do Spring Boot nos registos do terminal:
+
+```text
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.3.4)
+
+... [main] c.e.d.config.DroolsConfig    : Successfully built KieContainer from KieFileSystem
+... [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path '/'
+... [main] c.e.d.DroolsEngineApplication: Started DroolsEngineApplication in ... seconds
+```
+
+O micro-serviço Drools permanece ativo e à escuta de pedidos HTTP na porta `8082`.
+
+### Passo 3: Iniciar o Backend Orquestrador FastAPI (Terminal 3)
+
+Abra um terceiro terminal, ative o ambiente virtual e execute o servidor ASGI Uvicorn em modo de recarregamento automático (`--reload`):
 
 **Opção A — A partir da raiz do repositório:**
 ```powershell
@@ -192,10 +236,10 @@ INFO: Application startup complete.
 
 ## 6. Execução Alternativa com Docker Compose
 
-Caso prefira não instalar o interpretador SWI-Prolog ou pretenda testar a integração exata dos contentores de rede, utilize o Docker Compose:
+Caso prefira não instalar localmente o interpretador SWI-Prolog e o JDK Java, ou pretenda testar a integração exata dos três contentores interligados em rede privada, utilize o Docker Compose:
 
 ```bash
-# Compilar e arrancar os dois contentores em background
+# Compilar e arrancar os três contentores em background
 docker compose up --build -d
 
 # Visualizar o estado dos contentores
@@ -205,13 +249,15 @@ docker compose ps
 docker compose logs -f
 ```
 
+O Docker Compose instancia automaticamente os três contentores (`expert-prolog-engine`, `expert-orchestrator`, `expert-drools-engine`) e configura a rede interna privada `retail-network`.
+
 Para instruções completas de operações e comandos de paragem, consulte [Orquestração com Docker Compose](../deployment/docker_compose.md).
 
 ---
 
 ## 7. Verificação e Validação do Sistema (Smoke Tests)
 
-Com ambos os serviços em execução, execute os testes rápidos a seguir para validar a integridade da comunicação.
+Com os serviços em execução, execute os testes rápidos a seguir para validar a integridade da comunicação.
 
 ### 7.1 Teste de Diagnóstico e Saúde (Health Check)
 
@@ -281,6 +327,66 @@ O FastAPI gera automaticamente interfaces gráficas interativas e esquemas OpenA
 * **ReDoc:** Aceda a [`http://localhost:8000/redoc`](http://localhost:8000/redoc) para leitura da documentação formal das APIs.
 * **OpenAPI JSON:** Disponível em [`http://localhost:8000/openapi.json`](http://localhost:8000/openapi.json).
 
+### 7.4 Smoke Test do Motor Drools Engine
+
+Valide o estado do motor Drools e efetue uma avaliação clínica de teste:
+
+**Health Check do Drools (PowerShell & cURL):**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8082/api/v1/inference/health" -Method Get | ConvertTo-Json
+```
+```bash
+curl -X GET http://localhost:8082/api/v1/inference/health
+```
+
+**Resposta esperada (HTTP 200 OK):**
+```json
+{
+  "status": "UP",
+  "service": "drools-engine",
+  "version": "1.0.0",
+  "activeKieBase": "rulesKieBase",
+  "totalRules": 13,
+  "timestamp": "2026-10-01T14:00:00"
+}
+```
+
+**Avaliação Clínica no Drools (PowerShell & cURL):**
+```powershell
+$payload = @{
+    bloodEar = "yes"
+    earAche = "yes"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8082/api/v1/inference/evaluate" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $payload | ConvertTo-Json
+```
+```bash
+curl -X POST http://localhost:8082/api/v1/inference/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"bloodEar": "yes", "earAche": "yes"}'
+```
+
+**Resposta esperada (HTTP 200 OK):**
+```json
+{
+  "status": "COMPLETED",
+  "primaryDiagnosis": "otorrhagia",
+  "conclusions": [
+    "otorrhagia"
+  ],
+  "hypothesis": "upper haemorrhage",
+  "firedRules": [
+    "r1_upper_type",
+    "r3_otorrhagia_ear_ache"
+  ],
+  "timestamp": "2026-10-01T14:00:00",
+  "evidencesEvaluated": 13
+}
+```
+
 ---
 
 ## 8. Resumo de URLs e Portas de Desenvolvimento
@@ -292,12 +398,15 @@ O FastAPI gera automaticamente interfaces gráficas interativas e esquemas OpenA
 | **Avaliação de Cenários** | `http://localhost:8000/api/v1/evaluate` | Endpoint principal de orquestração de inferência pericial. |
 | **Swagger UI Interativo** | `http://localhost:8000/docs` | Interface gráfica OpenAPI para testes no navegador. |
 | **API Interna SWI-Prolog** | `http://localhost:8080/evaluate` | Motor de inferência dedutiva (apenas comunicação interna). |
+| **API Interna Drools Engine** | `http://localhost:8082/api/v1/inference/evaluate` | Motor de inferência por regras de produção (Spring Boot / Drools). |
+| **Health Check Drools** | `http://localhost:8082/api/v1/inference/health` | Diagnóstico do KieContainer e total de regras ativas. |
 
 ---
 
-## 9. Próximos Passos
+## 9. Próximos Passos e Documentos Relacionados
 
 Após confirmar a execução bem-sucedida do sistema em ambiente local:
-* Consulte a [Estratégia e Execução de Testes](testing.md) para correr a suíte de testes automatizados unitários e de integração.
+* Consulte a [Estratégia e Execução de Testes](testing.md) para correr a suíte de testes automatizados (Pytest, PLUnit e JUnit 5).
 * Consulte as [Convenções de Código e Boas Práticas](coding_conventions.md) antes de submeter alterações de código.
-* Consulte a [Referência de APIs](../api/README.md) para conhecer em detalhe os contratos e modelos de dados do sistema.
+* Consulte a [Referência de APIs](../api/README.md), a [API do Orquestrador](../api/orchestrator_api_v1.md) e a [API do Drools Engine](../api/drools_engine_api.md) para conhecer em detalhe os contratos e modelos de dados do sistema.
+* Consulte a [Arquitetura do Motor Drools](../architecture/drools_engine.md) e a [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) para aprofundar os princípios de inferência.

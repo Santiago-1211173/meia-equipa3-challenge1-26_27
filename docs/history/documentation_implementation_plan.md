@@ -109,11 +109,11 @@ O sistema é composto por micro-serviços orquestrados:
 | Ficheiro | Localização | Conteúdo | Tamanho | Estado |
 |:---|:---|:---|:---:|:---|
 | `README.md` | [README.md](../../README.md) | README principal do projeto com visão geral, arquitetura, contratos API, instruções Docker e roadmap | 13.5 KB | Completo mas desatualizado (não reflete o backend orquestrador já implementado) |
-| `Main_context.md` | [docs/Main_context.md](../Main_context.md) | Contexto pericial, académico, heurísticas do perito Dustin Hopper e guidelines LLM | 5.5 KB | Bom, mas mistura contexto de negócio com instruções de agente |
-| `architecture.md` | [docs/architecture.md](../architecture.md) | Arquitetura do micro-serviço Prolog: Clean Architecture, ciclo de vida, Docker CLI | 14 KB | Cobre apenas o Prolog; falta toda a arquitetura do FastAPI e do sistema global |
-| `api_contracts.md` | [docs/api_contracts.md](../api_contracts.md) | Contratos JSON do endpoint `/evaluate` do Prolog (POC + evolução retalho) | 2.8 KB | Contrato apenas Prolog→Orquestrador; falta API pública v1 do FastAPI |
-| `fastapi_orchestrator_plan.md` | [docs/fastapi_orchestrator_plan.md](../fastapi_orchestrator_plan.md) | Plano faseado de implementação do backend FastAPI (6 fases, todas concluídas) | 24.8 KB | Plano de execução, não documentação técnica — deve ser movido para histórico |
-| `Implementation_plan_start.md` | [Implementation_plan_start.md](../../Implementation_plan_start.md) | Plano e relatório de execução do POC Prolog (4 fases, todas concluídas) | 18 KB | Plano de execução na raiz — deve ser arquivado |
+| `Main_context.md` | `docs/Main_context.md` *(legado)* | Contexto pericial, académico, heurísticas do perito Dustin Hopper e guidelines LLM | 5.5 KB | Bom, mas mistura contexto de negócio com instruções de agente |
+| `architecture.md` | `docs/architecture.md` *(legado)* | Arquitetura do micro-serviço Prolog: Clean Architecture, ciclo de vida, Docker CLI | 14 KB | Cobre apenas o Prolog; falta toda a arquitetura do FastAPI e do sistema global |
+| `api_contracts.md` | `docs/api_contracts.md` *(legado)* | Contratos JSON do endpoint `/evaluate` do Prolog (POC + evolução retalho) | 2.8 KB | Contrato apenas Prolog→Orquestrador; falta API pública v1 do FastAPI |
+| `fastapi_orchestrator_plan.md` | [`fastapi_implementation_plan.md`](fastapi_implementation_plan.md) | Plano faseado de implementação do backend FastAPI (6 fases, todas concluídas) | 24.8 KB | Plano de execução, não documentação técnica — deve ser movido para histórico |
+| `Implementation_plan_start.md` | [`prolog_implementation_plan.md`](prolog_implementation_plan.md) | Plano e relatório de execução do POC Prolog (4 fases, todas concluídas) | 18 KB | Plano de execução na raiz — deve ser arquivado |
 
 ### 0.2 Problemas Identificados
 
@@ -240,7 +240,7 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 **Objetivo:** Separar e formalizar o conhecimento de domínio, contexto académico e requisitos de explicabilidade.
 
 **Fontes de Referência (ficheiros a consultar):**
-- [docs/Main_context.md](../Main_context.md) — Secções 1–4 (contexto do projeto, arquitetura conceptual, heurísticas do perito)
+- `docs/Main_context.md` *(legado)* — Secções 1–4 (contexto do projeto, arquitetura conceptual, heurísticas do perito)
 - [README.md](../../README.md) — Secção 1 (Visão Geral) e Secção 4 (Requisito de Explicabilidade)
 - [prolog_engine/src/core/rules.pl](../../prolog_engine/src/core/rules.pl) — Regras de inferência (para referência de implementação)
 
@@ -278,9 +278,9 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 **Objetivo:** Documentar a arquitetura global do sistema e de cada componente individual de forma profissional e orientada a referência técnica.
 
 **Fontes de Referência (ficheiros a consultar):**
-- [docs/architecture.md](../architecture.md) — Secções 1–5 (arquitetura Prolog, Clean Architecture, ciclo de vida, integração global, explicabilidade)
+- `docs/architecture.md` *(legado)* — Secções 1–5 (arquitetura Prolog, Clean Architecture, ciclo de vida, integração global, explicabilidade)
 - [README.md](../../README.md) — Secção 2 (Arquitetura da Solução Global), Secção 3 (Micro-serviço Prolog)
-- [docs/fastapi_orchestrator_plan.md](../fastapi_orchestrator_plan.md) — Secções 2–4 (estrutura de diretórios, contrato com Prolog, decisões técnicas)
+- [`fastapi_implementation_plan.md`](fastapi_implementation_plan.md) — Secções 2–4 (estrutura de diretórios, contrato com Prolog, decisões técnicas)
 - **Código-fonte do backend orquestrador:**
   - [backend_orchestrator/app/main.py](../../backend_orchestrator/app/main.py)
   - [backend_orchestrator/app/core/config.py](../../backend_orchestrator/app/core/config.py)
@@ -304,7 +304,7 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
   - Stack tecnológica de cada camada
 
 - [x] **2.2: `docs/architecture/prolog_engine.md`**
-  - Migrar e refinar o conteúdo de [docs/architecture.md](../architecture.md) secções 2–5
+  - Migrar e refinar o conteúdo de `docs/architecture.md` *(legado)* secções 2–5
   - Estrutura de diretórios do `prolog_engine/` com tree e explicação de cada ficheiro
   - Clean Architecture: camada de transporte (`api/`) vs camada de domínio (`core/`)
   - Papel dos Prolog Dicts como DTOs internos
@@ -344,8 +344,8 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 **Objetivo:** Criar a referência técnica completa de todas as APIs do sistema, incluindo schemas, exemplos request/response, e códigos de erro.
 
 **Fontes de Referência (ficheiros a consultar):**
-- [docs/api_contracts.md](../api_contracts.md) — Contratos JSON do Prolog
-- [docs/fastapi_orchestrator_plan.md](../fastapi_orchestrator_plan.md) — Secção 3 (contratos), Secção 6.4 (exemplos cURL)
+- `docs/api_contracts.md` *(legado)* — Contratos JSON do Prolog
+- [`fastapi_implementation_plan.md`](fastapi_implementation_plan.md) — Secção 3 (contratos), Secção 6.4 (exemplos cURL)
 - **Schemas Pydantic (código-fonte):**
   - [backend_orchestrator/app/schemas/common.py](../../backend_orchestrator/app/schemas/common.py)
   - [backend_orchestrator/app/schemas/scenario.py](../../backend_orchestrator/app/schemas/scenario.py)
@@ -371,7 +371,7 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
   - Nota sobre documentação interativa Swagger em `/docs` e ReDoc em `/redoc`
 
 - [x] **3.2: `docs/api/prolog_engine_api.md`**
-  - Migrar e refinar o conteúdo de [docs/api_contracts.md](../api_contracts.md)
+  - Migrar e refinar o conteúdo de `docs/api_contracts.md` *(legado)*
   - **Base URL:** `http://localhost:8080` (ou `http://prolog-engine:8080` na rede Docker)
   - **Endpoint `POST /evaluate`:**
     - Schema da request (POC: `scenario` + `value`)
@@ -410,8 +410,8 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 - [prolog_engine/.dockerignore](../../prolog_engine/.dockerignore)
 - [backend_orchestrator/.env.example](../../backend_orchestrator/.env.example)
 - [backend_orchestrator/app/core/config.py](../../backend_orchestrator/app/core/config.py) — Para mapear todas as variáveis de ambiente
-- [docs/fastapi_orchestrator_plan.md](../fastapi_orchestrator_plan.md) — Secção 6 (Docker & Compose)
-- [docs/architecture.md](../architecture.md) — Secção 6 (Contentorização Prolog)
+- [`fastapi_implementation_plan.md`](fastapi_implementation_plan.md) — Secção 6 (Docker & Compose)
+- `docs/architecture.md` *(legado)* — Secção 6 (Contentorização Prolog)
 - [README.md](../../README.md) — Secção 5 (Como Executar e Testar)
 
 **Tarefas:**
@@ -469,7 +469,7 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 - [backend_orchestrator/tests/](../../backend_orchestrator/tests/) — Suíte de testes completa (6 ficheiros)
 - [prolog_engine/tests/](../../prolog_engine/tests/) — Testes PLUnit
 - [README.md](../../README.md) — Secção 5.2 e 5.3 (execução local e testes)
-- [docs/Main_context.md](../Main_context.md) — Secção 5 (Guidelines LLM — guardar convenções relevantes)
+- `docs/Main_context.md` *(legado)* — Secção 5 (Guidelines LLM — guardar convenções relevantes)
 - [pyrightconfig.json](../../pyrightconfig.json) — Configuração de type checking
 - [.gitignore](../../.gitignore) — Regras de exclusão Git
 
@@ -516,8 +516,8 @@ Get-ChildItem -Path "docs" -Recurse -Filter "README.md" | Select-Object FullName
 **Objetivo:** Mover os planos de execução e relatórios de progresso para uma secção de histórico, preservando o contexto de evolução do projeto.
 
 **Fontes de Referência (ficheiros a mover/migrar):**
-- [Implementation_plan_start.md](../../Implementation_plan_start.md) — Plano Prolog (mover da raiz)
-- [docs/fastapi_orchestrator_plan.md](../fastapi_orchestrator_plan.md) — Plano FastAPI
+- [`prolog_implementation_plan.md`](prolog_implementation_plan.md) — Plano Prolog (migrado da raiz)
+- [`fastapi_implementation_plan.md`](fastapi_implementation_plan.md) — Plano FastAPI (migrado de `docs/`)
 
 **Tarefas:**
 

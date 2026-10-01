@@ -1,13 +1,16 @@
-# Modelos de Dados e Schemas Pydantic (DTOs)
+# Modelos de Dados, Schemas e DTOs (Pydantic e Java)
 ### *Sistema Pericial de Diagnóstico para Devoluções e Trocas no Retalho*
 
 ---
 
 ## 1. Visão Geral
 
-O backend orquestrador utiliza o **Pydantic v2** para definir todos os contratos de dados (*Data Transfer Objects* — DTOs), garantindo tipagem estrita em runtime, validação automática de dados recebidos e geração em tempo real da especificação OpenAPI 3.1 (Swagger UI).
+O ecossistema adota contratos de dados estritos (*Data Transfer Objects* — DTOs) em dois níveis tecnológicos complementares:
 
-Os modelos de dados estão organizados no pacote [`backend_orchestrator/app/schemas/`](../../backend_orchestrator/app/schemas/):
+1. **Camada de Orquestração (FastAPI / Python 3.12):** Utiliza o **Pydantic v2** para validação em runtime de pedidos externos, coerção segura de tipos e geração dinâmica da especificação OpenAPI 3.1 (Swagger UI).
+2. **Camada de Inferência Drools (Spring Boot 3.3 / Java 21):** Utiliza classes Java anotadas com **Jakarta Bean Validation** (`@Pattern`, `@Valid`), **Lombok** (`@Data`, `@Builder`) e **Jackson** (`@JsonProperty`, `@JsonInclude`) para garantir integridade e isolamento estrito entre os DTOs de transporte HTTP e os factos de domínio inseridos na memória de trabalho (*Working Memory*).
+
+Os modelos de dados estão organizados nas seguintes estruturas de pacotes:
 
 ```text
 backend_orchestrator/app/schemas/
@@ -17,6 +20,17 @@ backend_orchestrator/app/schemas/
 ├── retail.py             # Modelos avançados do domínio de devoluções no retalho
 ├── health.py             # Schema de resposta de saúde e conectividade (HealthResponse)
 └── inference.py          # Schemas do motor de inferência pericial
+
+drools_engine/src/main/java/com/expert/drools/
+├── dtos/
+│   ├── EvidencesRequestDto.java    # DTO de entrada: 13 sintomas clínicos com validação @Pattern
+│   ├── EvaluationResponseDto.java  # DTO de saída: diagnóstico, conclusões e regras disparadas
+│   ├── HealthResponseDto.java      # DTO de saída de saúde: contagem de regras e KieBase ativa
+│   └── ErrorResponseDto.java       # DTO padronizado de erro HTTP 400/500
+└── models/
+    ├── Evidences.java              # Facto Drools: evidências clínicas normalizadas na Working Memory
+    ├── Hypothesis.java             # Facto Drools: classificação intermédia (upper/lower type)
+    └── Conclusion.java             # Facto Drools: conclusão diagnóstica com constantes de diagnóstico
 ```
 
 ```mermaid
@@ -87,11 +101,82 @@ classDiagram
         +PurchaseSchema purchase
     }
 
+    class EvidencesRequestDto {
+        +String bloodEar
+        +String earAche
+        +String deafness
+        +String cerebrospinal
+        +String bloodNose
+        +String vomiting
+        +String bloodBrown
+        +String bloodMouth
+        +String bloodPenis
+        +String bloodAnus
+        +String bloodCoffee
+        +String headAche
+        +String bloodVagina
+        +toDomain() Evidences
+    }
+
+    class EvaluationResponseDto {
+        +String status
+        +String primaryDiagnosis
+        +List~String~ conclusions
+        +String hypothesis
+        +List~String~ firedRules
+        +Instant timestamp
+        +EvidencesRequestDto evidencesEvaluated
+    }
+
+    class HealthResponseDto {
+        +String status
+        +String service
+        +String version
+        +String activeKieBase
+        +int totalRules
+        +Instant timestamp
+    }
+
+    class ErrorResponseDto {
+        +int status
+        +String error
+        +String message
+        +Instant timestamp
+        +List~String~ details
+    }
+
+    class Evidences {
+        +String bloodEar
+        +String earAche
+        +String deafness
+        +String cerebrospinal
+        +String bloodNose
+        +String vomiting
+        +String bloodBrown
+        +String bloodMouth
+        +String bloodPenis
+        +String bloodAnus
+        +String bloodCoffee
+        +String headAche
+        +String bloodVagina
+    }
+
+    class Hypothesis {
+        +String description
+    }
+
+    class Conclusion {
+        +String description
+        +toString() String
+    }
+
     EvaluationResponse --> DecisionEnum
     EvaluationResponse --> EngineSourceEnum
     RetailReturnScenarioInput --> ItemSchema
     RetailReturnScenarioInput --> PurchaseSchema
     ItemSchema --> ItemCondition
+    EvaluationResponseDto --> EvidencesRequestDto
+    EvidencesRequestDto ..> Evidences : toDomain
 ```
 
 ---
@@ -137,7 +222,7 @@ class EngineSourceEnum(str, Enum):
 | Valor | Descrição |
 |:---|:---|
 | `"prolog"` | Decisão originada no micro-serviço SWI-Prolog. |
-| `"drools"` | Decisão originada no motor de regras Drools (suporte planeado). |
+| `"drools"` | Decisão originada no motor de regras Drools (Java 21 / Spring Boot 3). |
 | `"aggregated"` | Decisão consolidada a partir da execução combinada de múltiplos motores. |
 
 ---
@@ -420,7 +505,248 @@ class ResetEngineResponse(BaseModel):
 
 ---
 
-## 7. Validação e Tratamento de Erros de Schema
+## 7. Contratos de Dados do Motor Drools (Java / Spring Boot DTOs e Modelos)
+
+O micro-serviço **Drools Engine** implementa uma arquitetura desacoplada em Java 21, dividida estritamente entre contratos de transporte de rede (`com.expert.drools.dtos`) e entidades de domínio/memória de trabalho (`com.expert.drools.models`).
+
+### 7.1 Arquitetura de Separação entre DTOs e Factos de Domínio
+
+Os DTOs nunca entram diretamente na memória de trabalho (*Working Memory*) do Drools. O isolamento assegura que:
+* Alterações no contrato REST ou serialização JSON não afetam a compilação das regras DRL.
+* O motor Drools opera unicamente sobre factos limpos, normalizados e sem anotações de serialização ou validação web.
+* O método de conversão `toDomain()` garante integridade defensiva contra valores nulos ou vazios.
+
+---
+
+### 7.2 `EvidencesRequestDto`
+
+Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java)
+
+Payload de entrada consumido no endpoint `POST /api/v1/inference/evaluate`. Contém 13 indicadores clínicos binários. Cada atributo é validado pela anotação Bean Validation:
+`@Pattern(regexp = "^(?i)(yes|no)?$", message = "... Value must be either 'yes' or 'no'")`.
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class EvidencesRequestDto {
+    private String bloodEar;
+    private String earAche;
+    private String deafness;
+    private String cerebrospinal;
+    private String bloodNose;
+    private String vomiting;
+    private String bloodBrown;
+    private String bloodMouth;
+    private String bloodPenis;
+    private String bloodAnus;
+    private String bloodCoffee;
+    private String headAche;
+    private String bloodVagina;
+
+    public Evidences toDomain() { ... }
+}
+```
+
+#### Tabela de Campos e Mapeamento:
+
+| Campo | Tipo Java | Validação | Omissão | Descrição Clínica |
+|:---|:---|:---|:---:|:---|
+| `bloodEar` | `String` | `@Pattern(yes\|no)` | `"no"` | Hemorragia no canal auditivo exterior. |
+| `earAche` | `String` | `@Pattern(yes\|no)` | `"no"` | Dor aguda de ouvido (otalgia). |
+| `deafness` | `String` | `@Pattern(yes\|no)` | `"no"` | Hipoacusia ou perda súbita de audição. |
+| `cerebrospinal` | `String` | `@Pattern(yes\|no)` | `"no"` | Fuga de líquido cefalorraquidiano. |
+| `bloodNose` | `String` | `@Pattern(yes\|no)` | `"no"` | Hemorragia nasal (epistaxe). |
+| `vomiting` | `String` | `@Pattern(yes\|no)` | `"no"` | Vómitos associados ao quadro clínico. |
+| `bloodBrown` | `String` | `@Pattern(yes\|no)` | `"no"` | Sangue de coloração castanha escura. |
+| `bloodMouth` | `String` | `@Pattern(yes\|no)` | `"no"` | Sangramento visível na boca. |
+| `bloodPenis` | `String` | `@Pattern(yes\|no)` | `"no"` | Sangue na urina/pénis (hematúria). |
+| `bloodAnus` | `String` | `@Pattern(yes\|no)` | `"no"` | Sangramento anal/retal exteriorizado. |
+| `bloodCoffee` | `String` | `@Pattern(yes\|no)` | `"no"` | Sangue escuro com padrão de borras de café. |
+| `headAche` | `String` | `@Pattern(yes\|no)` | `"no"` | Cefaleia ou dor de cabeça aguda. |
+| `bloodVagina` | `String` | `@Pattern(yes\|no)` | `"no"` | Hemorragia vaginal atípica (metrorragia). |
+
+#### Normalização Defensiva em `toDomain()`:
+
+```java
+private static String normalize(String value) {
+    if (value == null || value.trim().isEmpty()) {
+        return "no";
+    }
+    return value.trim().toLowerCase();
+}
+```
+
+---
+
+### 7.3 `EvaluationResponseDto`
+
+Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java)
+
+Payload de resposta emitido pelo endpoint `POST /api/v1/inference/evaluate`.
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class EvaluationResponseDto {
+    private String status;
+    private String primaryDiagnosis;
+    private List<String> conclusions;
+    private String hypothesis;
+    private List<String> firedRules;
+    private Instant timestamp;
+    private EvidencesRequestDto evidencesEvaluated;
+}
+```
+
+#### Tabela de Campos da Resposta:
+
+| Campo | Tipo Java | Exemplo | Descrição |
+|:---|:---|:---|:---|
+| `status` | `String` | `"SUCCESS"` | Indicador de execução com sucesso da inferência. |
+| `primaryDiagnosis` | `String` | `"Otorrhagia"` | Diagnóstico principal deduzido pelas regras. |
+| `conclusions` | `List<String>` | `["Otorrhagia"]` | Lista integral de todas as conclusões deduzidas. |
+| `hypothesis` | `String` | `"upper type"` | Hipótese intermédia deduzida (`"upper type"` ou `"lower type"`). |
+| `firedRules` | `List<String>` | `["r1_upper_type_classification", "r3_otorrhagia_ear_ache"]` | Lista sequencial das regras DRL disparadas no ciclo. |
+| `timestamp` | `Instant` | `2026-10-01T14:30:00Z` | Carimbo temporal UTC da avaliação. |
+| `evidencesEvaluated` | `EvidencesRequestDto` | `{ "bloodEar": "yes", ... }` | Cópia do payload recebido para rastreabilidade e auditoria. |
+
+#### Exemplo de Serialização JSON:
+
+```json
+{
+  "status": "SUCCESS",
+  "primaryDiagnosis": "Otorrhagia",
+  "conclusions": [
+    "Otorrhagia"
+  ],
+  "hypothesis": "upper type",
+  "firedRules": [
+    "r1_upper_type_classification",
+    "r3_otorrhagia_ear_ache"
+  ],
+  "timestamp": "2026-10-01T14:30:00Z",
+  "evidencesEvaluated": {
+    "bloodEar": "yes",
+    "earAche": "yes"
+  }
+}
+```
+
+---
+
+### 7.4 `HealthResponseDto`
+
+Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/HealthResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/HealthResponseDto.java)
+
+Payload de resposta emitido pelo endpoint `GET /api/v1/inference/health`.
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class HealthResponseDto {
+    private String status;
+    private String service;
+    private String version;
+    private String activeKieBase;
+    private int totalRules;
+    private Instant timestamp;
+}
+```
+
+#### Tabela de Campos:
+
+| Campo | Tipo Java | Exemplo | Descrição |
+|:---|:---|:---|:---|
+| `status` | `String` | `"UP"` | Estado de prontidão do serviço Spring Boot. |
+| `service` | `String` | `"drools-engine"` | Identificador do serviço no ecossistema. |
+| `version` | `String` | `"1.0.0"` | Versão do artefacto construído. |
+| `activeKieBase` | `String` | `"haemorrhageKBase"` | Nome da KieBase ativa carregada do classpath. |
+| `totalRules` | `int` | `13` | Contagem total de regras DRL compiladas e ativas. |
+| `timestamp` | `Instant` | `2026-10-01T14:30:00Z` | Carimbo temporal UTC da verificação. |
+
+#### Exemplo de Serialização JSON:
+
+```json
+{
+  "status": "UP",
+  "service": "drools-engine",
+  "version": "1.0.0",
+  "activeKieBase": "haemorrhageKBase",
+  "totalRules": 13,
+  "timestamp": "2026-10-01T14:30:00Z"
+}
+```
+
+---
+
+### 7.5 `ErrorResponseDto`
+
+Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java)
+
+Payload unificado de erro emitido pelo `GlobalExceptionHandler` em cenários HTTP 400 ou HTTP 500.
+
+```java
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ErrorResponseDto {
+    private int status;
+    private String error;
+    private String message;
+    private Instant timestamp;
+    private List<String> details;
+}
+```
+
+#### Tabela de Campos:
+
+| Campo | Tipo Java | Exemplo | Descrição |
+|:---|:---|:---|:---|
+| `status` | `int` | `400` | Código numérico de estado HTTP. |
+| `error` | `String` | `"Bad Request"` | Título canónico do estado HTTP. |
+| `message` | `String` | `"Input validation failed"` | Descrição sumária do erro intercetado. |
+| `timestamp` | `Instant` | `2026-10-01T14:30:00Z` | Carimbo temporal UTC da ocorrência. |
+| `details` | `List<String>` | `["bloodEar: Value must be either 'yes' or 'no'"]` | Detalhes exatos da causa do erro ou campos inválidos. |
+
+---
+
+### 7.6 Factos de Domínio Drools (`com.expert.drools.models`)
+
+Estes objetos Java são inseridos diretamente na memória de trabalho (*Working Memory*) e manipulados pelas regras compiladas em `haemorrhage_rules.drl`:
+
+1. **`Evidences`:**
+   POJO anotado com `@Data` e `@Builder`, espelhando os 13 atributos clínicos binários normalizados (`"yes"` ou `"no"`). É inserido no início de cada avaliação via `kSession.insert(evidences)`.
+2. **`Hypothesis`:**
+   POJO contendo o atributo `description: String`. É inserido pelas regras de classificação de nível 1 (`r1_upper_type_classification` e `r2_lower_type_classification`) com valores `"upper type"` ou `"lower type"`.
+3. **`Conclusion`:**
+   POJO contendo a conclusão terminal do diagnóstico (`description: String`). Define constantes estáticas para os diagnósticos suportados:
+   * `Conclusion.OTORRHAGIA = "Otorrhagia"`
+   * `Conclusion.SKULL_FRACTURE = "Skull fracture"`
+   * `Conclusion.EPISTAXE = "Epistaxe"`
+   * `Conclusion.HEMATHESE = "Hemathese"`
+   * `Conclusion.MOUTH_HAEMORRHAGE = "Mouth haemorrhage"`
+   * `Conclusion.METRORRHAGIA = "Metrorrhagia"`
+   * `Conclusion.HEMATURIA = "Hematuria"`
+   * `Conclusion.MELENA = "Melena"`
+   * `Conclusion.RECTAL_BLEEDING = "Rectal bleeding"`
+   * `Conclusion.UNKNOWN = "Look for the the doctor!"`
+
+---
+
+## 8. Validação e Tratamento de Erros de Schema
+
+### 8.1 Validação no Backend Orquestrador (FastAPI / Pydantic v2)
 
 Quando um cliente submete um pedido a qualquer endpoint da API pública que viole as restrições de schema:
 
@@ -442,11 +768,32 @@ Quando um cliente submete um pedido a qualquer endpoint da API pública que viol
 }
 ```
 
+### 8.2 Validação no Motor Drools (Spring Boot / Bean Validation)
+
+Quando um pedido submetido a `POST /api/v1/inference/evaluate` viola as restrições de validação ou apresenta formato JSON malformado:
+
+1. A anotação `@Valid` no controlador deteta violações das regras `@Pattern` e aciona `MethodArgumentNotValidException`.
+2. O `GlobalExceptionHandler` interceta a exceção e devolve uma resposta estruturada `HTTP 400 Bad Request` através do `ErrorResponseDto`:
+
+```json
+{
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Input validation failed",
+  "timestamp": "2026-10-01T14:30:00Z",
+  "details": [
+    "bloodEar: Value must be either 'yes' or 'no'"
+  ]
+}
+```
+
 ---
 
-## 8. Documentos Relacionados
+## 9. Documentos Relacionados
 
-* [API Pública v1 do Orquestrador](orchestrator_api_v1.md) — Documentação dos endpoints que consomem estes schemas.
-* [API Interna do Motor Prolog](prolog_engine_api.md) — Mapeamento dos contratos com o motor lógico.
+* [API Pública v1 do Orquestrador](orchestrator_api_v1.md) — Documentação dos endpoints que consomem os schemas Pydantic.
+* [API Interna do Motor Drools](drools_engine_api.md) — Especificação detalhada dos endpoints do micro-serviço Drools.
+* [API Interna do Motor Prolog](prolog_engine_api.md) — Mapeamento dos contratos com o motor lógico Prolog.
+* [Arquitetura Interna: Micro-serviço Drools Engine](../architecture/drools_engine.md) — Detalhes da arquitetura interna, KieContainer e regras DRL.
 * [Domínio e Heurísticas do Perito](../domain/expert_knowledge.md) — Fundamentação teórica dos atributos de retalho.
-* [Explicabilidade e Transparência](../domain/explainability.md) — Justificação do campo `justification` no modelo de resposta.
+* [Explicabilidade e Transparência](../domain/explainability.md) — Justificação do campo `justification` e rastreabilidade via `firedRules`.

@@ -18,7 +18,7 @@ A adesão a estas diretrizes garante a manutenibilidade a longo prazo, legibilid
 > O backend orquestrador FastAPI **NUNCA** implementa regras de negócio, limites de prazo de devolução, cálculos de elegibilidade ou tomadas de decisão pericial.
 > 
 > * **Backend Orquestrador (FastAPI):** Valida esquemas sintáticos (Pydantic), coordena a comunicação assíncrona HTTP com os motores de inferência e agrega respostas canónicas.
-> * **Motores Periciais (SWI-Prolog / futuro Drools):** Detêm a custódia exclusiva das bases de conhecimento, predicados de inferência dedutiva e cadeias de explicabilidade (*Why / Why not*).
+> * **Motores Periciais (SWI-Prolog / Drools):** Detêm a custódia exclusiva das bases de conhecimento, predicados de inferência dedutiva e cadeias de explicabilidade (*Why / Why not*).
 
 ```mermaid
 flowchart LR
@@ -33,8 +33,8 @@ flowchart LR
     subgraph "Camada Pericial (SWI-Prolog / Drools)"
         direction TB
         K["Base de Conhecimento\n(Factos & Políticas)"]
-        R["Motor de Inferência\n(Regras Dedutivas)"]
-        E["Gerador de Explicabilidade\n(Why / Why not Chains)"]
+        R["Motor de Inferência\n(Regras Dedutivas / Produção)"]
+        E["Gerador de Explicabilidade\n(Why / Why not / Fired Rules)"]
         K --> R --> E
     end
 
@@ -49,11 +49,11 @@ Para garantir a coerência internacional do código e a conformidade académica 
 
 | Elemento | Idioma Adotado | Justificação & Exemplos |
 |:---|:---:|:---|
-| **Código-Fonte (Python / Prolog)** | **Inglês** | Variáveis, funções, predicados, classes (`ScenarioInput`, `evaluate_scenario/3`). |
-| **Docstrings e Comentários Técnicos** | **Inglês** | Documentação inline no código-fonte para ferramentas de linting e IDEs. |
+| **Código-Fonte (Python / Prolog / Java)** | **Inglês** | Variáveis, funções, predicados, classes (`ScenarioInput`, `evaluate_scenario/3`, `EvidencesRequestDto`). |
+| **Docstrings e Comentários Técnicos** | **Inglês** | Documentação inline no código-fonte para ferramentas de linting, IDEs e Javadoc. |
 | **Documentação Técnica & Manuais** | **Português (pt-PT)** | Manuais em `docs/`, guias operacionais, relatórios académicos e READMEs. |
 | **Diagramas Mermaid (Labels)** | **Português (pt-PT)** | Diagramas arquiteturais e de sequência orientados à leitura da equipa/docência. |
-| **Mensagens de Commit (Git)** | **Inglês** | Histórico uniforme do repositório (`feat: add prolog client timeout handler`). |
+| **Mensagens de Commit (Git)** | **Inglês** | Histórico uniforme do repositório (`feat: add drools engine microservice`). |
 | **Contratos de API (JSON Keys & Values)** | **Inglês** | Chaves e valores de APIs REST (`{"status": "success", "decision": "approved"}`). |
 
 ---
@@ -162,7 +162,53 @@ async def evaluate_scenario(
 
 ---
 
-## 6. Configuração de Type Checking e Análise Estática
+## 6. Padrões de Código para Java, Spring Boot e Drools (`drools_engine/`)
+
+### 6.1 Separação Rigorosa: Factos de Domínio vs. DTOs de Transporte
+
+* **Factos de Domínio (`models/`):** As classes [`Evidences.java`](../../drools_engine/src/main/java/com/expert/drools/models/Evidences.java), [`Hypothesis.java`](../../drools_engine/src/main/java/com/expert/drools/models/Hypothesis.java) e [`Conclusion.java`](../../drools_engine/src/main/java/com/expert/drools/models/Conclusion.java) representam exclusivamente factos inseridos e manipulados na *Working Memory* do Drools. Nunca devem ser expostas diretamente como modelos de pedido ou resposta da API REST.
+* **DTOs de Transporte (`dtos/`):** As classes [`EvidencesRequestDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java) e [`EvaluationResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java) definem os contratos JSON da API. O método de conversão `toDomain()` em `EvidencesRequestDto` é responsável por sanitizar e normalizar valores antes da inserção na sessão Drools.
+
+### 6.2 Utilização do Project Lombok
+
+Para minimizar código boilerplate mantendo a integridade orientada a objetos:
+* Utilize anotações Lombok nos modelos e DTOs: `@Data`, `@Builder`, `@NoArgsConstructor`, `@AllArgsConstructor`.
+* Para injeção de dependências imutável em controllers e services, utilize `@RequiredArgsConstructor` sobre campos declarados como `private final`.
+
+### 6.3 Bean Validation Declarativa
+
+Todos os DTOs de entrada devem aplicar validação declarativa com anotações padrão Jakarta:
+* Validação de restrição de domínio clínico: `@Pattern(regexp = "yes|no", message = "Field must be 'yes' or 'no'")`.
+* Validação obrigatória nos controladores REST com `@Valid` antes do processamento:
+  ```java
+  @PostMapping("/evaluate")
+  public ResponseEntity<EvaluationResponseDto> evaluate(
+          @Valid @RequestBody EvidencesRequestDto requestDto) { ... }
+  ```
+
+### 6.4 Convenções de Regras DRL (`haemorrhage_rules.drl`)
+
+* **Nomeação das Regras:** Nomes descritivos em snake_case prefixados por identificador de ordenação (ex.: `r1_upper_type`, `r3_otorrhagia_ear_ache`, `r13_fallback_unknown`).
+* **Controlo de Salience:** Utilização explícita do atributo `salience` para governar a precedência de disparo na agenda de execução Rete (classificadores preliminares com prioridade superior a diagnósticos terminais, e regras de fallback com menor prioridade).
+* **Metadados:** Anotação semântica com `@category("diagnostic")` ou `@category("classification")`.
+* **Explicabilidade:** Registo obrigatório de cada regra disparada na lista de rastreabilidade (`firedRules`) através de listeners de agenda.
+
+### 6.5 Gestão de Recursos da KieSession
+
+* As instâncias de `KieSession` devem ser criadas por pedido e libertadas deterministicamente num bloco `finally`:
+  ```java
+  KieSession kieSession = kieContainer.newKieSession();
+  try {
+      // Inserção de factos e disparo de regras
+      kieSession.fireAllRules();
+  } finally {
+      kieSession.dispose();
+  }
+  ```
+
+---
+
+## 7. Configuração de Type Checking e Análise Estática
 
 O projeto disponibiliza um ficheiro de configuração para o motor de tipagem estática **Pyright** / **Pylance** na raiz do repositório:
 
@@ -183,9 +229,9 @@ Esta configuração assegura que:
 
 ---
 
-## 7. Convenções de Controlo de Versões (Git)
+## 8. Convenções de Controlo de Versões (Git)
 
-### 7.1 Mensagens de Commit (Conventional Commits)
+### 8.1 Mensagens de Commit (Conventional Commits)
 
 Os commits no repositório devem seguir a especificação [Conventional Commits](https://www.conventionalcommits.org/):
 
@@ -205,23 +251,27 @@ Os commits no repositório devem seguir a especificação [Conventional Commits]
 
 **Exemplos Práticos:**
 - `feat(orchestrator): implement async prolog client with connection pooling`
+- `feat(drools): implement haemorrhage rules and kiecontainer service`
 - `fix(prolog): handle malformed json payloads with 400 bad request`
 - `docs(development): add testing strategy and coverage matrix`
-- `test(schemas): add validation tests for retail return models`
+- `test(drools): add unit tests for clinical haemorrhage rules`
 
-### 7.2 Regras de Exclusão do Git (`.gitignore`)
+### 8.2 Regras de Exclusão do Git (`.gitignore`)
 
 O ficheiro [`.gitignore`](../../.gitignore) na raiz do repositório previne a inclusão involuntária de artefactos transitórios:
 - **Ambientes Virtuais & Python:** `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/`.
 - **Ficheiros SWI-Prolog:** `*.qlf`, `prolog.dump`.
-- **Configurações Pessoais & IDEs:** `.vscode/` (exceto ficheiros partilhados), `.idea/`, `.DS_Store`, `Thumbs.db`.
+- **Artefactos Java & Maven:** `target/`, `*.class`, `*.jar`, `.m2/`.
+- **Configurações Pessoais & IDEs:** `.vscode/` (exceto ficheiros partilhados), `.idea/`, `*.iml`, `.DS_Store`, `Thumbs.db`.
 - **Segredos & Credenciais:** Ficheiros `.env`, `.env.local`, certificados e chaves privadas.
 
 ---
 
-## 8. Referências Cruzadas
+## 9. Referências Cruzadas
 
 * [Guia de Primeiros Passos](getting_started.md) — Configuração e execução local dos serviços.
 * [Estratégia e Execução de Testes](testing.md) — Como escrever e executar testes alinhados com estas convenções.
 * [Arquitetura do Orquestrador](../architecture/fastapi_orchestrator.md) — Camadas e componentes do serviço Python.
 * [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) — Padrão Clean Architecture no micro-serviço SWI-Prolog.
+* [Arquitetura do Motor Drools](../architecture/drools_engine.md) — Camadas, DTOs e regras de produção em Java.
+* [Referência de Esquemas e Contratos](../api/schemas.md) — Especificação detalhada dos modelos Pydantic e DTOs Java.
