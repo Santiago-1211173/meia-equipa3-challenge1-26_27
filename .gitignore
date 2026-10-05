@@ -122,3 +122,4 @@ dist/
 logs/
 temp/
 tmp/
+get-docker.sh
