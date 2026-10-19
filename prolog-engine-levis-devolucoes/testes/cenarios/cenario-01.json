@@ -1,0 +1,75 @@
+{
+  "id": 1,
+  "titulo": "As etiquetas soltas, troca ao 29.º dia",
+  "estado": "a validar",
+  "aValidar": ["A-19", "A-22"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "Pagamento original com cartão de crédito (docs/06 não indica).",
+    "A possibilidade de revenda (IN-010) ainda não foi avaliada: revendivel = null.",
+    "Preço pago promocional de 69.50 face a um PVP de 98.00.",
+    "O SKU devolvido (501-ORIG-32) está no sortido da loja recetora."
+  ],
+  "justificacao": [
+    "M0/M2: colaborador autorizado (CT-003); compra Mainline devolvida noutra Mainline (CH-001).",
+    "M3: não usado com etiquetas soltas e revenda ainda por avaliar → PC-002 REVER (aprovação da gestão, A-19).",
+    "M4/M5: recibo digital confirma a compra (PT-001); 29 dias ≤ 30 → PT-003 troca elegível.",
+    "M6: troca com recibo só de tamanho → EP-001 mantém o preço promocional; o REVER aciona EX-001.",
+    "M7: valor pago 69.50; sem saldo a reembolsar (TN-006 não se aplica).",
+    "M8: CT-001, CT-004 (Stylist S-21), CT-005, CT-007; recibo digital não é agrafado (CT-006 não se aplica).",
+    "M9: inspeção conforme (CT-008); entre canais e no sortido → EP-005 reprecificar e área de vendas.",
+    "Resultado: REVER — a troca só avança quando a gestão confirmar que o artigo pode ser reetiquetado e revendido."
+  ],
+  "pedido": {
+    "id": "C01",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "TROCA",
+    "loja": { "codigo": "US-ML-010", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE", "skusSortido": ["501-ORIG-32", "501-ORIG-34"] },
+    "colaborador": { "id": "C-1", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-1" },
+    "cliente": { "forneceDados": true },
+    "compraOriginal": {
+      "idTransacao": "T-0101",
+      "canal": "MAINLINE",
+      "dataCompra": "2026-03-02",
+      "pagamento": { "meio": "CREDITO", "valorPago": 69.50, "estadoConta": "ATIVA" },
+      "idStylistVenda": "S-21",
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "RECIBO_DIGITAL", "confirmaCompra": true, "reciboOriginal": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "501-ORIG-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 98.00, "precoAtual": 98.00 },
+        "quantidade": 1,
+        "precoPago": 69.50,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "SOLTAS" },
+        "entreCanais": true
+      }
+    ],
+    "artigosTroca": [
+      {
+        "produto": { "sku": "501-ORIG-34", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 98.00, "precoAtual": 98.00 },
+        "apenasMudaTamanho": true,
+        "precoVenda": 98.00
+      }
+    ]
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "REVER",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "TROCA",
+    "valorDevolucao": 69.5,
+    "baseValor": "VALOR_PAGO",
+    "meioReembolso": "MEIO_ORIGINAL",
+    "aprovacao": "RESPONSAVEL_SENIOR",
+    "terminal": false,
+    "excecaoRecusada": false,
+    "documentacao": { "idStylistAtribuido": "S-21", "reciboAgrafado": false, "assinaturaTestemunha": "Assinatura da testemunha", "retencaoAte": "2026-06-29" },
+    "regrasDisparadas": ["CT-003", "CH-001", "PC-002", "PT-001", "PT-003", "EP-001", "EX-001", "CT-001", "CT-004", "CT-005", "CT-007", "CT-008", "EP-005", "OUT-001"],
+    "regrasNaoDisparadas": ["EP-002", "EX-002", "TN-006", "CT-006", "PT-004"],
+    "artigos": {
+      "A-1": { "elegibilidade": "REVER", "valorDevolucao": 69.5, "destino": "AREA_VENDAS", "regrasDisparadas": ["PC-002", "CT-008", "EP-005"] }
+    }
+  }
+}

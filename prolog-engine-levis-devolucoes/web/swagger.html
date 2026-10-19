@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API do sistema pericial</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c41230'/%3E%3Ctext x='16' y='22' font-size='16' font-family='Arial' font-weight='700' fill='white' text-anchor='middle'%3E?%3C/text%3E%3C/svg%3E">
+  <!-- Swagger UI (Apache 2.0), carregado do CDN jsDelivr: precisa de acesso à internet. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui.css">
+  <style>
+    body { margin: 0; background: #fafafa; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .barra { display: flex; gap: 16px; align-items: center; padding: 10px 20px; background: #1b1f27; color: #fff; }
+    .barra a { color: #fff; font-size: 14px; }
+    .barra strong { font-size: 15px; }
+    .barra span { margin-left: auto; font-size: 12px; opacity: .8; }
+    #sem-internet { display: none; max-width: 760px; margin: 40px auto; padding: 0 20px; color: #1b1f27; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="barra">
+    <strong>Sistema pericial — API REST (SWI-Prolog)</strong>
+    <a href="/">Interface</a>
+    <a href="/v3/api-docs" target="_blank">openapi.json</a>
+    <span>Pedidos de exemplo: os 10 cenários de teste, em “Examples”</span>
+  </div>
+  <div id="swagger-ui"></div>
+  <div id="sem-internet">
+    <h2>Não foi possível carregar o Swagger UI</h2>
+    <p>O Swagger UI é carregado da internet (cdn.jsdelivr.net). Sem ligação, pode usar a
+       <a href="/">interface do sistema</a> ou abrir a especificação da API em <a href="/v3/api-docs">/v3/api-docs</a>
+       e importá-la numa ferramenta como o Postman ou o Insomnia.</p>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script>
+    if (typeof SwaggerUIBundle === 'undefined') {
+      document.getElementById('sem-internet').style.display = 'block';
+    } else {
+      window.ui = SwaggerUIBundle({
+        url: '/v3/api-docs',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        docExpansion: 'list',
+        defaultModelsExpandDepth: 0,
+        displayRequestDuration: true,
+        tryItOutEnabled: true,
+        persistAuthorization: false,
+      });
+    }
+  </script>
+</body>
+</html>

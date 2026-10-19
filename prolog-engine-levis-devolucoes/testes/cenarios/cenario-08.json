@@ -1,0 +1,61 @@
+{
+  "id": 8,
+  "titulo": "O ajuste de preço após alteração de promoção",
+  "estado": "a validar",
+  "aValidar": ["A-14"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "Pagamento original com cartão de crédito.",
+    "A fotografia do recibo não é o recibo original (reciboOriginal = false).",
+    "O preço atual do produto (99.00) é o preço anunciado online; o preço pago com a promoção anterior foi 119.00."
+  ],
+  "justificacao": [
+    "M4: a fotografia do recibo confirma a compra (PT-001), mas não é o recibo original (A-14).",
+    "M5: ajuste de preço sem recibo original → PT-008 RECUSAR (os 13 dias não chegam); PT-007 não se aplica.",
+    "M6: o cliente contesta → EX-002 explicar a política; o pedido de cartão de oferta para a diferença não chega a ser avaliado.",
+    "M9: num ajuste de preço o artigo não é entregue: sem destino.",
+    "Resultado: RECUSAR o ajuste."
+  ],
+  "pedido": {
+    "id": "C08",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "AJUSTE_PRECO",
+    "loja": { "codigo": "US-ML-080", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-8", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-8" },
+    "cliente": { "forneceDados": true, "contestaResultado": true },
+    "compraOriginal": {
+      "idTransacao": "T-0808",
+      "canal": "MAINLINE",
+      "dataCompra": "2026-03-18",
+      "pagamento": { "meio": "CREDITO", "valorPago": 119.00, "estadoConta": "ATIVA" },
+      "idStylistVenda": "S-88",
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "FOTOGRAFIA_RECIBO", "confirmaCompra": true, "reciboOriginal": false },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "SHERPA-TRUCKER-L", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 99.00 },
+        "quantidade": 1,
+        "precoPago": 119.00,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "COLOCADAS" }
+      }
+    ],
+    "pedidoExcecao": {
+      "motivo": "Pede que a diferença seja reembolsada num cartão de oferta se não puder ir para o cartão original.",
+      "resolucaoPedida": "AJUSTE_PRECO"
+    }
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "RECUSAR",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "NENHUMA",
+    "terminal": false,
+    "regrasDisparadas": ["CT-003", "CH-001", "PC-001", "PT-001", "PT-008", "EX-002", "OUT-001"],
+    "regrasNaoDisparadas": ["PT-007", "PT-002", "PT-003", "CT-005", "CT-008", "OUT-007"],
+    "artigos": {
+      "A-1": { "elegibilidade": "PERMITIR" }
+    }
+  }
+}

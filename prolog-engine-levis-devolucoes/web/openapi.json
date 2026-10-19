@@ -1,0 +1,4304 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Sistema pericial de devoluções e trocas Levi's — motor SWI-Prolog",
+    "version": "1.0.0",
+    "description": "API REST do motor Prolog, com os mesmos caminhos e formatos JSON da API Drools.\n\n**Como experimentar:** em `POST /api/v1/avaliacoes`, carregue em *Try it out*, escolha um cenário em *Examples* e carregue em *Execute*. Copie o `avaliacaoId` da resposta para usar nas explicações (Como?, Porque não?, E se?).\n\nDiferenças em relação à API Drools: sem JWT (o colaborador vem no corpo do pedido), avaliações em memória e textos só em português."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Este servidor"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Avaliações",
+      "description": "Avaliar pedidos e consultar decisões"
+    },
+    {
+      "name": "Explicações",
+      "description": "Como?, Porque não?, Porquê?, O que falta? e E se?"
+    },
+    {
+      "name": "Regras",
+      "description": "Catálogo da base de conhecimento"
+    },
+    {
+      "name": "Serviço",
+      "description": "Estado e exemplos"
+    }
+  ],
+  "paths": {
+    "/api/v1/saude": {
+      "get": {
+        "tags": [
+          "Serviço"
+        ],
+        "summary": "Estado do serviço",
+        "operationId": "saude",
+        "responses": {
+          "200": {
+            "description": "Serviço disponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Saude"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes": {
+      "post": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Avaliar um pedido de devolução",
+        "operationId": "avaliar",
+        "description": "Corre o motor de inferência sobre o pedido e grava a avaliação (em memória). Escolha um dos 10 cenários em \"Examples\". Um pedido sem dados obrigatórios dá 422.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoAvaliacao"
+              },
+              "examples": {
+                "cenario1": {
+                  "summary": "Cenário 1: As etiquetas soltas, troca ao 29.º dia",
+                  "value": {
+                    "id": "C01",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-010",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE",
+                      "skusSortido": [
+                        "501-ORIG-32",
+                        "501-ORIG-34"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-1",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-1"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0101",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-02",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 69.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-21",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_DIGITAL",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "501-ORIG-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "SOLTAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-ORIG-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "apenasMudaTamanho": true,
+                        "precoVenda": 98.0
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario2": {
+                  "summary": "Cenário 2: O cliente irritado com Afterpay",
+                  "value": {
+                    "id": "C02",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-020",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-2",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-2"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true,
+                      "agitado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-0202",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-03-19",
+                      "dataEnvio": "2026-03-19",
+                      "pagamento": {
+                        "meio": "AFTERPAY",
+                        "valorPago": 128.0
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "TRUCKER-AZUL-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 128.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "TRUCKER-PRETO-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Exige troca imediata do casaco por outra cor e recusa o reembolso.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true,
+                      "preocupacaoCliente": "Quer a troca imediata e pede para falar com o responsável mais sénior."
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario3": {
+                  "summary": "Cenário 3: A devolução de oferta na Outlet sem recibo",
+                  "value": {
+                    "id": "C03",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO_OFERTA",
+                    "loja": {
+                      "codigo": "US-OUT-030",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET",
+                      "skusSortido": [
+                        "505-REG-30"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-3",
+                      "nome": "Lead Cashier",
+                      "funcao": "LEAD_CASHIER",
+                      "aprovadoPeloDM": true,
+                      "idCredencialPOS": "POS-C-3"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO",
+                      "compraOferta": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "505-REG-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 39.99
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario4": {
+                  "summary": "Cenário 4: As calças com bainha e defeito",
+                  "value": {
+                    "id": "C04",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-040",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-4",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-4"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0404",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-21",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 89.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-44",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "511-SLIM-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 89.5,
+                          "precoAtual": 89.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 89.5,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "embainhado": true,
+                          "defeitoFabricoConfirmado": true,
+                          "danificado": true
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario5": {
+                  "summary": "Cenário 5: A disputa sobre produto grossista",
+                  "value": {
+                    "id": "C05",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-050",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-5",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-5"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "GROSS-0505",
+                      "canal": "GROSSISTA",
+                      "dataCompra": "2026-03-16",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 39.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "LSS-ATH-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LS_SIGNATURE",
+                          "categoria": "VESTUARIO",
+                          "grossista": true,
+                          "vendidoNaLoja": false,
+                          "pvpOriginal": 39.0,
+                          "precoAtual": 39.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 39.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "O produto é fabricado pela Levi's; pede troca ou crédito de loja e invoca exceções de outras marcas.",
+                      "resolucaoPedida": "CREDITO_LOJA",
+                      "envolveProdutoExcluido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario6": {
+                  "summary": "Cenário 6: A devolução sem recibo de artigos em estados diferentes",
+                  "value": {
+                    "id": "C06",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-060",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-6",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-6"
+                    },
+                    "cliente": {
+                      "forneceDados": false
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO"
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "PREM-501-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-2",
+                        "produto": {
+                          "sku": "PREM-511-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-3",
+                        "produto": {
+                          "sku": "PREM-512-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso imediato em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": [
+                      {
+                        "pedidoId": "C06",
+                        "descricao": "O cliente não consegue explicar onde nem quando os artigos foram comprados",
+                        "nivelRisco": "SIGNIFICATIVO"
+                      }
+                    ]
+                  }
+                },
+                "cenario7": {
+                  "summary": "Cenário 7: A substituição do cartão Interac no Canadá",
+                  "value": {
+                    "id": "C07",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "CA-ML-070",
+                      "nome": "Mainline Canadá",
+                      "mercado": "CANADA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-7",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-7"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0707",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-13",
+                      "pagamento": {
+                        "meio": "INTERAC",
+                        "valorPago": 79.5,
+                        "estadoConta": "ATIVA_CARTAO_PERDIDO",
+                        "cartaoFisicoPresente": false
+                      },
+                      "idStylistVenda": "S-77",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "CA-541-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 79.5,
+                          "precoAtual": 79.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 79.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso para o cartão de substituição ou em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario8": {
+                  "summary": "Cenário 8: O ajuste de preço após alteração de promoção",
+                  "value": {
+                    "id": "C08",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "AJUSTE_PRECO",
+                    "loja": {
+                      "codigo": "US-ML-080",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-8",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-8"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0808",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-18",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 119.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-88",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "FOTOGRAFIA_RECIBO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": false
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "SHERPA-TRUCKER-L",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 99.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 119.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede que a diferença seja reembolsada num cartão de oferta se não puder ir para o cartão original.",
+                      "resolucaoPedida": "AJUSTE_PRECO"
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario9": {
+                  "summary": "Cenário 9: O conjunto de bodywear devolvido com um risco de segurança",
+                  "value": {
+                    "id": "C09",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-OUT-090",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET"
+                    },
+                    "colaborador": {
+                      "id": "C-9",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-9"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0909",
+                      "canal": "OUTLET",
+                      "dataCompra": "2026-03-10",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 29.99,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-99",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "BW-BOXER-3PK-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "BODYWEAR",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 29.99,
+                          "precoAtual": 29.99
+                        },
+                        "quantidade": 1,
+                        "precoPago": 29.99,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true,
+                          "embalagemIntacta": false,
+                          "conjuntoCompleto": false
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario10": {
+                  "summary": "Cenário 10: A troca online tardia com PayPal durante uma falha do portal",
+                  "value": {
+                    "id": "C10",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-100",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-10",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-10"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-1010",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-02-22",
+                      "dataEnvio": "2026-02-22",
+                      "pagamento": {
+                        "meio": "PAYPAL",
+                        "valorPago": 69.5,
+                        "acessoAplicacaoPagamento": false
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "portalOnlineDisponivel": false,
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "550-RELAX-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 69.5,
+                          "precoAtual": 69.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-PREM-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Paga a diferença com cartão de crédito e pede o remanescente num cartão de oferta; não acede ao PayPal na loja.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Avaliação gravada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Decisao"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "URL da avaliação"
+              }
+            }
+          },
+          "400": {
+            "description": "JSON inválido",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Faltam dados obrigatórios (lista em \"erros\")",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Listar as avaliações (mais recentes primeiro)",
+        "operationId": "listarAvaliacoes",
+        "parameters": [
+          {
+            "name": "loja",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Código da loja"
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          },
+          {
+            "name": "tamanho",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página de avaliações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaAvaliacoes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/{id}": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Consultar uma avaliação",
+        "operationId": "consultarAvaliacao",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "avaliacaoId devolvido pelo POST /avaliacoes",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decisão",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Decisao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Avaliação inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/dados-em-falta": {
+      "post": {
+        "tags": [
+          "Explicações"
+        ],
+        "summary": "O que falta? (aceita pedidos incompletos)",
+        "operationId": "dadosEmFalta",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoAvaliacao"
+              },
+              "examples": {
+                "cenario1": {
+                  "summary": "Cenário 1: As etiquetas soltas, troca ao 29.º dia",
+                  "value": {
+                    "id": "C01",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-010",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE",
+                      "skusSortido": [
+                        "501-ORIG-32",
+                        "501-ORIG-34"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-1",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-1"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0101",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-02",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 69.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-21",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_DIGITAL",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "501-ORIG-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "SOLTAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-ORIG-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "apenasMudaTamanho": true,
+                        "precoVenda": 98.0
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario2": {
+                  "summary": "Cenário 2: O cliente irritado com Afterpay",
+                  "value": {
+                    "id": "C02",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-020",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-2",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-2"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true,
+                      "agitado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-0202",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-03-19",
+                      "dataEnvio": "2026-03-19",
+                      "pagamento": {
+                        "meio": "AFTERPAY",
+                        "valorPago": 128.0
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "TRUCKER-AZUL-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 128.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "TRUCKER-PRETO-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Exige troca imediata do casaco por outra cor e recusa o reembolso.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true,
+                      "preocupacaoCliente": "Quer a troca imediata e pede para falar com o responsável mais sénior."
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario3": {
+                  "summary": "Cenário 3: A devolução de oferta na Outlet sem recibo",
+                  "value": {
+                    "id": "C03",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO_OFERTA",
+                    "loja": {
+                      "codigo": "US-OUT-030",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET",
+                      "skusSortido": [
+                        "505-REG-30"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-3",
+                      "nome": "Lead Cashier",
+                      "funcao": "LEAD_CASHIER",
+                      "aprovadoPeloDM": true,
+                      "idCredencialPOS": "POS-C-3"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO",
+                      "compraOferta": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "505-REG-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 39.99
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario4": {
+                  "summary": "Cenário 4: As calças com bainha e defeito",
+                  "value": {
+                    "id": "C04",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-040",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-4",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-4"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0404",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-21",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 89.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-44",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "511-SLIM-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 89.5,
+                          "precoAtual": 89.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 89.5,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "embainhado": true,
+                          "defeitoFabricoConfirmado": true,
+                          "danificado": true
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario5": {
+                  "summary": "Cenário 5: A disputa sobre produto grossista",
+                  "value": {
+                    "id": "C05",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-050",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-5",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-5"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "GROSS-0505",
+                      "canal": "GROSSISTA",
+                      "dataCompra": "2026-03-16",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 39.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "LSS-ATH-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LS_SIGNATURE",
+                          "categoria": "VESTUARIO",
+                          "grossista": true,
+                          "vendidoNaLoja": false,
+                          "pvpOriginal": 39.0,
+                          "precoAtual": 39.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 39.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "O produto é fabricado pela Levi's; pede troca ou crédito de loja e invoca exceções de outras marcas.",
+                      "resolucaoPedida": "CREDITO_LOJA",
+                      "envolveProdutoExcluido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario6": {
+                  "summary": "Cenário 6: A devolução sem recibo de artigos em estados diferentes",
+                  "value": {
+                    "id": "C06",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-060",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-6",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-6"
+                    },
+                    "cliente": {
+                      "forneceDados": false
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO"
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "PREM-501-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-2",
+                        "produto": {
+                          "sku": "PREM-511-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-3",
+                        "produto": {
+                          "sku": "PREM-512-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso imediato em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": [
+                      {
+                        "pedidoId": "C06",
+                        "descricao": "O cliente não consegue explicar onde nem quando os artigos foram comprados",
+                        "nivelRisco": "SIGNIFICATIVO"
+                      }
+                    ]
+                  }
+                },
+                "cenario7": {
+                  "summary": "Cenário 7: A substituição do cartão Interac no Canadá",
+                  "value": {
+                    "id": "C07",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "CA-ML-070",
+                      "nome": "Mainline Canadá",
+                      "mercado": "CANADA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-7",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-7"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0707",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-13",
+                      "pagamento": {
+                        "meio": "INTERAC",
+                        "valorPago": 79.5,
+                        "estadoConta": "ATIVA_CARTAO_PERDIDO",
+                        "cartaoFisicoPresente": false
+                      },
+                      "idStylistVenda": "S-77",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "CA-541-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 79.5,
+                          "precoAtual": 79.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 79.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso para o cartão de substituição ou em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario8": {
+                  "summary": "Cenário 8: O ajuste de preço após alteração de promoção",
+                  "value": {
+                    "id": "C08",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "AJUSTE_PRECO",
+                    "loja": {
+                      "codigo": "US-ML-080",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-8",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-8"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0808",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-18",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 119.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-88",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "FOTOGRAFIA_RECIBO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": false
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "SHERPA-TRUCKER-L",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 99.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 119.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede que a diferença seja reembolsada num cartão de oferta se não puder ir para o cartão original.",
+                      "resolucaoPedida": "AJUSTE_PRECO"
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario9": {
+                  "summary": "Cenário 9: O conjunto de bodywear devolvido com um risco de segurança",
+                  "value": {
+                    "id": "C09",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-OUT-090",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET"
+                    },
+                    "colaborador": {
+                      "id": "C-9",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-9"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0909",
+                      "canal": "OUTLET",
+                      "dataCompra": "2026-03-10",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 29.99,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-99",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "BW-BOXER-3PK-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "BODYWEAR",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 29.99,
+                          "precoAtual": 29.99
+                        },
+                        "quantidade": 1,
+                        "precoPago": 29.99,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true,
+                          "embalagemIntacta": false,
+                          "conjuntoCompleto": false
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario10": {
+                  "summary": "Cenário 10: A troca online tardia com PayPal durante uma falha do portal",
+                  "value": {
+                    "id": "C10",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-100",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-10",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-10"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-1010",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-02-22",
+                      "dataEnvio": "2026-02-22",
+                      "pagamento": {
+                        "meio": "PAYPAL",
+                        "valorPago": 69.5,
+                        "acessoAplicacaoPagamento": false
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "portalOnlineDisponivel": false,
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "550-RELAX-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 69.5,
+                          "precoAtual": 69.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-PREM-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Paga a diferença com cartão de crédito e pede o remanescente num cartão de oferta; não acede ao PayPal na loja.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dados em falta, cada um com o seu Porquê",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DadosEmFalta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/porque": {
+      "post": {
+        "tags": [
+          "Explicações"
+        ],
+        "summary": "Porquê? — porque é que o sistema pergunta um dado",
+        "operationId": "porque",
+        "parameters": [
+          {
+            "name": "dado",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "IN-001",
+                "IN-002",
+                "IN-003",
+                "IN-004",
+                "IN-005",
+                "IN-006",
+                "IN-007",
+                "IN-008",
+                "IN-009",
+                "IN-010",
+                "HS-006",
+                "EX-001",
+                "EX-002",
+                "EX-008",
+                "CH-002"
+              ]
+            },
+            "description": "Código do dado de entrada"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PedidoAvaliacao"
+              },
+              "examples": {
+                "cenario1": {
+                  "summary": "Cenário 1: As etiquetas soltas, troca ao 29.º dia",
+                  "value": {
+                    "id": "C01",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-010",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE",
+                      "skusSortido": [
+                        "501-ORIG-32",
+                        "501-ORIG-34"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-1",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-1"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0101",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-02",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 69.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-21",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_DIGITAL",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "501-ORIG-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "SOLTAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-ORIG-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 98.0
+                        },
+                        "apenasMudaTamanho": true,
+                        "precoVenda": 98.0
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario2": {
+                  "summary": "Cenário 2: O cliente irritado com Afterpay",
+                  "value": {
+                    "id": "C02",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-020",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-2",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-2"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true,
+                      "agitado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-0202",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-03-19",
+                      "dataEnvio": "2026-03-19",
+                      "pagamento": {
+                        "meio": "AFTERPAY",
+                        "valorPago": 128.0
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "TRUCKER-AZUL-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 128.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "TRUCKER-PRETO-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Exige troca imediata do casaco por outra cor e recusa o reembolso.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true,
+                      "preocupacaoCliente": "Quer a troca imediata e pede para falar com o responsável mais sénior."
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario3": {
+                  "summary": "Cenário 3: A devolução de oferta na Outlet sem recibo",
+                  "value": {
+                    "id": "C03",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO_OFERTA",
+                    "loja": {
+                      "codigo": "US-OUT-030",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET",
+                      "skusSortido": [
+                        "505-REG-30"
+                      ]
+                    },
+                    "colaborador": {
+                      "id": "C-3",
+                      "nome": "Lead Cashier",
+                      "funcao": "LEAD_CASHIER",
+                      "aprovadoPeloDM": true,
+                      "idCredencialPOS": "POS-C-3"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO",
+                      "compraOferta": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "505-REG-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 98.0,
+                          "precoAtual": 39.99
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario4": {
+                  "summary": "Cenário 4: As calças com bainha e defeito",
+                  "value": {
+                    "id": "C04",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-040",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-4",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-4"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0404",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-21",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 89.5,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-44",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "511-SLIM-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 89.5,
+                          "precoAtual": 89.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 89.5,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "embainhado": true,
+                          "defeitoFabricoConfirmado": true,
+                          "danificado": true
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario5": {
+                  "summary": "Cenário 5: A disputa sobre produto grossista",
+                  "value": {
+                    "id": "C05",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-050",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-5",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-5"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "GROSS-0505",
+                      "canal": "GROSSISTA",
+                      "dataCompra": "2026-03-16",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 39.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "LSS-ATH-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LS_SIGNATURE",
+                          "categoria": "VESTUARIO",
+                          "grossista": true,
+                          "vendidoNaLoja": false,
+                          "pvpOriginal": 39.0,
+                          "precoAtual": 39.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 39.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "O produto é fabricado pela Levi's; pede troca ou crédito de loja e invoca exceções de outras marcas.",
+                      "resolucaoPedida": "CREDITO_LOJA",
+                      "envolveProdutoExcluido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario6": {
+                  "summary": "Cenário 6: A devolução sem recibo de artigos em estados diferentes",
+                  "value": {
+                    "id": "C06",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-ML-060",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-6",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-6"
+                    },
+                    "cliente": {
+                      "forneceDados": false
+                    },
+                    "compraOriginal": {
+                      "canal": "DESCONHECIDO"
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "PREM-501-30",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-2",
+                        "produto": {
+                          "sku": "PREM-511-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES"
+                        }
+                      },
+                      {
+                        "id": "A-3",
+                        "produto": {
+                          "sku": "PREM-512-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 148.0
+                        },
+                        "quantidade": 1,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso imediato em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": [
+                      {
+                        "pedidoId": "C06",
+                        "descricao": "O cliente não consegue explicar onde nem quando os artigos foram comprados",
+                        "nivelRisco": "SIGNIFICATIVO"
+                      }
+                    ]
+                  }
+                },
+                "cenario7": {
+                  "summary": "Cenário 7: A substituição do cartão Interac no Canadá",
+                  "value": {
+                    "id": "C07",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "CA-ML-070",
+                      "nome": "Mainline Canadá",
+                      "mercado": "CANADA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-7",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-7"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0707",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-13",
+                      "pagamento": {
+                        "meio": "INTERAC",
+                        "valorPago": 79.5,
+                        "estadoConta": "ATIVA_CARTAO_PERDIDO",
+                        "cartaoFisicoPresente": false
+                      },
+                      "idStylistVenda": "S-77",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "CA-541-32",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 79.5,
+                          "precoAtual": 79.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 79.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede reembolso para o cartão de substituição ou em numerário.",
+                      "resolucaoPedida": "REEMBOLSO",
+                      "exigeMeioProibido": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario8": {
+                  "summary": "Cenário 8: O ajuste de preço após alteração de promoção",
+                  "value": {
+                    "id": "C08",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "AJUSTE_PRECO",
+                    "loja": {
+                      "codigo": "US-ML-080",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-8",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-8"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0808",
+                      "canal": "MAINLINE",
+                      "dataCompra": "2026-03-18",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 119.0,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-88",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "FOTOGRAFIA_RECIBO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": false
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "SHERPA-TRUCKER-L",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 148.0,
+                          "precoAtual": 99.0
+                        },
+                        "quantidade": 1,
+                        "precoPago": 119.0,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        }
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Pede que a diferença seja reembolsada num cartão de oferta se não puder ir para o cartão original.",
+                      "resolucaoPedida": "AJUSTE_PRECO"
+                    },
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario9": {
+                  "summary": "Cenário 9: O conjunto de bodywear devolvido com um risco de segurança",
+                  "value": {
+                    "id": "C09",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "DEVOLUCAO",
+                    "loja": {
+                      "codigo": "US-OUT-090",
+                      "nome": "Outlet EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "OUTLET"
+                    },
+                    "colaborador": {
+                      "id": "C-9",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-9"
+                    },
+                    "cliente": {
+                      "forneceDados": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "T-0909",
+                      "canal": "OUTLET",
+                      "dataCompra": "2026-03-10",
+                      "pagamento": {
+                        "meio": "CREDITO",
+                        "valorPago": 29.99,
+                        "estadoConta": "ATIVA"
+                      },
+                      "idStylistVenda": "S-99",
+                      "quantidadeComprada": 1
+                    },
+                    "comprovativo": {
+                      "tipo": "RECIBO_IMPRESSO",
+                      "confirmaCompra": true,
+                      "reciboOriginal": true
+                    },
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "BW-BOXER-3PK-M",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "BODYWEAR",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 29.99,
+                          "precoAtual": 29.99
+                        },
+                        "quantidade": 1,
+                        "precoPago": 29.99,
+                        "estado": {
+                          "condicaoUso": "USADO",
+                          "etiquetas": "AUSENTES",
+                          "sujoOuInseguro": true,
+                          "embalagemIntacta": false,
+                          "conjuntoCompleto": false
+                        }
+                      }
+                    ],
+                    "indicadoresFraude": []
+                  }
+                },
+                "cenario10": {
+                  "summary": "Cenário 10: A troca online tardia com PayPal durante uma falha do portal",
+                  "value": {
+                    "id": "C10",
+                    "dataPedido": "2026-03-31",
+                    "tipoPedido": "TROCA",
+                    "loja": {
+                      "codigo": "US-ML-100",
+                      "nome": "Mainline EUA",
+                      "mercado": "EUA",
+                      "tipoLoja": "MAINLINE"
+                    },
+                    "colaborador": {
+                      "id": "C-10",
+                      "nome": "Key Holder",
+                      "funcao": "KEY_HOLDER",
+                      "idCredencialPOS": "POS-C-10"
+                    },
+                    "cliente": {
+                      "forneceDados": true,
+                      "contestaResultado": true
+                    },
+                    "compraOriginal": {
+                      "idTransacao": "LCOM-1010",
+                      "canal": "LEVI_COM",
+                      "dataCompra": "2026-02-22",
+                      "dataEnvio": "2026-02-22",
+                      "pagamento": {
+                        "meio": "PAYPAL",
+                        "valorPago": 69.5,
+                        "acessoAplicacaoPagamento": false
+                      },
+                      "quantidadeComprada": 1,
+                      "encomendaEncontrada": true
+                    },
+                    "comprovativo": {
+                      "tipo": "CONFIRMACAO_ENCOMENDA",
+                      "confirmaCompra": true
+                    },
+                    "portalOnlineDisponivel": false,
+                    "artigos": [
+                      {
+                        "id": "A-1",
+                        "produto": {
+                          "sku": "550-RELAX-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 69.5,
+                          "precoAtual": 69.5
+                        },
+                        "quantidade": 1,
+                        "precoPago": 69.5,
+                        "estado": {
+                          "condicaoUso": "NAO_USADO",
+                          "etiquetas": "COLOCADAS"
+                        },
+                        "entreCanais": true
+                      }
+                    ],
+                    "artigosTroca": [
+                      {
+                        "produto": {
+                          "sku": "501-PREM-34",
+                          "skuReconhecidoPOS": true,
+                          "marca": "LEVIS",
+                          "categoria": "VESTUARIO",
+                          "vendidoNaLoja": true,
+                          "pvpOriginal": 128.0,
+                          "precoAtual": 128.0
+                        },
+                        "apenasMudaTamanho": false,
+                        "precoVenda": 128.0
+                      }
+                    ],
+                    "pedidoExcecao": {
+                      "motivo": "Paga a diferença com cartão de crédito e pede o remanescente num cartão de oferta; não acede ao PayPal na loja.",
+                      "resolucaoPedida": "TROCA",
+                      "contornaProcessoObrigatorio": true
+                    },
+                    "indicadoresFraude": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Explicação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplicacaoPorque"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Dado desconhecido",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/{id}/explicacoes/como": {
+      "get": {
+        "tags": [
+          "Explicações"
+        ],
+        "summary": "Como? — caminho completo ou de uma conclusão",
+        "operationId": "como",
+        "description": "Sem \"conclusao\": todas as regras disparadas, por ordem. Com \"conclusao\": como se chegou a esse campo de saída (OUT-007 precisa do artigo).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "avaliacaoId devolvido pelo POST /avaliacoes",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conclusao",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OUT-001",
+                "OUT-002",
+                "OUT-003",
+                "OUT-004",
+                "OUT-005",
+                "OUT-006",
+                "OUT-007",
+                "OUT-008"
+              ]
+            }
+          },
+          {
+            "name": "artigo",
+            "in": "query",
+            "required": false,
+            "description": "ID do artigo (ex.: A-1)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Explicação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ExplicacaoComo"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ExplicacaoConclusao"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Conclusão por artigo sem o artigo",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Avaliação inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/{id}/explicacoes/porque-nao": {
+      "get": {
+        "tags": [
+          "Explicações"
+        ],
+        "summary": "Porque não? — uma conclusão ou uma regra",
+        "operationId": "porqueNao",
+        "description": "Indique \"conclusao\" (formato OUT-00n:VALOR, ex.: OUT-001:PERMITIR) ou \"regra\" (ex.: PT-003).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "avaliacaoId devolvido pelo POST /avaliacoes",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conclusao",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "OUT-001:PERMITIR"
+            }
+          },
+          {
+            "name": "regra",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "PT-004"
+            }
+          },
+          {
+            "name": "artigo",
+            "in": "query",
+            "required": false,
+            "description": "ID do artigo (ex.: A-1)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Explicação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PorqueNaoConclusao"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PorqueNaoRegra"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetros inválidos",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Avaliação ou regra inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/avaliacoes/{id}/simulacoes": {
+      "post": {
+        "tags": [
+          "Explicações"
+        ],
+        "summary": "E se? — reavaliar com alterações",
+        "operationId": "simular",
+        "description": "Reavalia o pedido gravado com as alterações indicadas, sem alterar a avaliação gravada.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "avaliacaoId devolvido pelo POST /avaliacoes",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Simulacao"
+              },
+              "examples": {
+                "revenda": {
+                  "summary": "O artigo pode ser revendido",
+                  "value": {
+                    "alteracoes": {
+                      "artigos[0].revendivel": true
+                    }
+                  }
+                },
+                "debito": {
+                  "summary": "Pago a débito e embainhado",
+                  "value": {
+                    "alteracoes": {
+                      "compraOriginal.pagamento.meio": "DEBITO",
+                      "artigos[0].estado.embainhado": true
+                    }
+                  }
+                },
+                "semComprovativo": {
+                  "summary": "Sem comprovativo",
+                  "value": {
+                    "alteracoes": {
+                      "comprovativo": null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diferenças e decisão simulada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultadoSimulacao"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Caminho desconhecido",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Avaliação inexistente",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regras": {
+      "get": {
+        "tags": [
+          "Regras"
+        ],
+        "summary": "Catálogo das regras (76 IDs)",
+        "operationId": "listarRegras",
+        "responses": {
+          "200": {
+            "description": "Regras",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RegraResumo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/regras/{codigo}": {
+      "get": {
+        "tags": [
+          "Regras"
+        ],
+        "summary": "Variantes de uma regra",
+        "operationId": "detalheRegra",
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "PC-002"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variantes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegraDetalhe"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Regra desconhecida",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/exemplos": {
+      "get": {
+        "tags": [
+          "Serviço"
+        ],
+        "summary": "Os 10 cenários de teste (docs/06)",
+        "operationId": "exemplos",
+        "responses": {
+          "200": {
+            "description": "Cenários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exemplo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Colaborador": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Identificador do colaborador",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "funcao": {
+            "type": "string",
+            "enum": [
+              "GESTAO_LOJA",
+              "KEY_HOLDER",
+              "XSTORE_MANAGER",
+              "LEAD_CASHIER",
+              "ELEVATED_STYLIST",
+              "STYLIST"
+            ],
+            "nullable": true
+          },
+          "aprovadoPeloDM": {
+            "type": "boolean",
+            "description": "Lead Cashier ou Elevated Stylist aprovado pelo District Manager",
+            "default": false
+          },
+          "idCredencialPOS": {
+            "type": "string",
+            "description": "Credencial de POS própria (CT-003)",
+            "nullable": true
+          }
+        },
+        "description": "Colaborador que processa (HS-006). Na API Drools vem do token JWT; aqui vem no corpo do pedido."
+      },
+      "Loja": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "mercado": {
+            "type": "string",
+            "enum": [
+              "EUA",
+              "CANADA"
+            ],
+            "nullable": true,
+            "description": "IN-001"
+          },
+          "tipoLoja": {
+            "type": "string",
+            "enum": [
+              "MAINLINE",
+              "OUTLET"
+            ],
+            "nullable": true,
+            "description": "IN-002"
+          },
+          "lojaBackPocket": {
+            "type": "boolean",
+            "default": false
+          },
+          "coberturaLojaUnica": {
+            "type": "boolean",
+            "description": "Cobertura de loja única: a testemunha é \"SSC\" (CT-005)",
+            "default": false
+          },
+          "skusSortido": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Loja recetora"
+      },
+      "Cliente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "forneceDados": {
+            "type": "boolean",
+            "description": "PT-006",
+            "default": true
+          },
+          "barreiraLinguistica": {
+            "type": "boolean",
+            "default": false
+          },
+          "contestaResultado": {
+            "type": "boolean",
+            "description": "EX-002",
+            "default": false
+          },
+          "agitado": {
+            "type": "boolean",
+            "description": "EX-003",
+            "default": false
+          }
+        },
+        "description": "Cliente (EX-002, EX-003, PT-006)"
+      },
+      "Pagamento": {
+        "type": "object",
+        "properties": {
+          "meio": {
+            "type": "string",
+            "enum": [
+              "CREDITO",
+              "DEBITO",
+              "APPLE_PAY",
+              "GOOGLE_PAY",
+              "PAYPAL",
+              "VENMO",
+              "AFTERPAY",
+              "INTERAC",
+              "NUMERARIO",
+              "CARTAO_OFERTA"
+            ],
+            "nullable": true,
+            "description": "IN-009"
+          },
+          "valorPago": {
+            "type": "number",
+            "nullable": true
+          },
+          "estadoConta": {
+            "type": "string",
+            "enum": [
+              "ATIVA",
+              "ATIVA_CARTAO_PERDIDO",
+              "ENCERRADA"
+            ],
+            "nullable": true
+          },
+          "cartaoFisicoPresente": {
+            "type": "boolean",
+            "description": "Interac: o mesmo cartão físico (TN-011)",
+            "default": false
+          },
+          "reembolsoOriginalRecusado": {
+            "type": "boolean",
+            "description": "TN-003, TN-004",
+            "default": false
+          },
+          "acessoAplicacaoPagamento": {
+            "type": "boolean",
+            "description": "PayPal/Venmo: o cliente acede à aplicação (TN-008)",
+            "default": true
+          }
+        },
+        "description": "Pagamento original (IN-009)"
+      },
+      "CompraOriginal": {
+        "type": "object",
+        "properties": {
+          "idTransacao": {
+            "type": "string",
+            "nullable": true
+          },
+          "canal": {
+            "type": "string",
+            "enum": [
+              "MAINLINE",
+              "OUTLET",
+              "LEVI_COM",
+              "LEVI_CA",
+              "BACKPOCKET",
+              "FRANQUIA_CANADA",
+              "GROSSISTA",
+              "DESCONHECIDO"
+            ],
+            "nullable": true,
+            "description": "IN-003"
+          },
+          "dataCompra": {
+            "type": "string",
+            "description": "IN-006",
+            "nullable": true,
+            "format": "date"
+          },
+          "dataEnvio": {
+            "type": "string",
+            "description": "IN-006 (compras online)",
+            "nullable": true,
+            "format": "date"
+          },
+          "pagamento": {
+            "$ref": "#/components/schemas/Pagamento",
+            "nullable": true
+          },
+          "idStylistVenda": {
+            "type": "string",
+            "description": "CT-004",
+            "nullable": true
+          },
+          "quantidadeComprada": {
+            "type": "integer",
+            "default": 0
+          },
+          "promocaoEscaloes": {
+            "type": "boolean",
+            "description": "EP-003, EP-004",
+            "default": false
+          },
+          "encomendaEncontrada": {
+            "type": "boolean",
+            "description": "CH-002, CH-003",
+            "default": false
+          },
+          "ajustePrecoAplicado": {
+            "type": "boolean",
+            "description": "PT-007",
+            "default": false
+          },
+          "compraOferta": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Compra original (IN-003, IN-006, IN-009)"
+      },
+      "Comprovativo": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "RECIBO_IMPRESSO",
+              "RECIBO_DIGITAL",
+              "CONFIRMACAO_ENCOMENDA",
+              "RECIBO_OFERTA",
+              "CONSULTA_TRANSACAO",
+              "FOTOGRAFIA_RECIBO",
+              "CONSULTA_BACKPOCKET"
+            ],
+            "nullable": true,
+            "description": "IN-004"
+          },
+          "confirmaCompra": {
+            "type": "boolean",
+            "default": false
+          },
+          "reciboOriginal": {
+            "type": "boolean",
+            "description": "PT-007, PT-008, CT-006",
+            "default": false
+          },
+          "clienteMantemRecibo": {
+            "type": "boolean",
+            "default": false
+          },
+          "incluiOutrosArtigos": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Comprovativo apresentado (IN-004); null = sem comprovativo (devolução às cegas)"
+      },
+      "Produto": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "skuReconhecidoPOS": {
+            "type": "boolean",
+            "description": "HS-001",
+            "default": false
+          },
+          "marca": {
+            "type": "string",
+            "enum": [
+              "LEVIS",
+              "DOCKERS",
+              "LS_SIGNATURE",
+              "BEYOND_YOGA",
+              "OUTRA"
+            ],
+            "nullable": true
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "VESTUARIO",
+              "ACESSORIO",
+              "BODYWEAR"
+            ],
+            "nullable": true
+          },
+          "grossista": {
+            "type": "boolean",
+            "default": false
+          },
+          "vendidoNaLoja": {
+            "type": "boolean",
+            "default": false
+          },
+          "produtoFranquia": {
+            "type": "boolean",
+            "description": "CH-007, HS-004",
+            "default": false
+          },
+          "pvpOriginal": {
+            "type": "number",
+            "nullable": true
+          },
+          "precoAtual": {
+            "type": "number",
+            "nullable": true
+          },
+          "emSaldo": {
+            "type": "boolean",
+            "description": "EP-007",
+            "default": false
+          }
+        },
+        "description": "Produto (IN-007)"
+      },
+      "EstadoProduto": {
+        "type": "object",
+        "properties": {
+          "condicaoUso": {
+            "type": "string",
+            "enum": [
+              "NAO_USADO",
+              "USADO",
+              "LAVADO"
+            ],
+            "nullable": true
+          },
+          "etiquetas": {
+            "type": "string",
+            "enum": [
+              "COLOCADAS",
+              "SOLTAS",
+              "AUSENTES"
+            ],
+            "nullable": true
+          },
+          "personalizado": {
+            "type": "boolean",
+            "default": false
+          },
+          "alterado": {
+            "type": "boolean",
+            "default": false
+          },
+          "embainhado": {
+            "type": "boolean",
+            "default": false
+          },
+          "defeitoFabricoConfirmado": {
+            "type": "boolean",
+            "default": false
+          },
+          "sujoOuInseguro": {
+            "type": "boolean",
+            "description": "PC-008",
+            "default": false
+          },
+          "danificado": {
+            "type": "boolean",
+            "default": false
+          },
+          "etiquetaPrecoCorreta": {
+            "type": "boolean",
+            "default": true
+          },
+          "rfidCorreto": {
+            "type": "boolean",
+            "default": true
+          },
+          "embalagemIntacta": {
+            "type": "boolean",
+            "description": "Bodywear (BW-001, BW-002)",
+            "default": false
+          },
+          "conjuntoCompleto": {
+            "type": "boolean",
+            "description": "Bodywear (BW-003)",
+            "default": true
+          }
+        },
+        "description": "Estado do artigo (IN-008)"
+      },
+      "Artigo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "produto": {
+            "$ref": "#/components/schemas/Produto",
+            "nullable": true
+          },
+          "quantidade": {
+            "type": "integer",
+            "default": 1
+          },
+          "precoPago": {
+            "type": "number",
+            "nullable": true
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoProduto",
+            "nullable": true
+          },
+          "entreCanais": {
+            "type": "boolean",
+            "description": "EP-005 a EP-007",
+            "default": false
+          },
+          "revendivel": {
+            "type": "boolean",
+            "description": "IN-010: pode ser verificado, reetiquetado e revendido (null = por avaliar)",
+            "nullable": true
+          },
+          "valorCalculadoPos": {
+            "type": "number",
+            "nullable": true,
+            "description": "PT-007, EP-003, EP-004"
+          }
+        },
+        "description": "Artigo devolvido"
+      },
+      "ArtigoTroca": {
+        "type": "object",
+        "properties": {
+          "produto": {
+            "$ref": "#/components/schemas/Produto",
+            "nullable": true
+          },
+          "apenasMudaTamanho": {
+            "type": "boolean",
+            "description": "EP-001 / EP-002",
+            "default": false
+          },
+          "precoVenda": {
+            "type": "number",
+            "nullable": true,
+            "description": "TN-006"
+          }
+        },
+        "description": "Artigo levado numa troca"
+      },
+      "PedidoExcecao": {
+        "type": "object",
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolucaoPedida": {
+            "type": "string",
+            "enum": [
+              "REEMBOLSO",
+              "TROCA",
+              "TROCA_MESMO_ARTIGO",
+              "CREDITO_LOJA",
+              "AJUSTE_PRECO"
+            ],
+            "nullable": true
+          },
+          "exigeMeioProibido": {
+            "type": "boolean",
+            "default": false
+          },
+          "exigeSkuIncorreto": {
+            "type": "boolean",
+            "default": false
+          },
+          "envolveProdutoExcluido": {
+            "type": "boolean",
+            "default": false
+          },
+          "contornaProcessoObrigatorio": {
+            "type": "boolean",
+            "default": false
+          },
+          "concluivelNoSistema": {
+            "type": "boolean",
+            "description": "EX-004",
+            "default": true
+          },
+          "aprovada": {
+            "type": "boolean",
+            "description": "Decisão da gestão (PC-004, EX-007); null = pendente",
+            "nullable": true
+          },
+          "aprovador": {
+            "$ref": "#/components/schemas/Colaborador",
+            "nullable": true
+          },
+          "preocupacaoCliente": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "Pedido de exceção (EX-001 a EX-007)"
+      },
+      "IndicadorFraude": {
+        "type": "object",
+        "properties": {
+          "pedidoId": {
+            "type": "string",
+            "description": "Opcional; se vier, tem de ser o id do pedido",
+            "nullable": true
+          },
+          "descricao": {
+            "type": "string",
+            "nullable": true
+          },
+          "nivelRisco": {
+            "type": "string",
+            "enum": [
+              "BAIXO",
+              "SIGNIFICATIVO",
+              "CONFIRMADO"
+            ],
+            "nullable": true
+          }
+        },
+        "description": "Indício de fraude (EX-008): só SIGNIFICATIVO ou CONFIRMADO suspende"
+      },
+      "PedidoAvaliacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Referência do pedido"
+          },
+          "dataPedido": {
+            "type": "string",
+            "description": "IN-006",
+            "nullable": true,
+            "format": "date"
+          },
+          "tipoPedido": {
+            "type": "string",
+            "enum": [
+              "DEVOLUCAO",
+              "TROCA",
+              "DEVOLUCAO_OFERTA",
+              "AJUSTE_PRECO"
+            ],
+            "nullable": true,
+            "description": "IN-005"
+          },
+          "loja": {
+            "$ref": "#/components/schemas/Loja",
+            "nullable": true
+          },
+          "colaborador": {
+            "$ref": "#/components/schemas/Colaborador",
+            "nullable": true
+          },
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente",
+            "nullable": true
+          },
+          "compraOriginal": {
+            "$ref": "#/components/schemas/CompraOriginal",
+            "nullable": true
+          },
+          "comprovativo": {
+            "$ref": "#/components/schemas/Comprovativo",
+            "nullable": true
+          },
+          "artigos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Artigo"
+            }
+          },
+          "artigosTroca": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArtigoTroca"
+            }
+          },
+          "portalOnlineDisponivel": {
+            "type": "boolean",
+            "description": "CH-004",
+            "default": true
+          },
+          "politicaPermiteAsCegasOnline": {
+            "type": "boolean",
+            "description": "CH-003",
+            "default": false
+          },
+          "pedidoExcecao": {
+            "$ref": "#/components/schemas/PedidoExcecao",
+            "nullable": true
+          },
+          "indicadoresFraude": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IndicadorFraude"
+            }
+          }
+        },
+        "description": "Pedido de avaliação (formato do PedidoAvaliacaoRequest da API Drools, com o colaborador no corpo). Os campos em falta recebem o valor por omissão do modelo.",
+        "required": [
+          "id"
+        ]
+      },
+      "Documentacao": {
+        "type": "object",
+        "properties": {
+          "assinaturaCliente": {
+            "type": "string",
+            "nullable": true
+          },
+          "assinaturaProcessador": {
+            "type": "string",
+            "nullable": true
+          },
+          "assinaturaTestemunha": {
+            "type": "string",
+            "nullable": true
+          },
+          "idStylistAtribuido": {
+            "type": "string",
+            "nullable": true
+          },
+          "reciboAgrafado": {
+            "type": "boolean"
+          },
+          "notaRecibo": {
+            "type": "string",
+            "nullable": true
+          },
+          "retencaoAte": {
+            "type": "string",
+            "nullable": true,
+            "format": "date"
+          },
+          "registoExcecao": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "description": "OUT-008"
+      },
+      "ResultadoArtigo": {
+        "type": "object",
+        "properties": {
+          "artigoId": {
+            "type": "string"
+          },
+          "elegibilidade": {
+            "type": "string",
+            "enum": [
+              "PERMITIR",
+              "REVER",
+              "ENCAMINHAR",
+              "RECUSAR"
+            ],
+            "nullable": true
+          },
+          "tipoTransacao": {
+            "type": "string",
+            "enum": [
+              "REEMBOLSO",
+              "TROCA",
+              "TROCA_MESMO_ARTIGO",
+              "CREDITO_LOJA",
+              "AJUSTE_PRECO",
+              "NENHUMA"
+            ],
+            "nullable": true
+          },
+          "valorDevolucao": {
+            "type": "number",
+            "nullable": true
+          },
+          "baseValor": {
+            "type": "string",
+            "enum": [
+              "VALOR_PAGO",
+              "PRECO_ATUAL",
+              "VALOR_PROMOCIONAL",
+              "VALOR_ESCALAO",
+              "VALOR_POS",
+              "PVP_ORIGINAL"
+            ],
+            "nullable": true
+          },
+          "destino": {
+            "type": "string",
+            "enum": [
+              "AREA_VENDAS",
+              "SALDOS",
+              "REETIQUETAR",
+              "BAIXA_DANO",
+              "RISCO_BIOLOGICO",
+              "DEVOLUCAO_CLIENTE"
+            ],
+            "nullable": true
+          },
+          "descontoSaldo": {
+            "type": "integer"
+          },
+          "aprovacao": {
+            "type": "string",
+            "enum": [
+              "NENHUMA",
+              "XSTORE_MANAGER",
+              "RESPONSAVEL_SENIOR",
+              "DISTRICT_AREA"
+            ]
+          },
+          "terminal": {
+            "type": "boolean"
+          }
+        },
+        "description": "Resultado de um artigo (ADR 0002)"
+      },
+      "RegistoRegra": {
+        "type": "object",
+        "properties": {
+          "ordem": {
+            "type": "integer"
+          },
+          "codigoRegra": {
+            "type": "string"
+          },
+          "nomeRegra": {
+            "type": "string"
+          },
+          "modulo": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "PERMITIR",
+              "REVER",
+              "ENCAMINHAR",
+              "RECUSAR"
+            ],
+            "nullable": true
+          },
+          "mensagem": {
+            "type": "string",
+            "nullable": true
+          },
+          "aValidar": {
+            "type": "boolean"
+          }
+        },
+        "description": "Regra disparada"
+      },
+      "Decisao": {
+        "type": "object",
+        "properties": {
+          "avaliacaoId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "pedidoId": {
+            "type": "string"
+          },
+          "avaliadaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "versaoBaseConhecimento": {
+            "type": "string"
+          },
+          "elegibilidade": {
+            "type": "string",
+            "enum": [
+              "PERMITIR",
+              "REVER",
+              "ENCAMINHAR",
+              "RECUSAR"
+            ],
+            "nullable": true,
+            "description": "OUT-001"
+          },
+          "tipoVerificacao": {
+            "type": "string",
+            "enum": [
+              "NAO_DETERMINADA",
+              "VERIFICADA",
+              "AS_CEGAS"
+            ]
+          },
+          "tipoTransacao": {
+            "type": "string",
+            "enum": [
+              "REEMBOLSO",
+              "TROCA",
+              "TROCA_MESMO_ARTIGO",
+              "CREDITO_LOJA",
+              "AJUSTE_PRECO",
+              "NENHUMA"
+            ],
+            "nullable": true,
+            "description": "OUT-002"
+          },
+          "valorDevolucao": {
+            "type": "number",
+            "nullable": true,
+            "description": "OUT-003"
+          },
+          "baseValor": {
+            "type": "string",
+            "enum": [
+              "VALOR_PAGO",
+              "PRECO_ATUAL",
+              "VALOR_PROMOCIONAL",
+              "VALOR_ESCALAO",
+              "VALOR_POS",
+              "PVP_ORIGINAL"
+            ],
+            "nullable": true
+          },
+          "meioReembolso": {
+            "type": "string",
+            "enum": [
+              "MEIO_ORIGINAL",
+              "CARTAO_OFERTA",
+              "CARTAO_OFERTA_ELETRONICO",
+              "MEIO_ALTERNATIVO",
+              "APLICACAO_PAGAMENTO",
+              "CREDITO_LOJA"
+            ],
+            "nullable": true,
+            "description": "OUT-004"
+          },
+          "aprovacao": {
+            "type": "string",
+            "enum": [
+              "NENHUMA",
+              "XSTORE_MANAGER",
+              "RESPONSAVEL_SENIOR",
+              "DISTRICT_AREA"
+            ],
+            "description": "OUT-005"
+          },
+          "processo": {
+            "type": "string",
+            "enum": [
+              "POS",
+              "BACKPOCKET",
+              "AFTERPAY",
+              "PAYPAL_VENMO",
+              "VERIFONE_INTERAC",
+              "FRANQUIA_CANADA",
+              "DANO",
+              "RISCO_BIOLOGICO"
+            ],
+            "nullable": true,
+            "description": "OUT-006"
+          },
+          "terminal": {
+            "type": "boolean",
+            "description": "Uma paragem obrigatória terminou o fluxo"
+          },
+          "excecaoRecusada": {
+            "type": "boolean"
+          },
+          "documentacao": {
+            "$ref": "#/components/schemas/Documentacao"
+          },
+          "artigos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultadoArtigo"
+            }
+          },
+          "regras": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegistoRegra"
+            }
+          },
+          "regrasAValidar": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Decisão (DecisaoResponse)"
+      },
+      "AvaliacaoResumo": {
+        "type": "object",
+        "properties": {
+          "avaliacaoId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "pedidoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "avaliadaEm": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lojaCodigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "elegibilidade": {
+            "type": "string",
+            "enum": [
+              "PERMITIR",
+              "REVER",
+              "ENCAMINHAR",
+              "RECUSAR"
+            ],
+            "nullable": true
+          },
+          "tipoTransacao": {
+            "type": "string",
+            "enum": [
+              "REEMBOLSO",
+              "TROCA",
+              "TROCA_MESMO_ARTIGO",
+              "CREDITO_LOJA",
+              "AJUSTE_PRECO",
+              "NENHUMA"
+            ],
+            "nullable": true
+          },
+          "valorDevolucao": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "PaginaAvaliacoes": {
+        "type": "object",
+        "properties": {
+          "conteudo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AvaliacaoResumo"
+            }
+          },
+          "pagina": {
+            "type": "integer"
+          },
+          "tamanho": {
+            "type": "integer"
+          },
+          "totalElementos": {
+            "type": "integer"
+          },
+          "totalPaginas": {
+            "type": "integer"
+          }
+        }
+      },
+      "Condicao": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "cumprida": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "description": "Valores de entrada que a condição lê",
+            "nullable": true
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Passo": {
+        "type": "object",
+        "properties": {
+          "ordem": {
+            "type": "integer"
+          },
+          "modulo": {
+            "type": "string"
+          },
+          "codigoRegra": {
+            "type": "string"
+          },
+          "nomeRegra": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultado": {
+            "type": "string",
+            "enum": [
+              "PERMITIR",
+              "REVER",
+              "ENCAMINHAR",
+              "RECUSAR"
+            ],
+            "nullable": true
+          },
+          "mensagem": {
+            "type": "string",
+            "nullable": true
+          },
+          "aValidar": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExplicacaoComo": {
+        "type": "object",
+        "properties": {
+          "passos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Passo"
+            }
+          },
+          "modulosPercorridos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "paragem": {
+            "type": "string",
+            "description": "Paragem obrigatória que terminou o fluxo",
+            "nullable": true
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "Como? — caminho completo"
+      },
+      "ExplicacaoConclusao": {
+        "type": "object",
+        "properties": {
+          "conclusao": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "valores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "regra": {
+            "type": "string",
+            "description": "Regra que fixou o valor",
+            "nullable": true
+          },
+          "mensagem": {
+            "type": "string",
+            "nullable": true
+          },
+          "condicoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Condicao"
+            }
+          },
+          "caminho": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "Como? — caminho de uma conclusão"
+      },
+      "PorqueNaoRegra": {
+        "type": "object",
+        "properties": {
+          "codigoRegra": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "causa": {
+            "type": "string",
+            "enum": [
+              "DISPAROU",
+              "MODULO_NAO_ALCANCADO",
+              "CANCELADA_POR_PRECEDENCIA",
+              "CONDICOES_FALHADAS"
+            ]
+          },
+          "regraResponsavel": {
+            "type": "string",
+            "nullable": true
+          },
+          "variante": {
+            "type": "string",
+            "nullable": true
+          },
+          "condicoes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Condicao"
+            }
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "Porque não? — uma regra"
+      },
+      "PorqueNaoConclusao": {
+        "type": "object",
+        "properties": {
+          "conclusao": {
+            "type": "string"
+          },
+          "valor": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorObtido": {
+            "type": "string",
+            "nullable": true
+          },
+          "obtida": {
+            "type": "boolean"
+          },
+          "propostaPor": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "definidoPor": {
+            "type": "string",
+            "nullable": true
+          },
+          "regras": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PorqueNaoRegra"
+            }
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "Porque não? — uma conclusão"
+      },
+      "RegraEmEspera": {
+        "type": "object",
+        "properties": {
+          "codigoRegra": {
+            "type": "string"
+          },
+          "nomeRegra": {
+            "type": "string"
+          },
+          "modulo": {
+            "type": "string"
+          },
+          "artigoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "conclusoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "condicoesDoDado": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Condicao"
+            }
+          }
+        }
+      },
+      "ExplicacaoPorque": {
+        "type": "object",
+        "properties": {
+          "dado": {
+            "type": "string"
+          },
+          "pergunta": {
+            "type": "string"
+          },
+          "regrasQueDependem": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regrasEmEspera": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegraEmEspera"
+            }
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "Porquê? — porque é que o sistema faz uma pergunta"
+      },
+      "DadoEmFalta": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          },
+          "caminho": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "obrigatorio": {
+            "type": "boolean"
+          },
+          "porque": {
+            "$ref": "#/components/schemas/ExplicacaoPorque",
+            "nullable": true
+          }
+        }
+      },
+      "DadosEmFalta": {
+        "type": "object",
+        "properties": {
+          "dados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DadoEmFalta"
+            }
+          },
+          "completo": {
+            "type": "boolean"
+          },
+          "resumo": {
+            "type": "string"
+          }
+        },
+        "description": "O que falta?"
+      },
+      "Simulacao": {
+        "type": "object",
+        "properties": {
+          "alteracoes": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Caminho → novo valor (null remove)",
+            "example": {
+              "artigos[0].revendivel": true,
+              "compraOriginal.pagamento.meio": "DEBITO"
+            }
+          }
+        },
+        "description": "E se?",
+        "required": [
+          "alteracoes"
+        ]
+      },
+      "Diferenca": {
+        "type": "object",
+        "properties": {
+          "alvo": {
+            "type": "string"
+          },
+          "campo": {
+            "type": "string"
+          },
+          "original": {
+            "type": "string",
+            "nullable": true
+          },
+          "simulado": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ResultadoSimulacao": {
+        "type": "object",
+        "properties": {
+          "diferencas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Diferenca"
+            }
+          },
+          "regrasNovas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "regrasRemovidas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resumo": {
+            "type": "string"
+          },
+          "decisaoSimulada": {
+            "$ref": "#/components/schemas/Decisao"
+          }
+        }
+      },
+      "RegraResumo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "modulos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "variantes": {
+            "type": "integer"
+          },
+          "aValidar": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Variante": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "modulo": {
+            "type": "string"
+          },
+          "prioridade": {
+            "type": "integer"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "condicoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conclusoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "aValidar": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RegraDetalhe": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "variantes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variante"
+            }
+          }
+        }
+      },
+      "Exemplo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "pedido": {
+            "$ref": "#/components/schemas/PedidoAvaliacao"
+          }
+        }
+      },
+      "Saude": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "motor": {
+            "type": "string"
+          },
+          "versaoBaseConhecimento": {
+            "type": "string"
+          },
+          "regras": {
+            "type": "integer"
+          }
+        }
+      },
+      "Problema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "erros": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "ProblemDetail (RFC 9457)"
+      }
+    }
+  }
+}

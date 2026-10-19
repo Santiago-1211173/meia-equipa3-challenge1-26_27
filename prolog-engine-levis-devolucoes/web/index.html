@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema pericial Levi's</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c41230'/%3E%3Ctext x='16' y='22' font-size='16' font-family='Arial' font-weight='700' fill='white' text-anchor='middle'%3E?%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/web/app.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="marca">
+      <span class="logo" aria-hidden="true">?</span>
+      <div>
+        <h1>Sistema pericial de devoluções e trocas</h1>
+        <p class="subtitulo">Lojas Levi's Mainline e Outlet · EUA e Canadá · motor SWI-Prolog</p>
+      </div>
+    </div>
+    <nav class="separadores" aria-label="Vistas">
+      <button class="separador ativo" data-vista="avaliar">Avaliar pedido</button>
+      <button class="separador" data-vista="historico">Histórico</button>
+      <button class="separador" data-vista="regras">Regras</button>
+      <a class="separador" href="/swagger-ui.html" target="_blank" rel="noopener">API (Swagger)</a>
+    </nav>
+    <span id="estado-servico" class="estado-servico">a ligar…</span>
+  </header>
+
+  <main>
+    <!-- Avaliar ------------------------------------------------------------------------------ -->
+    <section id="vista-avaliar" class="vista grelha">
+      <div class="coluna-formulario">
+        <div class="barra-ferramentas">
+          <label class="exemplos">
+            <span>Carregar exemplo</span>
+            <select id="exemplos"><option value="">— cenários de teste —</option></select>
+          </label>
+          <button type="button" id="novo-pedido" class="botao secundario">Novo pedido</button>
+          <button type="button" id="ver-json" class="botao secundario">JSON</button>
+        </div>
+        <form id="formulario" autocomplete="off" novalidate></form>
+        <div class="rodape-formulario">
+          <div id="resumo-falta" class="resumo-falta">A verificar os dados…</div>
+          <button type="button" id="avaliar" class="botao primario">Avaliar pedido</button>
+        </div>
+      </div>
+
+      <div class="coluna-resultado">
+        <div id="painel-porque" class="cartao oculto" aria-live="polite"></div>
+        <div id="painel-falta" class="cartao"></div>
+        <div id="painel-decisao" class="cartao">
+          <div class="vazio">
+            <h2>Ainda sem decisão</h2>
+            <p>Preencha o pedido (ou carregue um exemplo) e carregue em <strong>Avaliar pedido</strong>.
+               Em cada grupo de perguntas, <strong>Porquê?</strong> explica porque é que o sistema precisa dessa resposta.</p>
+          </div>
+        </div>
+        <div id="painel-explicacoes" class="cartao oculto">
+          <div class="separadores-internos" role="tablist">
+            <button class="sep-int ativo" data-exp="como">Como?</button>
+            <button class="sep-int" data-exp="porque-nao">Porque não?</button>
+            <button class="sep-int" data-exp="e-se">E se?</button>
+          </div>
+          <div id="exp-como" class="exp"></div>
+          <div id="exp-porque-nao" class="exp oculto"></div>
+          <div id="exp-e-se" class="exp oculto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Histórico ---------------------------------------------------------------------------- -->
+    <section id="vista-historico" class="vista oculto">
+      <div class="cartao">
+        <div class="cabecalho-cartao">
+          <h2>Avaliações desta sessão do servidor</h2>
+          <button type="button" id="atualizar-historico" class="botao secundario">Atualizar</button>
+        </div>
+        <div id="historico"></div>
+      </div>
+    </section>
+
+    <!-- Regras ------------------------------------------------------------------------------- -->
+    <section id="vista-regras" class="vista oculto">
+      <div class="grelha-regras">
+        <div class="cartao">
+          <input id="filtro-regras" type="search" placeholder="Procurar regra (ID ou texto)…" aria-label="Procurar regra">
+          <ul id="lista-regras" class="lista-regras"></ul>
+        </div>
+        <div id="detalhe-regra" class="cartao">
+          <div class="vazio"><p>Escolha uma regra para ver as variantes, as condições e as conclusões.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="dialogo-json">
+    <form method="dialog" class="dialogo">
+      <h2>Pedido em JSON</h2>
+      <p class="nota">O mesmo formato da API (<code>POST /api/v1/avaliacoes</code>). Pode colar um pedido e aplicar.</p>
+      <textarea id="texto-json" spellcheck="false"></textarea>
+      <p id="erro-json" class="erro"></p>
+      <div class="acoes">
+        <button value="cancelar" class="botao secundario">Fechar</button>
+        <button type="button" id="aplicar-json" class="botao primario">Aplicar ao formulário</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/web/app.js"></script>
+</body>
+</html>

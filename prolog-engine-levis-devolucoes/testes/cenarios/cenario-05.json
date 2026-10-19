@@ -1,0 +1,59 @@
+{
+  "id": 5,
+  "titulo": "A disputa sobre produto grossista",
+  "estado": "a validar",
+  "aValidar": ["A-08"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "Compra há 15 dias, paga com cartão de crédito no retalhista grossista.",
+    "O SKU do produto grossista não é reconhecido como vendido na loja."
+  ],
+  "justificacao": [
+    "M2: comprado num retalhista grossista → CH-008 RECUSAR e encaminhar o cliente para o retalhista (paragem obrigatória; HS-002 já não é avaliada, A-08).",
+    "M6: o cliente contesta → EX-002 explicar a política (mesmo após a paragem, ADR 0004); não fica agitado (EX-003 não se aplica).",
+    "O pedido de troca ou crédito de loja não pode contornar a paragem obrigatória.",
+    "M9: o artigo volta ao cliente (OUT-007)."
+  ],
+  "pedido": {
+    "id": "C05",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO",
+    "loja": { "codigo": "US-ML-050", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-5", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-5" },
+    "cliente": { "forneceDados": true, "contestaResultado": true },
+    "compraOriginal": {
+      "idTransacao": "GROSS-0505",
+      "canal": "GROSSISTA",
+      "dataCompra": "2026-03-16",
+      "pagamento": { "meio": "CREDITO", "valorPago": 39.00, "estadoConta": "ATIVA" },
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "RECIBO_IMPRESSO", "confirmaCompra": true, "reciboOriginal": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "LSS-ATH-34", "skuReconhecidoPOS": true, "marca": "LS_SIGNATURE", "categoria": "VESTUARIO", "grossista": true, "vendidoNaLoja": false, "pvpOriginal": 39.00, "precoAtual": 39.00 },
+        "quantidade": 1,
+        "precoPago": 39.00,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "COLOCADAS" }
+      }
+    ],
+    "pedidoExcecao": {
+      "motivo": "O produto é fabricado pela Levi's; pede troca ou crédito de loja e invoca exceções de outras marcas.",
+      "resolucaoPedida": "CREDITO_LOJA",
+      "envolveProdutoExcluido": true
+    }
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "RECUSAR",
+    "tipoVerificacao": "NAO_DETERMINADA",
+    "tipoTransacao": "NENHUMA",
+    "terminal": true,
+    "regrasDisparadas": ["CT-003", "CH-008", "EX-002", "OUT-007", "OUT-001"],
+    "regrasNaoDisparadas": ["HS-002", "PC-001", "PT-001", "EX-003", "EX-006", "CT-005"],
+    "artigos": {
+      "A-1": { "destino": "DEVOLUCAO_CLIENTE", "regrasDisparadas": ["OUT-007"] }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "id": 3,
+  "titulo": "A devolução de oferta na Outlet sem recibo",
+  "estado": "a validar",
+  "aValidar": ["A-01", "A-13", "A-16", "A-21"],
+  "pressupostos": [
+    "Canal de compra desconhecido (oferta sem qualquer registo).",
+    "Colaborador Lead Cashier aprovado pelo DM, para exercitar CT-002 (docs/06 não indica quem processa).",
+    "Data e meio de pagamento da compra desconhecidos.",
+    "Preço atual promocional de 39.99 face a um PVP de 98.00."
+  ],
+  "justificacao": [
+    "M2: canal desconhecido (IN-003, A-01).",
+    "M3: não usado com etiquetas (PC-001).",
+    "M4/M5: sem comprovativo → PT-002 às cegas (o cliente dá os dados, PT-006 não se aplica) → PT-005 só crédito de loja ao preço atual (oferta sem recibo, A-13; sem prazo, A-16).",
+    "M7: Outlet às cegas → CH-009 preço atual após promoções: 39.99, não o PVP de 98.00.",
+    "M8: devolução às cegas por Lead Cashier → CT-002 aprovação do XStore Manager; CT-005, CT-007.",
+    "M9: inspeção conforme → área de vendas (CT-008).",
+    "Resultado: PERMITIR crédito de loja de 39.99 com aprovação do XStore Manager."
+  ],
+  "pedido": {
+    "id": "C03",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO_OFERTA",
+    "loja": { "codigo": "US-OUT-030", "nome": "Outlet EUA", "mercado": "EUA", "tipoLoja": "OUTLET", "skusSortido": ["505-REG-30"] },
+    "colaborador": { "id": "C-3", "nome": "Lead Cashier", "funcao": "LEAD_CASHIER", "aprovadoPeloDM": true, "idCredencialPOS": "POS-C-3" },
+    "cliente": { "forneceDados": true },
+    "compraOriginal": {
+      "canal": "DESCONHECIDO",
+      "compraOferta": true
+    },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "505-REG-30", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 98.00, "precoAtual": 39.99 },
+        "quantidade": 1,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "COLOCADAS" }
+      }
+    ]
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "PERMITIR",
+    "tipoVerificacao": "AS_CEGAS",
+    "tipoTransacao": "CREDITO_LOJA",
+    "valorDevolucao": 39.99,
+    "baseValor": "VALOR_PROMOCIONAL",
+    "meioReembolso": "CREDITO_LOJA",
+    "aprovacao": "XSTORE_MANAGER",
+    "terminal": false,
+    "documentacao": { "retencaoAte": "2026-06-29" },
+    "regrasDisparadas": ["CT-003", "IN-003", "PC-001", "PT-002", "PT-005", "CH-009", "CT-002", "CT-005", "CT-007", "CT-008", "OUT-001"],
+    "regrasNaoDisparadas": ["PT-001", "PT-006", "TN-007", "CT-001", "CT-004", "EP-003"],
+    "artigos": {
+      "A-1": { "elegibilidade": "PERMITIR", "valorDevolucao": 39.99, "destino": "AREA_VENDAS", "regrasDisparadas": ["PC-001", "CH-009", "CT-008"] }
+    }
+  }
+}
