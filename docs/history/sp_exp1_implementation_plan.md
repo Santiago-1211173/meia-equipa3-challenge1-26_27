@@ -142,10 +142,10 @@ prolog_engine/src/
 ├── api/
 │   ├── server.pl                    # (SEM ALTERAÇÃO)
 │   ├── routes.pl                    # (SEM ALTERAÇÃO)
-│   └── inference_routes.pl          # 🆕 Endpoints HTTP REST para motor de inferência
+│   └── inference_routes.pl          #  Endpoints HTTP REST para motor de inferência
 ├── core/
 │   ├── rules.pl                     # (SEM ALTERAÇÃO)
-│   └── inference/                   # 🆕 Motor pericial modular
+│   └── inference/                   #  Motor pericial modular
 │       ├── engine.pl                # Motor sp_exp2 adaptado (não-interativo, estruturado)
 │       └── kb/                      # Bases de conhecimento carregáveis
 │           └── vehicles.pl          # Base de conhecimento de veículos (adaptada de veiculos2.txt)
@@ -156,15 +156,15 @@ backend_orchestrator/app/
 │   ├── endpoints/
 │   │   ├── evaluate.py              # (SEM ALTERAÇÃO)
 │   │   ├── health.py                # (SEM ALTERAÇÃO)
-│   │   └── inference.py             # 🆕 Endpoints FastAPI para motor de inferência
+│   │   └── inference.py             #  Endpoints FastAPI para motor de inferência
 │   └── router.py                    # MODIFICAÇÃO MÍNIMA: inclusão condicional
 ├── clients/
 │   ├── prolog_client.py             # (SEM ALTERAÇÃO)
-│   └── inference_client.py          # 🆕 Cliente HTTP async para /inference/*
+│   └── inference_client.py          #  Cliente HTTP async para /inference/*
 ├── schemas/
-│   └── inference.py                 # 🆕 Schemas Pydantic para motor de inferência
+│   └── inference.py                 #  Schemas Pydantic para motor de inferência
 ├── services/
-│   └── inference_service.py         # 🆕 Camada de serviço para inferência
+│   └── inference_service.py         #  Camada de serviço para inferência
 └── core/
     └── config.py                    # MODIFICAÇÃO MÍNIMA: +1 campo INFERENCE_ENGINE_ENABLED
 ```

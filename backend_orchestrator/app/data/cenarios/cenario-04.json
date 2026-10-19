@@ -1,0 +1,55 @@
+{
+  "id": 4,
+  "titulo": "As calças com bainha e defeito",
+  "estado": "a validar",
+  "aValidar": [],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "Pagamento original com cartão de crédito (docs/06 não indica).",
+    "O colaborador confirma o defeito de fabrico na costura, para verificar que HS-003 prevalece sobre PC-006."
+  ],
+  "justificacao": [
+    "M3: calças embainhadas → HS-003 RECUSAR, mesmo com o defeito confirmado (HS-003 prevalece sobre PC-006).",
+    "M4: o recibo original confirma a compra (PT-001), mas sem artigo elegível não há prazo a aplicar (PT-003).",
+    "M9: artigo recusado → devolução ao cliente (OUT-007); o pedido fica RECUSAR sem transação (OUT-001).",
+    "A pressão da viagem não altera a elegibilidade; o cliente não contesta formalmente (EX-002 não se aplica)."
+  ],
+  "pedido": {
+    "id": "C04",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO",
+    "loja": { "codigo": "US-ML-040", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-4", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-4" },
+    "cliente": { "forneceDados": true },
+    "compraOriginal": {
+      "idTransacao": "T-0404",
+      "canal": "MAINLINE",
+      "dataCompra": "2026-03-21",
+      "pagamento": { "meio": "CREDITO", "valorPago": 89.50, "estadoConta": "ATIVA" },
+      "idStylistVenda": "S-44",
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "RECIBO_IMPRESSO", "confirmaCompra": true, "reciboOriginal": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "511-SLIM-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 89.50, "precoAtual": 89.50 },
+        "quantidade": 1,
+        "precoPago": 89.50,
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "embainhado": true, "defeitoFabricoConfirmado": true, "danificado": true }
+      }
+    ]
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "RECUSAR",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "NENHUMA",
+    "terminal": false,
+    "regrasDisparadas": ["CT-003", "CH-001", "HS-003", "PT-001", "OUT-007", "OUT-001"],
+    "regrasNaoDisparadas": ["PC-006", "PC-004", "PT-003", "CT-005", "EX-002"],
+    "artigos": {
+      "A-1": { "elegibilidade": "RECUSAR", "tipoTransacao": "NENHUMA", "destino": "DEVOLUCAO_CLIENTE", "regrasDisparadas": ["HS-003", "OUT-007"] }
+    }
+  }
+}

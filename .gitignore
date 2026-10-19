@@ -123,3 +123,5 @@ logs/
 temp/
 tmp/
 get-docker.sh
+benchmark_results/
+validacao_pericial/

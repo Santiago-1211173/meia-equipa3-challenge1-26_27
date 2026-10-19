@@ -1,34 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dashboard — Sistema Especialista
 
-## Getting Started
+Interface Next.js (App Router) para os três motores de inferência do projeto. Cada motor tem a sua aba e todos seguem o mesmo fluxo guiado: **escolher dados, executar, ver a decisão e a justificação, repetir ou limpar**.
 
-First, run the development server:
+| Aba | Motor | Modos / funcionalidades |
+| --- | --- | --- |
+| Drools · Devoluções | Drools (política de devoluções) | Cenários prontos, avaliação, decisão por artigo, "como", "porque não", dados em falta, simulação "e se" |
+| Prolog | SWI-Prolog | **Inferência passo a passo** (carregar base, executar, factos, "como", "porque não", reiniciar) e **avaliação rápida** |
+| Drools · Diagnóstico | Drools (diagnóstico por sintomas) | Sintomas sim/não, cenários prontos, diagnóstico e regras aplicadas |
+
+A aba ativa fica na URL (`/?motor=returns|prolog|drools`) e o modo do Prolog também (`&modo=inference|evaluate`), por isso qualquer vista pode ser partilhada por link.
+
+## Executar
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build && npm start
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requer o gateway (`backend_orchestrator`) a correr em `http://127.0.0.1:8000`. Não há variáveis de ambiente: gateway e dashboard correm na mesma máquina e a URL está numa constante em [`src/config/gateway.ts`](src/config/gateway.ts).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Arquitetura
 
-## Learn More
+O browser **nunca** fala com o gateway. Fala com Route Handlers do Next (`src/app/api/**/route.ts`), que fazem proxy no servidor:
 
-To learn more about Next.js, take a look at the following resources:
+```
+browser ──► /api/{prolog|drools|returns}/…  ──►  gateway :8000  ──►  motores
+            (src/app/api, src/server/gateway.ts)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/                 página (casca com abas) e Route Handlers
+  components/
+    shared/            esqueleto comum: abas, passos, resultado, erro, vazio
+    engines/           um painel por motor (estado e fluxo)
+    returns/           peças da aba de devoluções
+  client/              chamadas do browser às rotas /api e saúde dos motores
+  server/              acesso ao gateway (timeout, erros) e neutralização de marca
+  config/              URL do gateway, rotas permitidas, rótulos e cenários
+  types/               tipos dos contratos
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Rotas permitidas:** cada motor só expõe os caminhos listados em `ENGINE_PROXY` ([`src/config/gateway.ts`](src/config/gateway.ts)). Qualquer outro responde 404.
+- **Erros:** todas as rotas devolvem o mesmo formato, `{ error: { code, message, status } }`, com códigos como `ENGINE_UNAVAILABLE` e `TIMEOUT`. A interface mostra a mensagem tal como vem.
+- **Saúde:** cada aba mostra um ponto verde ou vermelho; o botão "Atualizar estado" repete a verificação.
 
-## Deploy on Vercel
+## Neutralidade de marca
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A base de conhecimento de devoluções foi escrita a partir da política de uma marca concreta, mas o frontend não pode expô-la. Em [`src/server/brand.ts`](src/server/brand.ts):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- os valores de enum do motor que nomeiam a marca são trocados por aliases neutros à saída e repostos à entrada, para os pedidos continuarem válidos;
+- o texto livre é reescrito e nunca volta ao motor como dado.
+
+Ao acrescentar campos ou textos, use termos neutros ("política de devoluções", "loja", "cliente"). O único sítio onde o caminho do gateway aparece com o nome do motor é `src/config/gateway.ts`.
+
+## Notas sobre os motores
+
+- **Prolog (inferência):** a sessão do motor é única e partilhada. A interface retoma o que já estiver carregado. Carregar uma base inexistente apaga a sessão, por isso só se oferece a base `vehicles`.
+- **Drools (diagnóstico):** as regras exigem `"yes"`/`"no"` explícitos, e a interface envia sempre os 13 sintomas (por omissão, "não").
+- **Devoluções:** as explicações ("como", "porque não") precisam de a avaliação ter sido guardada pelo motor (`avaliacaoId`).

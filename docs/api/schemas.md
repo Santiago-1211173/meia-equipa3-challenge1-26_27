@@ -170,11 +170,76 @@ classDiagram
         +toString() String
     }
 
+    class InteractiveQuestion {
+        +string attribute
+        +string prompt
+        +Optional~string~ rule_active
+        +Optional~string~ objective
+        +string why
+    }
+
+    class DialogueEntry {
+        +string type
+        +string attribute
+        +Optional~string~ question
+        +Optional~string~ answer
+    }
+
+    class InteractiveStepRequest {
+        +Optional~List~ initial_facts
+        +Optional~Dict~ answers
+        +Optional~Dict~ answer
+        +Optional~Dict~ mock_answers
+    }
+
+    class InteractiveStepResponse {
+        +string status
+        +string decision
+        +Optional~string~ retail_decision
+        +Optional~InteractiveQuestion~ question
+        +List~string~ justification
+        +List~DialogueEntry~ dialogue_log
+        +int total_facts
+    }
+
+    class WhatIfRequest {
+        +Optional~Dict~ base_facts
+        +List~string~ add
+        +List~string~ remove
+    }
+
+    class WhatIfResponse {
+        +string status
+        +string baseline_decision
+        +string simulated_decision
+        +bool decision_changed
+        +List~string~ added_facts
+        +List~string~ removed_facts
+        +List~string~ baseline_justification
+        +List~string~ simulated_justification
+        +string impact_summary
+        +int simulated_facts_count
+    }
+
+    class HowExplanationResponse {
+        +string status
+        +string fact
+        +List~string~ explanation
+    }
+
+    class WhyNotExplanationResponse {
+        +string status
+        +string fact
+        +List~string~ explanation
+    }
+
     EvaluationResponse --> DecisionEnum
     EvaluationResponse --> EngineSourceEnum
     RetailReturnScenarioInput --> ItemSchema
     RetailReturnScenarioInput --> PurchaseSchema
     ItemSchema --> ItemCondition
+    InteractiveStepResponse --> InteractiveQuestion
+    InteractiveStepResponse --> DialogueEntry
     EvaluationResponseDto --> EvidencesRequestDto
     EvidencesRequestDto ..> Evidences : toDomain
 ```
@@ -398,6 +463,143 @@ Payload completo para avaliação de devoluções no retalho:
 
 ---
 
+### 5.5 Contratos de Dados do Motor Pericial de Retalho em Prolog
+
+Os endpoints `/api/v1/retail/*` e o endpoint principal `/api/v1/evaluate` operam com base em contratos de dados determinísticos que suportam a avaliação em lote, a máquina de estados do diálogo interativo ACM, a sandbox contrafactual e as explicações causais multi-via.
+
+#### 5.5.1 Mapeamento e Adaptação para o Modelo Canónico `EvaluationResponse`
+
+O serviço orquestrador converte a resposta do motor de retalho Prolog no modelo canónico unificado `EvaluationResponse`. Os átomos de decisão deduzidos pelo motor em português são mapeados defensivamente para os membros de `DecisionEnum`:
+
+| Átomo Retornado pelo Prolog | Condição de Contorno Adicional | Membro Canónico `DecisionEnum` |
+|:---|:---|:---|
+| `permitir` / `aprovado` | Ausência de meio de reembolso alternativo | `DecisionEnum.APPROVED` (`"approved"`) |
+| `permitir` | Presença de facto `meio_reembolso(vale_loja)` ou `tipo_transacao(troca_ou_credito)` | `DecisionEnum.STORE_CREDIT_ONLY` (`"store_credit_only"`) |
+| `recusar` / `rejeitado` | Qualquer contexto normativo | `DecisionEnum.REJECTED` (`"rejected"`) |
+| `rever` / `encaminhar` | Requer intervenção presencial de gerência | `DecisionEnum.MANAGER_OVERRIDE` (`"manager_override"`) |
+| `vale_loja` / `credito_loja` | Concessão restrita a saldo de loja | `DecisionEnum.STORE_CREDIT_ONLY` (`"store_credit_only"`) |
+| `error` | Falha lógica ou exceção no motor | `DecisionEnum.ERROR` (`"error"`) |
+
+A resposta canónica preserva a totalidade das regras acionadas e justificações normativas no vetor `justification: List[str]`, com identificadores de política formalizados entre parêntesis retos (ex.: `[PC-001]`, `[PT-003]`).
+
+#### 5.5.2 Schemas da Interrogação Interativa Dialógica (Mecânica ACM)
+
+Suportam o ciclo conversacional não bloqueante coordenado por `interactive.pl`:
+
+##### Modelo `InteractiveStepRequest`
+
+```python
+class InteractiveStepRequest(BaseModel):
+    initial_facts: Optional[List[str]] = Field(
+        default_factory=list,
+        description="Lista opcional de factos iniciais para arranque ou reinicialização de sessão.",
+    )
+    answers: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Dicionário de pares atributo-valor para fornecimento de múltiplas respostas.",
+    )
+    answer: Optional[Union[Dict[str, Any], str]] = Field(
+        default=None,
+        description="Resposta singular ou termo para responder à pergunta pendente.",
+    )
+    mock_answers: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Fila de respostas simuladas para execução determinística em testes.",
+    )
+```
+
+##### Modelo `InteractiveStepResponse`
+
+Quando existem perguntas pendentes (`status = "question"`):
+
+```python
+class InteractiveQuestion(BaseModel):
+    attribute: str = Field(description="Predicado ou termo alvo da interrogação (ex.: 'comprovativo(X)').")
+    prompt: str = Field(description="Texto da pergunta formulado em Português de Portugal para o operador.")
+    rule_active: Optional[str] = Field(description="Identificador da regra em teste no ciclo dedutivo.")
+    objective: Optional[str] = Field(description="Objetivo de topo visado pela regra ativa.")
+    why: str = Field(description="Justificação contextual da necessidade do dado perante o utilizador.")
+
+class DialogueEntry(BaseModel):
+    type: str = Field(description="Tipo de passo registado: 'asked', 'answered', 'unknown' ou 'why_asked'.")
+    attribute: str = Field(description="Atributo envolvido no evento dialógico.")
+    question: Optional[str] = Field(default=None, description="Texto da questão colocada.")
+    answer: Optional[str] = Field(default=None, description="Resposta fornecida pelo utilizador.")
+
+class InteractiveStepResponse(BaseModel):
+    status: Literal["question", "completed", "error"]
+    decision: str = Field(description="Veredito canónico ou 'nao_concluido'.")
+    retail_decision: Optional[str] = Field(description="Átomo Prolog nativo da decisão.")
+    question: Optional[InteractiveQuestion] = Field(description="Pergunta pendente caso status='question'.")
+    justification: List[str] = Field(default_factory=list)
+    dialogue_log: List[DialogueEntry] = Field(default_factory=list)
+    total_facts: int
+```
+
+#### 5.5.3 Schemas da Simulação Contrafactual What-If em Sandbox
+
+Suportam a execução de cenários hipotéticos sem persistência:
+
+##### Modelo `WhatIfRequest`
+
+```python
+class WhatIfRequest(BaseModel):
+    base_facts: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Cenário de base sobre o qual aplicar as modificações contrafactuais.",
+    )
+    add: List[str] = Field(
+        default_factory=list,
+        description="Lista de premissas a introduzir hipoteticamente.",
+    )
+    remove: List[str] = Field(
+        default_factory=list,
+        description="Lista de premissas ou padrões a revogar hipoteticamente.",
+    )
+```
+
+##### Modelo `WhatIfResponse`
+
+```python
+class WhatIfResponse(BaseModel):
+    status: Literal["success", "error"]
+    baseline_decision: str = Field(description="Decisão apurada no cenário de base original.")
+    simulated_decision: str = Field(description="Decisão resultante da injeção das premissas contrafactuais.")
+    decision_changed: bool = Field(description="Indica se a simulação provocou alteração no desfecho.")
+    added_facts: List[str] = Field(description="Termos efetivamente adicionados na sandbox.")
+    removed_facts: List[str] = Field(description="Termos efetivamente revogados da memória de trabalho.")
+    baseline_justification: List[str] = Field(description="Justificações normativas do cenário base.")
+    simulated_justification: List[str] = Field(description="Justificações normativas apuradas na simulação.")
+    impact_summary: str = Field(description="Resumo explicativo do impacto da alteração das premissas.")
+    simulated_facts_count: int = Field(description="Contagem de factos deduzidos durante a simulação.")
+```
+
+#### 5.5.4 Schemas das Explicações Causais e Contrafactuais (How e Why Not)
+
+##### Modelos de Explicação Causal *Como?* (`HowExplanationResponse`)
+
+```python
+class HowExplanationResponse(BaseModel):
+    status: Literal["success", "error"]
+    fact: str = Field(description="Termo ou identificador do facto analisado.")
+    explanation: List[str] = Field(
+        description="Rasto causal ordenado discriminando factos do utilizador, factos iniciais e regras disparadas.",
+    )
+```
+
+##### Modelos de Explicação Contrafactual *Porque Não?* (`WhyNotExplanationResponse`)
+
+```python
+class WhyNotExplanationResponse(BaseModel):
+    status: Literal["success", "error"]
+    fact: str = Field(description="Objetivo de desfecho investigado.")
+    explanation: List[str] = Field(
+        description="Árvore de falhas contendo as regras candidatas e respetivas premissas não satisfeitas.",
+    )
+```
+
+---
+
 ## 6. Schemas do Motor de Exemplo dos Professores (`sp_exp2.pl` do Moodle — `inference.py`)
 
 Ficheiro fonte: [`backend_orchestrator/app/schemas/inference.py`](../../backend_orchestrator/app/schemas/inference.py)
@@ -520,7 +722,7 @@ Os DTOs nunca entram diretamente na memória de trabalho (*Working Memory*) do D
 
 ### 7.2 `EvidencesRequestDto`
 
-Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java)
+Ficheiro fonte: [`drools_engine_example/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java`](../../drools_engine_example/src/main/java/com/expert/drools/dtos/EvidencesRequestDto.java)
 
 Payload de entrada consumido no endpoint `POST /api/v1/inference/evaluate`. Contém 13 indicadores clínicos binários. Cada atributo é validado pela anotação Bean Validation:
 `@Pattern(regexp = "^(?i)(yes|no)?$", message = "... Value must be either 'yes' or 'no'")`.
@@ -583,7 +785,7 @@ private static String normalize(String value) {
 
 ### 7.3 `EvaluationResponseDto`
 
-Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java)
+Ficheiro fonte: [`drools_engine_example/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java`](../../drools_engine_example/src/main/java/com/expert/drools/dtos/EvaluationResponseDto.java)
 
 Payload de resposta emitido pelo endpoint `POST /api/v1/inference/evaluate`.
 
@@ -642,7 +844,7 @@ public class EvaluationResponseDto {
 
 ### 7.4 `HealthResponseDto`
 
-Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/HealthResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/HealthResponseDto.java)
+Ficheiro fonte: [`drools_engine_example/src/main/java/com/expert/drools/dtos/HealthResponseDto.java`](../../drools_engine_example/src/main/java/com/expert/drools/dtos/HealthResponseDto.java)
 
 Payload de resposta emitido pelo endpoint `GET /api/v1/inference/health`.
 
@@ -690,7 +892,7 @@ public class HealthResponseDto {
 
 ### 7.5 `ErrorResponseDto`
 
-Ficheiro fonte: [`drools_engine/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java`](../../drools_engine/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java)
+Ficheiro fonte: [`drools_engine_example/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java`](../../drools_engine_example/src/main/java/com/expert/drools/dtos/ErrorResponseDto.java)
 
 Payload unificado de erro emitido pelo `GlobalExceptionHandler` em cenários HTTP 400 ou HTTP 500.
 

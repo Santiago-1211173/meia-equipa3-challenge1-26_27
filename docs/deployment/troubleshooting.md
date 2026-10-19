@@ -342,6 +342,101 @@ Instabilidade temporária de rede, firewall/proxy corporativo bloqueando o acess
 
 ---
 
+### 3.11 Atributo Observável Não Perguntado no Diálogo Interativo (Omissão em `perguntavel/1`)
+
+#### Sintoma:
+Ao submeter um cenário com factos omissos para `POST /retail/interactive` (ou durante a execução de `obtem_facto/2`), o motor não formula a pergunta esperada ao operador humano, falhando a dedução da regra de retalho ou concluindo a execução antecipadamente sem recolher a informação.
+
+#### Causa:
+O atributo não foi declarado como perguntável na base de conhecimento ([`prolog_engine/src/core/retail_engine/kb/retail_rules.pl`](../../prolog_engine/src/core/retail_engine/kb/retail_rules.pl)). Na mecânica dialógica do Prof. ACM, o predicado `obtem_facto(Atributo, Valor)` apenas interrompe o encadeamento para solicitar entrada interativa se existir uma diretiva explícita `perguntavel(Atributo)`. Caso contrário, o motor assume que se trata de uma premissa estritamente dedutível através de outras regras e falha a unificação.
+
+#### Resolução:
+1. Abra [`retail_rules.pl`](../../prolog_engine/src/core/retail_engine/kb/retail_rules.pl) e declare o predicado `perguntavel/1` para o atributo desejado:
+   ```prolog
+   perguntavel(estado_etiqueta).
+   ```
+2. Abra [`prolog_engine/src/core/retail_engine/interactive.pl`](../../prolog_engine/src/core/retail_engine/interactive.pl) e adicione o texto da pergunta em português e as respetivas opções aceitáveis em `pergunta_texto/3`:
+   ```prolog
+   pergunta_texto(estado_etiqueta, 'Qual o estado das etiquetas originais do artigo?', [intacta, cortada, ausente]).
+   ```
+3. Valide o comportamento com a suíte de testes interativos:
+   ```bash
+   swipl -g "run_tests, halt" -s prolog_engine/tests/test_retail_interactive.pl
+   ```
+
+---
+
+### 3.12 Falha em Testes de Diálogo Interativo por Esgotamento de Mocks (`mock_answers`)
+
+#### Sintoma:
+Durante a execução de testes automatizados com PLUnit (`test_retail_interactive.pl`) ou asserções interativas, o teste falha com erro indicando esgotamento de respostas simuladas (`mock_answers_exhausted`) ou o predicado `read_user_input/2` bloqueia indefinidamente à espera de texto na consola padrão (`user_input`).
+
+#### Causa:
+A lista dinâmica de respostas simuladas instanciada via `mock_answer/1` ficou vazia antes de o motor pericial concluir o percurso dedutivo da regra em teste.
+
+#### Resolução:
+1. No cabeçalho ou bloco de configuração do teste, configure todas as respostas interativas esperadas na ordem exata de formulação através de `set_mock_answers/1`:
+   ```prolog
+   set_mock_answers([sim, original, intacta]).
+   ```
+2. Caso o cenário teste a reação do motor perante a abstenção do operador, passe explicitamente o átomo `'nao_sei'`:
+   ```prolog
+   set_mock_answers([sim, 'nao_sei']).
+   ```
+3. Assegure isolamento hermético entre testes limpando a fila no bloco de `cleanup` do PLUnit:
+   ```prolog
+   setup(clear_mock_answers), cleanup(clear_mock_answers)
+   ```
+
+---
+
+### 3.13 Decisão Divergente por Precedência Normativa Estrita (Conflito de Regras de Retalho)
+
+#### Sintoma:
+Um pedido de devolução que cumpre os critérios comerciais permissivos (por exemplo, dentro do prazo de 30 dias `PT-001` e com recibo original `PC-001`) recebe um desfecho inesperado de `recusar` ou `rever` em vez de `permitir`.
+
+#### Causa:
+Uma regra com nível de precedência mais elevado disparou primeiro. Na política oficial da Levi's e na ontologia formalizada com o perito Dustin Hopper (RPAC), salvaguardas de higiene e salubridade (`HS-006`), danos atribuíveis a má utilização (`PC-008`) ou suspeitas de fraude (`CH-004`) têm prioridade absoluta (níveis 1 a 3) sobre qualquer permissão comercial ou exceção de gerência (níveis 4 a 7).
+
+#### Resolução:
+1. Inspecione o vetor de justificações e regras disparadas chamando o endpoint de rastreamento causal retrospetivo `POST /retail/how` ou `/api/v1/retail/how`:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/retail/how \
+     -H "Content-Type: application/json" \
+     -d '{"target": "decisao"}'
+   ```
+2. Consulte a tabela de precedências normativas em [`retail_rules.pl`](../../prolog_engine/src/core/retail_engine/kb/retail_rules.pl#L14-L26). Se um facto como `selo_higiene: violado` ou `odor_intenso: sim` estiver presente no cenário, a recusa é a decisão estritamente correta por especificação de domínio.
+3. Para simular o desfecho sem o atributo restritivo, utilize a rota de simulação contrafactual `POST /api/v1/retail/whatif` com `remove_facts: ["selo_higiene: violado"]`.
+
+---
+
+### 3.14 Poluição da Memória de Sessão por Falha de Limpeza em Simulações *What-If*
+
+#### Sintoma:
+Após a execução de uma simulação contrafactual `POST /retail/whatif` que tenha abortado devido a timeout, formato JSON inválido ou exceção em runtime, as avaliações normais subsequentes retornam decisões inconsistentes ou listam factos na memória de trabalho que pertenciam exclusivamente ao cenário hipotético simulado.
+
+#### Causa:
+Asserções dinâmicas de factos hipotéticos (`facto/2` ou `facto_ativo/2`) foram injetadas na memória de trabalho mas não foram devidamente removidas (*retracted*) devido a terminação anómala sem salvaguarda transacional.
+
+#### Resolução:
+1. No motor Prolog, garanta que todas as simulações contrafactuais operam no padrão atómico seguro com `setup_call_cleanup/3`, garantindo a remoção incondicional dos factos temporários:
+   ```prolog
+   setup_call_cleanup(
+       assert_hypothetical_facts(Facts),
+       run_simulation(Result),
+       retract_hypothetical_facts(Facts)
+   )
+   ```
+2. Para restabelecer imediatamente a consistência da memória sem necessidade de reiniciar o contentor Docker, invoque o endpoint de reposição determinística:
+   ```bash
+   curl -X POST http://localhost:8080/retail/reset
+   # ou via Orquestrador FastAPI
+   curl -X POST http://localhost:8000/api/v1/retail/reset
+   ```
+3. Em testes PLUnit, inclua sempre `reset_retail_state/0` no bloco de `cleanup`.
+
+---
+
 ## 4. Matriz Rápida de Resolução de Falhas
 
 | Erro / Mensagem | Componente | Causa Provável | Ação de Correção |
@@ -357,6 +452,10 @@ Instabilidade temporária de rede, firewall/proxy corporativo bloqueando o acess
 | `HTTP 422 Unprocessable Entity` | FastAPI / Pydantic | Payload JSON não cumpre o modelo `ScenarioInput`. | Verificar estrutura do JSON: garantir que `scenario` é string e `value` é numérico. |
 | `HTTP 400 Bad Request (Validation)` | Drools Controller | Campo clínico não cumpre `@Pattern(regexp = "yes\|no")`. | Enviar apenas valores `"yes"` ou `"no"` para os campos de evidências clínicas. |
 | `HTTP 400 Bad Request` | Prolog Routes | JSON malformado ou parâmetros obrigatórios ausentes. | Verificar cabeçalho `Content-Type: application/json` e sintaxe do JSON. |
+| `Atributo omitido no diálogo interativo` | Retail Prolog | Atributo não declarado no predicado `perguntavel/1`. | Declarar `perguntavel(Atributo)` em `retail_rules.pl` e texto em `interactive.pl`. |
+| `mock_answers_exhausted` | PLUnit Retail | Fila de respostas simuladas esgotada antes do término do diálogo. | Inicializar fila completa via `set_mock_answers/1` no setup do teste. |
+| `Decisão de recusa inesperada em retalho` | Retail Rules KB | Precedência normativa estrita (ex.: `HS-006`, `PC-008`) a sobrepor-se. | Inspecionar `POST /retail/how` para validar as regras prioritárias que dispararam. |
+| `Factos residuais pós-WhatIf` | Retail Engine | Falha em simulação contrafactual sem limpeza transacional. | Executar `POST /retail/reset` e assegurar isolamento com `setup_call_cleanup/3`. |
 
 ---
 
@@ -365,6 +464,10 @@ Instabilidade temporária de rede, firewall/proxy corporativo bloqueando o acess
 * [Orquestração com Docker Compose](docker_compose.md) — Comandos e ciclo de vida dos contentores.
 * [Variáveis de Ambiente](environment_variables.md) — Mapeamento e valores suportados por cada serviço.
 * [Contentorização e Imagens Docker](docker.md) — Especificação dos Dockerfiles e permissões não-root.
+* [Arquitetura do Motor SWI-Prolog](../architecture/prolog_engine.md) — Clean Architecture, isolamento por paridade e ciclo ACM.
+* [API Interna do Motor SWI-Prolog](../api/prolog_engine_api.md) — Endpoints `/retail/*`, contratos JSON e códigos de status.
+* [Explicabilidade Multi-Via do Domínio](../domain/explainability.md) — As 5 vias de explicabilidade pericial em Prolog.
+* [Conhecimento Pericial do Domínio de Retalho](../domain/expert_knowledge.md) — Mapeamento formal das 71 regras e 7 níveis de precedência.
 * [Arquitetura do Motor Drools](../architecture/drools_engine.md) — Estrutura interna e compilação do KieContainer.
 * [API Interna do Motor Drools](../api/drools_engine_api.md) — Códigos de resposta e contratos de teste do Drools.
 * [API Pública v1 do Orquestrador](../api/orchestrator_api_v1.md) — Códigos de resposta e contratos de teste.

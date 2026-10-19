@@ -1,8 +1,6 @@
-"""Evaluation endpoint for retail return/exchange scenarios."""
+from typing import Any, Dict, Literal, Optional, Union
 
-from __future__ import annotations
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 
 from app.api.deps import get_orchestrator_service
 from app.core.exceptions import (
@@ -24,7 +22,8 @@ router = APIRouter()
     summary="Evaluate scenario against reasoning engines",
     description=(
         "Receives scenario facts, orchestrates inference with the SWI-Prolog "
-        "reasoning engine, and returns a canonical diagnosis with explainability."
+        "reasoning engine, and returns a canonical diagnosis with explainability. "
+        "Supports dynamic mode toggle: 'retail', 'academic', or 'dual'."
     ),
     responses={
         200: {
@@ -41,10 +40,16 @@ router = APIRouter()
 )
 async def evaluate_scenario(
     scenario_input: ScenarioInput,
+    mode: Optional[Literal["retail", "academic", "dual"]] = Query(
+        None,
+        description="Feature toggle override: 'retail', 'academic', or 'dual'. Defaults to PROLOG_ENGINE_MODE.",
+    ),
     orchestrator_service: OrchestratorService = Depends(get_orchestrator_service),
 ) -> EvaluationResponse:
     """Evaluate a scenario input and produce diagnostic decision."""
     try:
+        if mode is not None:
+            return await orchestrator_service.evaluate_scenario(scenario_input, mode=mode)
         return await orchestrator_service.evaluate_scenario(scenario_input)
     except (PrologConnectionError, PrologTimeoutError) as exc:
         raise HTTPException(

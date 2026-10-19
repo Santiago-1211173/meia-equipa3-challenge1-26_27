@@ -1,0 +1,421 @@
+<!DOCTYPE html><html lang="pt-BR" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>RetailFlow Frontline AI</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-tertiary-fixed":"#2a1700","on-surface-variant":"#3c4a42","inverse-surface":"#283044","outline-variant":"#bbcabf","surface-dim":"#d2d9f4","on-tertiary-fixed-variant":"#653e00","on-error":"#ffffff","surface-container-highest":"#dae2fd","outline":"#6c7a71","on-secondary-fixed-variant":"#004395","on-background":"#131b2e","primary":"#006c49","primary-fixed-dim":"#4edea3","primary-fixed":"#6ffbbe","background":"#faf8ff","secondary-fixed":"#d8e2ff","error":"#ba1a1a","surface-container-low":"#f2f3ff","on-error-container":"#93000a","surface-container-lowest":"#ffffff","tertiary-fixed":"#ffddb8","secondary":"#0058be","surface-tint":"#006c49","on-primary":"#ffffff","secondary-container":"#2170e4","on-secondary":"#ffffff","error-container":"#ffdad6","primary-container":"#10b981","on-surface":"#131b2e","surface-container-high":"#e2e7ff","on-tertiary":"#ffffff","tertiary-fixed-dim":"#ffb95f","surface":"#faf8ff","surface-variant":"#dae2fd","on-tertiary-container":"#523200","on-secondary-fixed":"#001a42","on-primary-container":"#00422b","on-secondary-container":"#fefcff","inverse-primary":"#4edea3","on-primary-fixed-variant":"#005236","inverse-on-surface":"#eef0ff","secondary-fixed-dim":"#adc6ff","surface-container":"#eaedff","tertiary":"#855300","on-primary-fixed":"#002113","surface-bright":"#faf8ff","tertiary-container":"#e29100"},"borderRadius":{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},"spacing":{"gutter-mobile":"1rem","space-lg":"1.5rem","space-xs":"0.25rem","space-xl":"2.5rem","space-sm":"0.5rem","space-md":"1rem","margin-mobile":"1rem","gutter":"1.5rem","margin":"2rem"},"fontFamily":{"headline-lg-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"body-xl":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"caption":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"]},"fontSize":{"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"700"}],"display-hero-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"800"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-xl":["18px",{"lineHeight":"28px","fontWeight":"500"}],"label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"700"}],"display-hero":["40px",{"lineHeight":"48px","letterSpacing":"-0.03em","fontWeight":"800"}],"label-lg":["14px",{"lineHeight":"18px","letterSpacing":"0.02em","fontWeight":"700"}],"caption":["12px",{"lineHeight":"16px","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"500"}],"headline-sm":["18px",{"lineHeight":"24px","fontWeight":"700"}]}}}}</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[24px]">bolt</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">RetailFlow</span><span class="font-caption text-caption text-primary flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse inline-block"></span>Loja Central • Caixa Aberto</span></div></div><nav class="hidden xl:flex items-center gap-space-xs bg-surface-container-low p-space-xs rounded-full" data-active-classes="bg-primary text-on-primary font-label-lg text-label-lg rounded-full shadow-sm"><a class="px-space-md py-space-sm rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface transition-all duration-200" data-path="painel-principal" href="#">Painel Principal</a><a aria-current="page" class="px-space-md py-space-sm transition-all duration-200 bg-primary text-on-primary font-label-lg text-label-lg rounded-full shadow-sm" data-path="novo-atendimento" href="#">Novo Atendimento</a><a class="px-space-md py-space-sm rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface transition-all duration-200" data-path="decisoes-historico" href="#">Decisões &amp; Histórico</a><a class="px-space-md py-space-sm rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface transition-all duration-200" data-path="cerebro-dos-motores" href="#">Cérebro dos Motores</a><a class="px-space-md py-space-sm rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface transition-all duration-200" data-path="politicas-da-loja" href="#">Políticas da Loja</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm pl-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden sm:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface leading-tight">Clara M.</span><span class="font-caption text-caption text-on-surface-variant">Operador N2</span></div></div></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full">
+<div class="max-w-4xl mx-auto w-full py-space-md px-gutter-mobile md:px-gutter flex flex-col gap-space-lg"><!-- Top Step Badge & Progress Tracker -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="inline-flex items-center gap-space-xs bg-primary-fixed/20 text-on-surface px-space-md py-space-xs rounded-full shadow-sm">
+<span class="w-2.5 h-2.5 rounded-full bg-primary inline-block animate-pulse"></span>
+<span class="font-label-md text-label-md tracking-wider uppercase text-primary">PASSO 6 DE 6 • MEIO DE REEMBOLSO &amp; LIQUIDAÇÃO</span>
+</div>
+<div class="flex items-center gap-space-xs font-label-md text-label-md text-primary bg-surface-container-lowest px-space-md py-space-xs rounded-full shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">task_alt</span>
+
+</div>
+</div>
+<!-- Segmented Tactile Progress Bar (All Completed) -->
+<div class="grid grid-cols-6 gap-space-xs w-full pt-space-xs">
+<div class="h-2.5 rounded-full bg-primary-container shadow-sm"></div>
+<div class="h-2.5 rounded-full bg-primary-container shadow-sm"></div>
+<div class="h-2.5 rounded-full bg-primary-container shadow-sm"></div>
+<div class="h-2.5 rounded-full bg-primary-container shadow-sm"></div>
+<div class="h-2.5 rounded-full bg-primary-container shadow-sm"></div>
+<div class="h-2.5 rounded-full bg-primary relative overflow-hidden shadow-sm">
+<div class="absolute inset-0 bg-primary-fixed-dim/30 animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- Header Titles -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-3xl shadow-sm">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="flex items-center gap-space-xs text-primary font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="">Liquidação Simples &amp; Segura</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">6. Meio de Reembolso</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+      Confirme a forma como o valor será devolvido ao cliente de forma automática.
+    </p>
+</div>
+<div class="flex items-center gap-space-md bg-primary-fixed/20 px-space-md py-space-sm rounded-2xl shadow-sm self-start md:self-auto">
+<div class="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[28px]">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Total a Devolver</span>
+<span class="font-headline-md text-headline-md text-primary tracking-tight">$118.00 USD</span>
+</div>
+</div>
+</div>
+<!-- BLOCO 1: Tipo de Devolução -->
+<div class="flex flex-col gap-space-md bg-surface-container-lowest p-space-lg rounded-3xl shadow-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm">1</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tipo de Devolução</h2>
+<p class="font-caption text-caption text-on-surface-variant">O cliente apresentou recibo normal de compra ou recibo de oferta?</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Devolução Normal (Selecionado) -->
+<div class="flex items-start gap-space-md p-space-md rounded-2xl bg-primary-fixed/20 shadow-sm cursor-pointer transition-all duration-150">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex-shrink-0 flex items-center justify-center shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[22px]">check</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Devolução Normal</span>
+<span class="bg-primary text-on-primary font-label-md text-label-md px-space-xs py-0.5 rounded-full">Padrão</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+          Devolve diretamente ao meio de pagamento original utilizado na compra.
+        </p>
+</div>
+</div>
+<!-- Devolução com Recibo de Oferta -->
+<div class="flex items-start gap-space-md p-space-md rounded-2xl bg-surface-container-low hover:bg-surface-container shadow-sm cursor-pointer transition-all duration-150">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex-shrink-0 flex items-center justify-center shadow-sm mt-0.5">
+<span class="material-symbols-outlined text-[22px]">featured_seasonal_and_gifts</span>
+</div>
+<div class="flex flex-col gap-0.5 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">Recibo de Oferta (Gift)</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-md text-label-md px-space-xs py-0.5 rounded-full">Opcional</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+          Emite Cartão de Oferta ou Crédito de Loja físico ao portador na hora.
+        </p>
+</div>
+</div>
+</div>
+</div>
+<!-- BLOCO 2: Meio de Pagamento Original Detetado -->
+<div class="flex flex-col gap-space-md bg-surface-container-lowest p-space-lg rounded-3xl shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm">2</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Meio de Pagamento Original Detetado</h2>
+<p class="font-caption text-caption text-on-surface-variant">Identificado automaticamente via recibo #TX-98421</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary bg-primary/10 px-space-sm py-space-xs rounded-full font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">sync_saved_locally</span>
+<span class="">Detectado pelo Sistema</span>
+</div>
+</div>
+<!-- Card em Destaque Tátil com Estorno Automático -->
+<div class="p-space-md rounded-2xl bg-primary-fixed/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined text-[28px]">credit_card</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Cartão Visa (final •••• 4920)</span>
+
+</div>
+
+</div>
+</div>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-full bg-surface-container-lowest text-on-surface hover:bg-surface-container text-label-md font-label-md shadow-sm transition-all duration-150 self-start md:self-auto cursor-pointer border-0" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">tune</span>
+<span class="">Alterar meio (exceção)</span>
+</button>
+</div>
+</div>
+<!-- BLOCO 3: Estado da Conta / Validação Rápida -->
+<div class="flex flex-col gap-space-md bg-surface-container-lowest p-space-lg rounded-3xl shadow-sm">
+<div class="flex items-center gap-space-xs">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm">3</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Estado da Conta / Validação</h2>
+<p class="font-caption text-caption text-on-surface-variant">Apenas selecione caso o cliente tenha solicitado alteração específica de conta:</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Opção 1: Conta Ativa / Normal (Selecionado) -->
+<div class="flex items-center justify-between p-space-md rounded-2xl bg-primary-fixed/20 shadow-sm cursor-pointer transition-all duration-150">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Conta Ativa / Normal</span>
+<span class="font-caption text-caption text-on-surface-variant">Processo 100% automático em background</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[24px]">radio_button_checked</span>
+</div>
+<!-- Opção 2: Cartão / Conta Encerrada -->
+<div class="flex items-center justify-between p-space-md rounded-2xl bg-surface-container-low hover:bg-surface-container shadow-sm cursor-pointer transition-all duration-150">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">credit_card_off</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Cartão / Conta Encerrada</span>
+<span class="font-caption text-caption text-on-surface-variant">Apenas se o cliente informar encerramento</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[24px]">radio_button_unchecked</span>
+</div>
+</div>
+</div>
+<!-- BLOCO 4: Resumo da Liquidação (Explicabilidade Clara & Amigável) -->
+<div class="bg-primary-fixed/20 p-space-lg rounded-3xl flex flex-col gap-space-md shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md uppercase tracking-wider text-primary">Resumo da Liquidação Aprovada</span>
+<div class="flex items-center gap-space-xs text-primary font-headline-lg text-headline-lg">
+<span class="material-symbols-outlined text-[32px]">check_circle</span>
+<span class="">Reembolso Tokenizado Pronto a Emitir</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md bg-surface-container-lowest px-space-md py-space-sm rounded-2xl shadow-sm self-start md:self-auto">
+<div class="flex flex-col text-right">
+<span class="font-caption text-caption text-on-surface-variant">Valor Liquidado</span>
+<span class="font-headline-md text-headline-md text-primary tracking-tight">$118.00 USD</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+</div>
+</div>
+<!-- Explicação Clara ao Operador -->
+
+<!-- Pill amigável de política -->
+<div class="flex flex-wrap items-center justify-between gap-space-xs pt-space-xs font-caption text-caption text-on-surface-variant">
+
+
+</div>
+</div>
+<!-- Actions & Navigation Bar (Tactile Duolingo Style) -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-sm pb-space-lg">
+<!-- Botão Voltar -->
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-lg py-space-md rounded-full bg-surface-container-lowest text-on-surface font-label-lg text-label-lg shadow-sm hover:bg-surface-container active:translate-y-0.5 transition-all duration-150 cursor-pointer border-0" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span class="">Voltar ao Passo 5</span>
+</button>
+<!-- Botão de Ação Primária Hero Duolingo Style -->
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-space-sm px-space-xl py-space-md rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm shadow-md hover:bg-primary-container active:translate-y-0.5 transition-all duration-150 cursor-pointer border-0" id="btn-submit" onclick="finishRefund()" type="button">
+<span class="">Finalizar &amp; Gerar Recibo ✨</span>
+<span class="material-symbols-outlined text-[24px]">receipt_long</span>
+</button>
+</div>
+<!-- Rodapé discreto de suporte e política -->
+<div class="text-center font-caption text-caption text-on-surface-variant -mt-space-md pb-space-md flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">policy</span>
+<span class="">Todas as regras TN validadas em conformidade com as políticas da loja.</span>
+</div></div>
+</div>
+<script>
+  let state = {
+    isGift: false,
+    method: 'card',
+    cardStatus: 1
+  };
+
+  const methodDetails = {
+    card: {
+      rule: 'TN-001',
+      title: 'Cartão de Crédito ou Débito',
+      desc: 'Visa final *4920 detectado. Reembolso tokenizado sem necessidade de pedir o cartão físico.',
+      action: 'Processar Automático',
+      drools: 'TN-001_Fired',
+      prolog: 'refund_tender(credit_card, tokenized, allow)',
+      trackMethod: 'Token Visa •••• 4920'
+    },
+    wallet: {
+      rule: 'TN-005',
+      title: 'Apple Pay ou Google Pay',
+      desc: 'Estorno direto para a conta associada da carteira digital.',
+      action: 'Estorno em Carteira Digital',
+      drools: 'TN-005_Fired',
+      prolog: 'refund_tender(digital_wallet, device_account, allow)',
+      trackMethod: 'Apple/Google Pay Token'
+    },
+    paypal: {
+      rule: 'TN-008',
+      title: 'PayPal ou Venmo',
+      desc: 'Fluxo exclusivo de estorno digital via app. Sem substituição por numerário.',
+      action: 'Disparo API PayPal',
+      drools: 'TN-008_Fired',
+      prolog: 'refund_tender(paypal_venmo, app_refund, allow)',
+      trackMethod: 'PayPal Wallet ID'
+    },
+    afterpay: {
+      rule: 'TN-009 / HS-005',
+      title: 'Afterpay (Compra em Loja)',
+      desc: 'Cliente localiza na app Afterpay; estorno de parcelas pendentes e recibo emitido no POS.',
+      action: 'Comprovativo Afterpay',
+      drools: 'TN-009_Fired',
+      prolog: 'refund_tender(afterpay, installment_reversal, allow)',
+      trackMethod: 'Afterpay App Barcode'
+    },
+    interac: {
+      rule: 'TN-011 / TN-012',
+      title: 'Interac (Canadá)',
+      desc: 'Exige o mesmo cartão físico presente. BackPocket requer estorno no terminal VeriFone.',
+      action: 'Apresentar Cartão Físico',
+      drools: 'TN-011_Fired',
+      prolog: 'refund_tender(interac, physical_card_pin, require_card)',
+      trackMethod: 'Interac Chip & PIN'
+    },
+    cash: {
+      rule: 'PT-003',
+      title: 'Numerário ou Cartão Oferta',
+      desc: 'Devolução em numerário do caixa ou emissão de cartão de oferta com saldo correspondente.',
+      action: 'Abertura Gaveta Caixa',
+      drools: 'PT-003_Fired',
+      prolog: 'refund_tender(cash_giftcard, cash_drawer, allow)',
+      trackMethod: 'Numerário Gaveta POS-04'
+    }
+  };
+
+  function selectGiftOption(isGift) {
+    state.isGift = isGift;
+    const noBtn = document.getElementById('opt-gift-no');
+    const yesBtn = document.getElementById('opt-gift-yes');
+    const helper = document.getElementById('gift-helper');
+
+    if (isGift) {
+      yesBtn.className = 'flex items-start gap-space-md p-space-md rounded-2xl text-left transition-all duration-150 bg-secondary-fixed/40 shadow-sm cursor-pointer border-0';
+      noBtn.className = 'flex items-start gap-space-md p-space-md rounded-2xl text-left transition-all duration-150 bg-surface-container-low hover:bg-surface-container hover:shadow-md cursor-pointer border-0';
+      helper.classList.remove('hidden');
+    } else {
+      noBtn.className = 'flex items-start gap-space-md p-space-md rounded-2xl text-left transition-all duration-150 bg-secondary-fixed/40 shadow-sm cursor-pointer border-0';
+      yesBtn.className = 'flex items-start gap-space-md p-space-md rounded-2xl text-left transition-all duration-150 bg-surface-container-low hover:bg-surface-container hover:shadow-md cursor-pointer border-0';
+      helper.classList.add('hidden');
+    }
+    updateDecisionSummary();
+  }
+
+  function selectPaymentMethod(methodKey) {
+    state.method = methodKey;
+    const cards = document.querySelectorAll('.payment-card');
+    cards.forEach(card => {
+      const isSelected = card.getAttribute('data-method') === methodKey;
+      if (isSelected) {
+        card.className = 'payment-card flex flex-col justify-between p-space-md rounded-2xl cursor-pointer transition-all duration-150 bg-secondary-fixed/30 shadow-md';
+        const iconSpan = card.querySelector('div:last-child span:last-child');
+        if (iconSpan) iconSpan.textContent = 'radio_button_checked';
+      } else {
+        card.className = 'payment-card flex flex-col justify-between p-space-md rounded-2xl cursor-pointer transition-all duration-150 bg-surface-container-low hover:bg-surface-container hover:shadow-md';
+        const iconSpan = card.querySelector('div:last-child span:last-child');
+        if (iconSpan) iconSpan.textContent = 'radio_button_unchecked';
+      }
+    });
+
+    const statusSec = document.getElementById('section-card-status');
+    if (methodKey === 'card') {
+      statusSec.classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+      statusSec.classList.add('opacity-50', 'pointer-events-none');
+    }
+
+    updateDecisionSummary();
+  }
+
+  function selectCardStatus(statusNum) {
+    state.cardStatus = statusNum;
+    const btn1 = document.getElementById('opt-status-1');
+    const btn2 = document.getElementById('opt-status-2');
+    const btn3 = document.getElementById('opt-status-3');
+    const warn = document.getElementById('closed-account-warning');
+
+    [btn1, btn2, btn3].forEach((btn, idx) => {
+      if ((idx + 1) === statusNum) {
+        btn.className = 'card-status-btn flex flex-col justify-between p-space-md rounded-2xl text-left transition-all duration-150 bg-secondary-fixed/30 shadow-md border-0 cursor-pointer';
+        btn.querySelector('div:last-child span:last-child').textContent = 'check_circle';
+      } else {
+        btn.className = 'card-status-btn flex flex-col justify-between p-space-md rounded-2xl text-left transition-all duration-150 bg-surface-container-low hover:bg-surface-container hover:shadow-md border-0 cursor-pointer';
+        btn.querySelector('div:last-child span:last-child').textContent = 'radio_button_unchecked';
+      }
+    });
+
+    if (statusNum === 3) {
+      warn.classList.remove('hidden');
+    } else {
+      warn.classList.add('hidden');
+    }
+
+    updateDecisionSummary();
+  }
+
+  function updateDecisionSummary() {
+    const dTitle = document.getElementById('decision-title');
+    const dExp = document.getElementById('decision-explanation');
+    const tMethod = document.getElementById('track-method');
+    const tRule = document.getElementById('track-rule');
+    const tAction = document.getElementById('track-action');
+    const tDrools = document.getElementById('telemetry-drools');
+    const tProlog = document.getElementById('telemetry-prolog');
+    const btnSubmit = document.getElementById('btn-submit');
+
+    const m = methodDetails[state.method];
+
+    if (state.isGift) {
+      dTitle.innerHTML = '<span class="material-symbols-outlined text-[32px]">card_giftcard</span><span>EMISSÃO DE CARTÃO OFERTA LEVI\\'S OU ESTORNO ORIGINAL</span>';
+      dExp.innerHTML = 'A devolução foi assinalada como <strong>Devolução de Oferta (TN-007)</strong>. O portador tem a prerrogativa de receber um Cartão de Oferta físico ou digital no valor de <strong>$118.00 USD</strong>, ou optar pelo reembolso na conta original.';
+      tMethod.textContent = 'Recibo de Oferta (Gift Receipt)';
+      tRule.textContent = 'TN-007 (Gift Return)';
+      tAction.textContent = 'Emitir Cartão de Oferta';
+      tDrools.textContent = 'TN-007_GiftPolicy_Fired';
+      tProlog.textContent = 'gift_receipt(allow_store_credit, voucher_issue)';
+      btnSubmit.innerHTML = '<span>Emitir Cartão Oferta ao Portador ✨</span><span class="material-symbols-outlined text-[24px]">card_giftcard</span>';
+      return;
+    }
+
+    if (state.method === 'card') {
+      if (state.cardStatus === 1) {
+        dTitle.innerHTML = '<span class="material-symbols-outlined text-[32px]">check_circle</span><span>PERMITIR REEMBOLSO TOKENIZADO DIRETO</span>';
+        dExp.innerHTML = 'O cliente pagou com cartão Visa tokenizado e a conta está ativa. Não é necessário solicitar o cartão físico nem documento adicional. O valor de <strong>$118.00 USD</strong> será estornado e creditado no extrato em 3-5 dias úteis.';
+        tMethod.textContent = 'Token Visa •••• 4920';
+        tRule.textContent = 'TN-001 (Tokenized POS)';
+        tAction.textContent = 'Processar Automático';
+        tDrools.textContent = 'TN-001_Fired';
+        tProlog.textContent = 'refund_tender(credit_card, tokenized, allow)';
+        btnSubmit.innerHTML = '<span>Concluir & Emitir Comprovativo ✨</span><span class="material-symbols-outlined text-[24px]">verified</span>';
+      } else if (state.cardStatus === 2) {
+        dTitle.innerHTML = '<span class="material-symbols-outlined text-[32px]">sync</span><span>REEMBOLSO À CONTA ASSOCIADA (TN-002)</span>';
+        dExp.innerHTML = 'Cartão perdido ou roubado, mas conta ativa. O estorno tokenizado segue para o emissor bancário, que automaticamente direcionará o saldo para o novo cartão da conta do titular.';
+        tMethod.textContent = 'Tokenizado (Cartão Reemitido)';
+        tRule.textContent = 'TN-002 (Lost/Stolen Card)';
+        tAction.textContent = 'Estorno Roteado pelo Emissor';
+        tDrools.textContent = 'TN-002_Fired';
+        tProlog.textContent = 'refund_tender(credit_card, lost_stolen, route_account)';
+        btnSubmit.innerHTML = '<span>Autorizar Estorno Roteado</span><span class="material-symbols-outlined text-[24px]">route</span>';
+      } else {
+        dTitle.innerHTML = '<span class="material-symbols-outlined text-[32px] text-tertiary">notification_important</span><span class="text-on-surface">SUBMETER TENTATIVA PREVIA AO TERMINAL (TN-003)</span>';
+        dExp.innerHTML = 'Conta encerrada requer tentativa formal de estorno. Caso seja devolvido código de erro pelo emissor, o sistema liberará a emissão de voucher ou devolução alternativa autorizada pelo supervisor.';
+        tMethod.textContent = 'Tentativa Token (Conta Encerrada)';
+        tRule.textContent = 'TN-003 / TN-004';
+        tAction.textContent = 'Aguardar Retorno Gateway';
+        tDrools.textContent = 'TN-003_PendingValidation';
+        tProlog.textContent = 'refund_tender(closed_account, require_decline_proof)';
+        btnSubmit.innerHTML = '<span>Executar Teste no Terminal POS</span><span class="material-symbols-outlined text-[24px]">point_of_sale</span>';
+      }
+    } else {
+      dTitle.innerHTML = `<span class="material-symbols-outlined text-[32px]">check_circle</span><span>LIQUIDAÇÃO POR ${m.title.toUpperCase()}</span>`;
+      dExp.innerHTML = `Aplicação da regra <strong>${m.rule}</strong>: ${m.desc} O valor de liquidação é de <strong>$118.00 USD</strong>.`;
+      tMethod.textContent = m.trackMethod;
+      tRule.textContent = m.rule;
+      tAction.textContent = m.action;
+      tDrools.textContent = m.drools;
+      tProlog.textContent = m.prolog;
+      btnSubmit.innerHTML = '<span>Confirmar & Finalizar Passo 5</span><span class="material-symbols-outlined text-[24px]">arrow_forward</span>';
+    }
+  }
+
+  function finishRefund() {
+    const feedback = document.createElement('div');
+    feedback.className = 'fixed bottom-8 right-8 bg-primary text-on-primary px-space-lg py-space-md rounded-2xl shadow-xl flex items-center gap-space-sm z-50 animate-bounce';
+    feedback.innerHTML = '<span class="material-symbols-outlined text-[24px]">check_circle</span><span class="font-headline-sm text-headline-sm">Liquidação Aprovada e Enviada ao POS!</span>';
+    document.body.appendChild(feedback);
+    setTimeout(() => {
+      feedback.remove();
+    }, 3500);
+  }
+</script></main><footer class="w-full bg-surface-container-low py-space-lg shadow-[0_-1px_6px_rgba(0,0,0,0.02)]"><div class="w-full px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md font-caption text-caption text-on-surface-variant"><div class="flex flex-wrap items-center gap-space-md"><span class="flex items-center gap-1 font-label-md text-label-md text-on-surface"><span class="material-symbols-outlined text-[16px] text-primary">point_of_sale</span>Terminal POS-04 (PDV Sul)</span><span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span>Drools Rule Engine v8.44: Conectado</span><span class="inline-block w-1 h-1 rounded-full bg-outline-variant"></span><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span>Prolog Logic Resolver: Online (2ms)</span></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-1 bg-surface-container-lowest px-space-sm py-space-xs rounded-full text-primary font-label-md text-label-md shadow-[0_1px_4px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-[16px]">lock</span>Criptografia TLS 1.3 &amp; LGPD Ativa</div><span class="text-on-surface-variant">© 2025 RetailFlow AI Inc.</span></div></div></footer>
+
+</body></html>

@@ -1,0 +1,82 @@
+{
+  "id": 2,
+  "titulo": "O cliente irritado com Afterpay",
+  "estado": "a validar",
+  "aValidar": ["A-18", "A-22"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "\"Entregue há 12 dias\" é tratado como enviado há 12 dias; data de compra igual à de envio.",
+    "O pedido de troca noutra cor é registado como pedido de exceção que contorna o processo obrigatório da Afterpay.",
+    "O casaco não está no sortido da loja recetora."
+  ],
+  "justificacao": [
+    "M3: não usado com etiquetas (PC-001).",
+    "Online: encomenda levi.com encontrada → CH-002 ENCAMINHAR para a BackPocket; Afterpay → TN-010 reembolso à Afterpay.",
+    "A troca noutra cor é uma exceção ao meio Afterpay → HS-005 recusa a exceção (a devolução continua).",
+    "M6: o cliente contesta (EX-002) e fica agitado → EX-003 escala para o responsável sénior; EX-004 não pode aprovar (disparou HS-005) e EX-006 recusa a exceção que contorna o processo obrigatório.",
+    "M7: valor pago 128.00 no meio original (Afterpay, pela BackPocket).",
+    "M8: CT-001, CT-005, CT-007 (arquivar com os suportes diários); sem Stylist da venda (CT-004 não se aplica).",
+    "M9: inspeção conforme (CT-008); entre canais fora do sortido → EP-006 saldos a 20%.",
+    "Resultado: ENCAMINHAR para a BackPocket, reembolso à Afterpay; a troca é recusada."
+  ],
+  "pedido": {
+    "id": "C02",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "TROCA",
+    "loja": { "codigo": "US-ML-020", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-2", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-2" },
+    "cliente": { "forneceDados": true, "contestaResultado": true, "agitado": true },
+    "compraOriginal": {
+      "idTransacao": "LCOM-0202",
+      "canal": "LEVI_COM",
+      "dataCompra": "2026-03-19",
+      "dataEnvio": "2026-03-19",
+      "pagamento": { "meio": "AFTERPAY", "valorPago": 128.00 },
+      "quantidadeComprada": 1,
+      "encomendaEncontrada": true
+    },
+    "comprovativo": { "tipo": "CONFIRMACAO_ENCOMENDA", "confirmaCompra": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "TRUCKER-AZUL-M", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 128.00, "precoAtual": 128.00 },
+        "quantidade": 1,
+        "precoPago": 128.00,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "COLOCADAS" },
+        "entreCanais": true
+      }
+    ],
+    "artigosTroca": [
+      {
+        "produto": { "sku": "TRUCKER-PRETO-M", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 128.00, "precoAtual": 128.00 },
+        "apenasMudaTamanho": false,
+        "precoVenda": 128.00
+      }
+    ],
+    "pedidoExcecao": {
+      "motivo": "Exige troca imediata do casaco por outra cor e recusa o reembolso.",
+      "resolucaoPedida": "TROCA",
+      "contornaProcessoObrigatorio": true,
+      "preocupacaoCliente": "Quer a troca imediata e pede para falar com o responsável mais sénior."
+    }
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "ENCAMINHAR",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "REEMBOLSO",
+    "valorDevolucao": 128,
+    "baseValor": "VALOR_PAGO",
+    "meioReembolso": "MEIO_ORIGINAL",
+    "aprovacao": "RESPONSAVEL_SENIOR",
+    "processo": "BACKPOCKET",
+    "terminal": false,
+    "excecaoRecusada": true,
+    "documentacao": { "assinaturaTestemunha": "Assinatura da testemunha", "retencaoAte": "2026-06-29" },
+    "regrasDisparadas": ["CT-003", "PC-001", "CH-002", "TN-010", "HS-005", "EX-002", "EX-003", "EX-004", "EX-006", "CT-001", "CT-005", "CT-007", "CT-008", "EP-006", "OUT-001"],
+    "regrasNaoDisparadas": ["CH-001", "IN-003", "PT-001", "PT-003", "CH-006", "EP-002", "EX-005", "EX-007", "CT-004", "TN-009"],
+    "artigos": {
+      "A-1": { "elegibilidade": "PERMITIR", "valorDevolucao": 128, "destino": "SALDOS", "descontoSaldo": 20, "regrasDisparadas": ["PC-001", "CT-008", "EP-006"] }
+    }
+  }
+}

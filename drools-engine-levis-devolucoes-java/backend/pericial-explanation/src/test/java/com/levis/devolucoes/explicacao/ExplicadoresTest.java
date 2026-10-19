@@ -310,7 +310,22 @@ class ExplicadoresTest {
 
       assertThat(explicacao.regrasEmEspera()).isEmpty();
       assertThat(explicacao.regrasQueDependem()).contains("TN-001", "TN-008");
-      assertThat(explicacao.resumo()).contains("nenhuma decisão está pendente");
+      assertThat(explicacao.resumo())
+          .contains("nenhuma decisão terminal está imediatamente dependente")
+          .contains(DadoEntrada.PAGAMENTO.racional());
+    }
+
+    @Test
+    @DisplayName("Todos os dados de entrada possuem racional de negócio estruturado")
+    void todosOsDadosPossuemRacionalDeNegocio() {
+      for (DadoEntrada dado : DadoEntrada.values()) {
+        assertThat(dado.racional())
+            .as("Racional de negócio para %s (%s)", dado.name(), dado.codigo())
+            .isNotBlank()
+            .endsWith(".");
+        assertThat(dado.racionalNegocio()).isEqualTo(dado.racional());
+      }
     }
   }
 }
+

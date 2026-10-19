@@ -68,26 +68,10 @@ class PrologClient:
         """Exit the async context manager and release client resources."""
         await self.close()
 
-    async def evaluate(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
-        """Submit scenario facts to the Prolog inference engine via POST /evaluate.
-
-        Args:
-            payload: Fact dictionary adhering to the Prolog /evaluate contract
-                     (e.g., {"scenario": "test", "value": 42}) or a Pydantic model.
-
-        Returns:
-            Dict containing the serialized Prolog evaluation response
-            (status, decision, justification).
-
-        Raises:
-            PrologConnectionError: On network, DNS, or socket connection failures.
-            PrologTimeoutError: If the Prolog engine exceeds the configured timeout.
-            PrologResponseError: If the Prolog engine returns HTTP 4xx or 5xx.
-        """
+    async def _post(self, path: str, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Execute POST request against the Prolog engine with robust exception handling."""
         client = self._get_client()
-        url = f"{self.base_url}/evaluate"
-
-        # Serialize Pydantic models to dict if provided
+        url = f"{self.base_url}{path}"
         request_data = payload.model_dump() if hasattr(payload, "model_dump") else payload
 
         try:
@@ -107,7 +91,7 @@ class PrologClient:
 
         except httpx.TimeoutException as exc:
             raise PrologTimeoutError(
-                message=f"Prolog engine timed out after {self.timeout}s during evaluation: {exc}",
+                message=f"Prolog engine timed out after {self.timeout}s during request to {path}: {exc}",
                 timeout_seconds=self.timeout,
             ) from exc
 
@@ -134,6 +118,120 @@ class PrologClient:
                 url=self.base_url,
             ) from exc
 
+    async def _get(self, path: str) -> Dict[str, Any]:
+        """Execute GET request against the Prolog engine with robust exception handling."""
+        client = self._get_client()
+        url = f"{self.base_url}{path}"
+
+        try:
+            response = await client.get(url, timeout=self.timeout)
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as exc:
+            raise PrologConnectionError(
+                message=f"Could not connect to Prolog engine at '{self.base_url}': {exc}",
+                url=self.base_url,
+            ) from exc
+
+        except httpx.TimeoutException as exc:
+            raise PrologTimeoutError(
+                message=f"Prolog engine timed out after {self.timeout}s during request to {path}: {exc}",
+                timeout_seconds=self.timeout,
+            ) from exc
+
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            error_data = None
+            message = f"Prolog engine returned HTTP {status_code}"
+            try:
+                error_data = exc.response.json()
+                if isinstance(error_data, dict) and "message" in error_data:
+                    message = error_data["message"]
+            except Exception:
+                error_data = {"raw": exc.response.text}
+
+            raise PrologResponseError(
+                message=message,
+                status_code=status_code,
+                response_data=error_data if isinstance(error_data, dict) else {},
+            ) from exc
+
+        except httpx.NetworkError as exc:
+            raise PrologConnectionError(
+                message=f"Network error while communicating with Prolog engine: {exc}",
+                url=self.base_url,
+            ) from exc
+
+    async def evaluate_academic(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Submit scenario facts to the academic/POC Prolog endpoint POST /evaluate."""
+        return await self._post("/evaluate", payload)
+
+    async def evaluate_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Submit retail return facts to the Levi's expert engine endpoint POST /retail/evaluate."""
+        return await self._post("/retail/evaluate", payload)
+
+    async def interactive_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Engage in dialogic interrogation via POST /retail/interactive."""
+        return await self._post("/retail/interactive", payload)
+
+    async def whatif_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Execute counterfactual sandbox simulation via POST /retail/whatif."""
+        return await self._post("/retail/whatif", payload)
+
+    async def how_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Query deductive causal chain via POST /retail/how."""
+        return await self._post("/retail/how", payload)
+
+    async def whynot_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Analyze failed candidate rule premises via POST /retail/whynot."""
+        return await self._post("/retail/whynot", payload)
+
+    async def why_retail(self, payload: Union[Dict[str, Any], Any]) -> Dict[str, Any]:
+        """Query why an input premise is requested via POST /retail/why."""
+        return await self._post("/retail/why", payload)
+
+    async def facts_retail(self) -> Dict[str, Any]:
+        """Retrieve all current facts from working memory via GET /retail/facts."""
+        return await self._get("/retail/facts")
+
+    async def reset_retail(self) -> Dict[str, Any]:
+        """Reset the retail inference engine session via POST /retail/reset."""
+        return await self._post("/retail/reset", {})
+
+    async def evaluate(
+        self,
+        payload: Union[Dict[str, Any], Any],
+        mode: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Submit scenario facts to the configured or requested Prolog inference engine.
+
+        Supports dynamic mode toggling:
+          - 'retail': Evaluates using the Levi's retail expert returns engine (POST /retail/evaluate)
+          - 'academic': Evaluates using the academic reference/POC engine (POST /evaluate)
+          - 'dual': Executes both and synthesizes their diagnostic output
+
+        Args:
+            payload: Fact dictionary or Pydantic model.
+            mode: Optional explicit mode override ('retail', 'academic', 'dual').
+                  Defaults to settings.PROLOG_ENGINE_MODE.
+        """
+        request_dict = payload.model_dump() if hasattr(payload, "model_dump") else payload
+        is_academic_test = isinstance(request_dict, dict) and request_dict.get("scenario") == "test"
+
+        target_mode = mode or ("academic" if is_academic_test else settings.PROLOG_ENGINE_MODE)
+
+        if target_mode == "academic":
+            return await self.evaluate_academic(payload)
+        elif target_mode == "dual":
+            retail_res = await self.evaluate_retail(payload)
+            academic_res = await self.evaluate_academic(payload)
+            combined_just = list(retail_res.get("justification", []))
+            combined_just.append(f"[Dual Mode] Academic engine verdict: {academic_res.get('decision')}")
+            return {**retail_res, "justification": combined_just, "dual_academic": academic_res}
+        else:
+            return await self.evaluate_retail(payload)
+
     async def check_health(self) -> bool:
         """Perform a liveness and responsiveness check against the Prolog engine.
 
@@ -141,7 +239,7 @@ class PrologClient:
             True if the engine responds successfully with HTTP 200, False otherwise.
         """
         try:
-            result = await self.evaluate({"scenario": "health_check", "value": 42})
+            result = await self.evaluate_academic({"scenario": "health_check", "value": 42})
             return result.get("status") == "success"
         except Exception:
             return False

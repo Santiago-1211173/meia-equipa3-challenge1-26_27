@@ -1,358 +1,316 @@
-# Arquitetura Interna: Micro-servico Drools Engine
-### *Motor de Inferencia Baseado em Regras de Producao*
+# Arquitetura Interna: Micro-serviço Drools Engine (Devoluções Levi's)
+### *Motor Pericial de Regras de Produção (Rete-OO) para Retalho*
 
 ---
 
-## 1. Visao Geral e Papel no Sistema
+## 1. Visão Geral e Papel no Sistema
 
-O micro-servico **Drools Engine** ([`drools_engine/`](../../drools_engine)) constitui o segundo motor de inferencia pericial do sistema, baseado em **regras de producao** e no algoritmo **Rete-OO** implementado pelo Apache KIE Drools 8.44.
+O micro-serviço **Drools Engine** ([`drools-engine-levis-devolucoes-java/`](../../drools-engine-levis-devolucoes-java)) constitui o motor de inferência pericial baseado em **regras de produção** (*Production Rules*) do sistema, implementando a totalidade das políticas operacionais de devoluções, trocas e ajustes de preço da **Levi Strauss & Co.** (lojas Mainline e Outlet, EUA e Canadá).
 
-Enquanto o motor SWI-Prolog opera sobre logica declarativa de primeira ordem com encadeamento para a frente e mecanismos de explicabilidade bidirecional (*How / Why Not*), o Drools Engine aplica um paradigma complementar: regras de producao *if-then* compiladas numa rede de discriminacao Rete, proporcionando avaliacao eficiente de padroes sobre conjuntos de factos clinicos inseridos na memoria de trabalho (*Working Memory*).
+O motor assenta no algoritmo **Rete-OO** fornecido pelo **Apache KIE Drools 8.44**, integrado numa aplicação modular empresarial desenvolvida em **Java 21**, **Spring Boot 3.3** e persistência relacional em **PostgreSQL 16**.
 
-O dominio clinico implementado centra-se no **diagnostico diferencial de hemorragias**, classificando evidencias clinicas observadas no paciente em hipoteses intermedias (tipo superior / tipo inferior) e deduzindo diagnosticos terminais (Otorrhagia, Epistaxe, Melena, entre outros) com rastreabilidade completa das regras disparadas (`firedRules`) para fins de explicabilidade.
+Enquanto o micro-serviço SWI-Prolog explora o paradigma declarativo puro de primeira ordem com encadeamento causal, o Drools Engine aplica correspondência de padrões de alto desempenho em memória de trabalho (*Working Memory*), avaliando simultaneamente **98 regras de produção DRL** distribuídas por múltiplos módulos sequenciais (*agenda-groups* M0 a M9).
+
+### 1.1 Objetivos Centrais de Engenharia
+1. **Determinismo e Rigor:** Cada decisão de triagem (aprovação, rejeição, revisão gerencial, encaminhamento físico) é obtida estritamente a partir das políticas oficiais da marca.
+2. **Explicabilidade Nativa em 5 Vias:** O motor fornece nativamente justificações completas:
+   - **Como?** (*How*): Rasto ordenado das regras disparadas e módulos percorridos.
+   - **Porquê?** (*Why*): Fundamentação das perguntas ou dados pedidos ao operador.
+   - **Porque não?** (*Why Not*): Análise contrafactual detalhada explicando por que razão determinadas conclusões mais favoráveis não foram atingidas.
+   - **E se?** (*What If*): Simulador de cenários hipotéticos sem persistência na base de dados.
+   - **O que falta?** (*Missing Data*): Identificação proativa dos atributos necessários para desbloquear um desfecho positivo.
+3. **Persistência e Auditoria Integral:** Todas as avaliações são persistidas em PostgreSQL com histórico completo dos factos submetidos, versão do KJAR de regras executado e rasto de regras acionadas.
+4. **Segurança por Token JWT:** Autenticação e autorização por papéis de operador de retalho, com suporte a tokens de desenvolvimento rápido e fornecedores OIDC corporativos.
 
 ---
 
-## 2. Principios de Arquitectura e Organizacao do Codigo
+## 2. Arquitetura Modular em Camadas (Multi-Módulo Maven)
 
-O micro-servico segue uma arquitectura em camadas convencional do ecossistema Spring Boot, separando configuracao, transporte REST, logica de servico, factos de dominio Drools e contratos de dados:
+O projeto está estruturado segundo os princípios de **Clean Architecture** e **Ports & Adapters (Hexagonal)**, repartido por 7 módulos Maven desacoplados, garantindo isolamento estrito entre o domínio de negócio, as regras Drools, a persistência e a camada REST:
 
 ```text
-drools_engine/
-├── Dockerfile                  # Contentorizacao multi-stage (Maven build + JRE runtime)
-├── .dockerignore               # Exclusoes de contexto de build Docker
-├── pom.xml                     # Definicao Maven com Spring Boot 3.3.4, Drools 8.44, Lombok
-├── src/
-│   ├── main/
-│   │   ├── java/com/expert/drools/
-│   │   │   ├── DroolsEngineApplication.java    # Entry point Spring Boot (@SpringBootApplication)
-│   │   │   ├── config/
-│   │   │   │   └── DroolsConfig.java           # Configuracao Spring e KieContainer (dual strategy)
-│   │   │   ├── controllers/
-│   │   │   │   ├── InferenceController.java    # Endpoint REST POST /api/v1/inference/evaluate
-│   │   │   │   ├── HealthController.java       # Endpoint REST GET /api/v1/inference/health
-│   │   │   │   └── GlobalExceptionHandler.java # Tratamento global de erros (@RestControllerAdvice)
-│   │   │   ├── services/
-│   │   │   │   ├── InferenceService.java       # Interface de servico (contrato)
-│   │   │   │   └── InferenceServiceImpl.java   # Implementacao: orquestracao KieSession e inferencia
-│   │   │   ├── models/
-│   │   │   │   ├── Evidences.java              # Facto Drools: evidencias clinicas (Working Memory)
-│   │   │   │   ├── Hypothesis.java             # Facto Drools: hipotese intermedia (upper/lower type)
-│   │   │   │   └── Conclusion.java             # Facto Drools: diagnostico terminal com constantes
-│   │   │   └── dtos/
-│   │   │       ├── EvidencesRequestDto.java    # DTO de entrada REST com validacao @Pattern(yes|no)
-│   │   │       ├── EvaluationResponseDto.java  # DTO de saida REST com diagnostico e firedRules
-│   │   │       ├── HealthResponseDto.java      # DTO de saida REST para health check
-│   │   │       └── ErrorResponseDto.java       # DTO padronizado de erro (400/500)
-│   │   └── resources/
-│   │       ├── application.properties          # Configuracao Spring Boot (porta, logging, Jackson)
-│   │       ├── META-INF/
-│   │       │   └── kmodule.xml                 # Definicao de KieBase e KieSession (haemorrhageKBase)
-│   │       └── rules/
-│   │           └── haemorrhage_rules.drl       # Regras DRL de diagnostico de hemorragias (13 regras)
-│   └── test/
-│       └── java/com/expert/drools/
-│           ├── DroolsEngineApplicationTests.java   # Teste de contexto Spring Boot
-│           ├── controllers/
-│           │   └── InferenceControllerTest.java    # Testes de integracao REST (MockMvc)
-│           └── services/
-│               └── InferenceServiceTest.java       # Testes unitarios de inferencia por cenario
+drools-engine-levis-devolucoes-java/
+├── backend/
+│   ├── pericial-model/         # Factos de domínio puros (POJO, sem Spring/JPA/Drools)
+│   ├── pericial-rules/         # KJAR versionado: 98 regras DRL, kmodule.xml e cenários de teste
+│   ├── pericial-explanation/   # Algoritmos de explicabilidade (Como, Porquê, Porque não, E se)
+│   ├── pericial-dto/           # Contratos públicos da API (records Java com Bean Validation)
+│   ├── pericial-persistence/   # Entidades JPA, repositórios Spring Data e migrações Flyway
+│   ├── pericial-service/       # Orquestração do motor, portas e adaptadores externos
+│   └── pericial-api/           # Aplicação Spring Boot, controladores REST e segurança JWT
+├── frontend/                   # Interface web Angular complementar
+├── docker-compose.yml          # Orquestração local (PostgreSQL 16 + pericial-api)
+└── pom.xml                     # Maven root agregador (Java 21, Spring Boot 3.3, Drools 8.44)
 ```
 
-### 2.1 Camada de Configuracao (`config/`)
-* **`DroolsConfig.java`:** Classe `@Configuration` responsavel pela criacao e exposicao do bean `KieContainer` com estrategia dual de inicializacao (ver Seccao 4).
+### 2.1 Papel e Responsabilidades por Módulo
 
-### 2.2 Camada de Transporte REST (`controllers/`)
-* **`InferenceController.java`:** Controlador `@RestController` que expoe `POST /api/v1/inference/evaluate` com validacao `@Valid` sobre o payload de entrada.
-* **`HealthController.java`:** Controlador `@RestController` que expoe `GET /api/v1/inference/health` para verificacao do estado do motor.
-* **`GlobalExceptionHandler.java`:** Componente `@RestControllerAdvice` que intercepta excepcoes globais e devolve payloads de erro padronizados (ver Seccao 7).
-
-### 2.3 Camada de Servico (`services/`)
-* **`InferenceService.java`:** Interface que define o contrato com dois metodos: `evaluate(EvidencesRequestDto)` e `getHealthStatus()`.
-* **`InferenceServiceImpl.java`:** Implementacao `@Service` que gere o ciclo de vida da `KieSession`, insercao de factos, disparo de regras e extracao de conclusoes da Working Memory.
-
-### 2.4 Factos de Dominio Drools (`models/`)
-* **`Evidences.java`:** POJO Lombok (`@Data`, `@Builder`) representando os 13 indicadores clinicos binarios (`yes`/`no`) observados no paciente.
-* **`Hypothesis.java`:** POJO que armazena hipoteses intermedias de classificacao (ex.: `"upper type"`, `"lower type"`).
-* **`Conclusion.java`:** POJO com constantes estaticas para cada diagnostico terminal (ex.: `OTORRHAGIA`, `SKULL_FRACTURE`, `EPISTAXE`, etc.) e metodo `toString()` formatado.
-
-### 2.5 Contratos de Transporte REST (`dtos/`)
-* **`EvidencesRequestDto.java`:** DTO de entrada com 13 campos `@Pattern(^(?i)(yes|no)?$)`, metodo `toDomain()` para conversao defensiva e `@JsonInclude(NON_NULL)`.
-* **`EvaluationResponseDto.java`:** DTO de saida com `status`, `primaryDiagnosis`, `conclusions`, `hypothesis`, `firedRules`, `timestamp` e `evidencesEvaluated`.
-* **`HealthResponseDto.java`:** DTO com `status`, `service`, `version`, `activeKieBase`, `totalRules` e `timestamp`.
-* **`ErrorResponseDto.java`:** DTO padronizado com `status`, `error`, `message`, `details` e `timestamp`.
-
----
-
-## 3. Separacao entre Factos de Dominio e DTOs de Transporte
-
-O micro-servico implementa uma separacao clara entre objectos de dominio que participam na inferencia Drools e objectos de transferencia de dados que definem o contrato da API REST:
-
-| Camada | Pacote | Responsabilidade | Relacao com Drools |
+| Módulo Maven | Papel Arquitetural | Tecnologias Chave | Responsabilidades |
 |:---|:---|:---|:---|
-| **Factos de Dominio** | `models/` | Objectos inseridos na Working Memory do Drools para avaliacao por regras | Directamente referenciados nos ficheiros `.drl` |
-| **DTOs de Transporte** | `dtos/` | Serializacao/desserializacao JSON, validacao Bean Validation e contrato REST | Nunca entram na Working Memory |
-
-### Mecanismo de Conversao: `toDomain()`
-
-O metodo `EvidencesRequestDto.toDomain()` constitui a fronteira de conversao entre as duas camadas:
-
-1. **Normalizacao Defensiva:** Cada campo e processado pela funcao `normalize(String)`, que converte valores `null` ou vazios para `"no"` e aplica `trim().toLowerCase()` para uniformizacao.
-2. **Isolamento de Validacao:** A validacao `@Pattern` ocorre exclusivamente no DTO de entrada (camada de transporte), garantindo que os factos de dominio recebem apenas dados ja validados e normalizados.
-3. **Imutabilidade Conceptual:** O objecto `Evidences` resultante do `toDomain()` e tratado como imutavel apos insercao na Working Memory -- as regras Drools nao alteram o facto `Evidences`, limitando-se a inserir novos objectos `Hypothesis` e `Conclusion`.
+| **`pericial-model`** | Domínio do Problema | Java 21, Lombok, Jackson | Define os factos de domínio puro (`Pedido`, `Artigo`, `Comprovativo`, `Decisao`, etc.). Não possui dependências do Spring nem da JPA. |
+| **`pericial-rules`** | Base de Conhecimento Drools | Drools 8.44, KIE API | Contém as 98 regras DRL organizadas em ficheiros por módulo funcional, o ficheiro `kmodule.xml` e suíte de testes de aceitação com os 10 cenários reais. |
+| **`pericial-explanation`** | Motor de Explicabilidade | Java 21, Drools SPI | Implementa o motor de transparência algorítmica, inspecionando a agenda, factos avaliados e condições não satisfeitas. |
+| **`pericial-dto`** | Contratos de Transporte | Java Records, Jakarta Validation | DTOs imutáveis de entrada e saída para a API REST, com validações Bean Validation rigorosas. |
+| **`pericial-persistence`** | Auditoria e Armazenamento | Spring Data JPA, Hibernate, Flyway | Entidades relacionais separadas dos factos Drools, histórico das transações, idempotência e auditoria de auditoria. |
+| **`pericial-service`** | Serviços Aplicacionais | Spring Boot Service, Portas & Adaptadores | Orquestra a execução da `KieSession`, gere o ciclo de vida transacional e isola integrações com POS, BackPocket, Afterpay e PayPal atrás de adaptadores. |
+| **`pericial-api`** | Camada de Entrada REST | Spring Web, Spring Security, Swagger | Disponibiliza os endpoints `/api/v1/avaliacoes`, `/api/v1/regras`, `/explicacoes/*`, controlo de acessos JWT e documentação OpenAPI. |
 
 ---
 
-## 4. Configuracao e Inicializacao do KieContainer
+## 3. Modelo de Domínio e Factos de Trabalho (`pericial-model`)
 
-A classe [`DroolsConfig`](../../drools_engine/src/main/java/com/expert/drools/config/DroolsConfig.java) implementa uma **estrategia dual** de inicializacao do `KieContainer`, garantindo resiliencia na presenca de diferentes ambientes de execucao:
+Os factos inseridos na memória de trabalho (*Working Memory*) do Drools são classes Java limpas que modelam a realidade física e transacional de uma loja de retalho:
 
-### Estrategia 1: `KieClasspathContainer` (Prioritaria)
+```mermaid
+classDiagram
+    direction TB
+    class Pedido {
+        +UUID id
+        +CanalVenda canal
+        +TipoLoja tipoLoja
+        +LocalDate dataPedido
+        +Colaborador colaborador
+        +List~Artigo~ artigos
+        +Comprovativo comprovativo
+        +List~PagamentoOriginal~ pagamentos
+    }
 
-```text
-KieServices.getKieClasspathContainer(classLoader)
-    └── Carrega META-INF/kmodule.xml do classpath
-    └── Compila automaticamente os .drl em packages configurados
-    └── Verifica erros com container.verify()
-    └── Se sem erros → retorna o container
-    └── Se com erros → log de warning e fallback
+    class Artigo {
+        +String sku
+        +CategoriaArtigo categoria
+        +BigDecimal precoPago
+        +EstadoArtigo estado
+        +EstadoEtiqueta etiqueta
+        +boolean personalizado
+        +boolean pecaIntima
+        +DestinoArtigo destino
+    }
+
+    class Comprovativo {
+        +TipoComprovativo tipo
+        +String numeroRecibo
+        +LocalDate dataCompra
+        +boolean valido
+    }
+
+    class Decisao {
+        +UUID avaliacaoId
+        +ResultadoElegibilidade elegibilidade
+        +BigDecimal valorReembolso
+        +MeioReembolso meioLiquidacao
+        +boolean requerAprovacaoGerente
+        +List~String~ rastreioRegras
+        +boolean terminal
+    }
+
+    Pedido "1" *-- "1..*" Artigo : artigos
+    Pedido "1" *-- "1" Comprovativo : comprovativo
+    Pedido "1" --> "1" Decisao : decisao
 ```
 
-### Estrategia 2: `KieFileSystem` (Fallback)
-
-```text
-KieServices.newKieFileSystem()
-    ├── Carrega META-INF/kmodule.xml via PathMatchingResourcePatternResolver
-    ├── Descoberta dinamica de ficheiros .drl em classpath*:rules/*.drl
-    │   └── Para cada .drl encontrado: log + write no KieFileSystem virtual
-    ├── KieBuilder.buildAll() → compilacao de regras
-    ├── Verificacao de Results.hasMessages(ERROR)
-    │   ├── Se erros → IllegalStateException com mensagem detalhada
-    │   └── Se OK → newKieContainer(defaultReleaseId)
-    └── IOException → IllegalStateException (falha de leitura de ficheiros)
-```
-
-### Configuracao do Modulo KIE (`kmodule.xml`)
-
-```xml
-<kmodule xmlns="http://www.drools.org/xsd/kmodule">
-    <kbase name="haemorrhageKBase" default="true"
-           eventProcessingMode="cloud" equalsBehavior="equality"
-           packages="rules">
-        <ksession name="haemorrhageKSession" type="stateful"
-                  default="true" clockType="realtime"/>
-    </kbase>
-</kmodule>
-```
-
-* **`haemorrhageKBase`:** KieBase por omissao, modo de processamento `cloud` (nao-temporal), comportamento de igualdade por `equality`.
-* **`haemorrhageKSession`:** Sessao `stateful` com relogio `realtime`, utilizada para inserir factos e disparar regras.
-* **`packages="rules"`:** Instrui o compilador a procurar ficheiros `.drl` no pacote `rules`.
+* **`Pedido`:** Representa a transação de retorno global submetida pelo cliente à caixa.
+* **`Artigo`:** Cada peça individual sujeita a devolução, com o seu estado de conservação, presença de etiquetas, categoria e destino físico atribuído pelo motor.
+* **`Comprovativo`:** Dados do comprovativo de compra (recibo em papel, fatura eletrónica, *gift receipt* ou devolução sem recibo).
+* **`Decisao`:** Objeto central acumulador de inferência onde as regras depositam as conclusões parciais e finais (`terminal = true` quando atinge um desfecho imperativo).
 
 ---
 
-## 5. Base de Regras de Hemorragia (`haemorrhage_rules.drl`)
+## 4. Base de Regras de Produção DRL (`pericial-rules`)
 
-O ficheiro [`haemorrhage_rules.drl`](../../drools_engine/src/main/resources/rules/haemorrhage_rules.drl) define 13 regras de producao organizadas hierarquicamente em tres categorias, controladas por prioridades (`salience`):
+A base de conhecimento pericial conta com **98 regras de produção DRL**, distribuídas por ficheiros modulares no classpath `com/levis/devolucoes/regras/`:
 
-### 5.1 Hierarquia de Prioridades
+```text
+com/levis/devolucoes/regras/
+├── m0-autorizacao.drl           # Permissões do operador e tipo de loja
+├── m2-canal.drl                 # Validações de proveniência (Mainline, Outlet, Online)
+├── m3-elegibilidade.drl         # Condições físicas do produto, etiquetas e higiene
+├── m4-m5-comprovativo-prazo.drl # Prazos operacionais (30 dias devolução, 14 dias ajuste)
+├── m6-resultado-excecoes.drl    # Desfechos principais e exceções gerenciais
+├── m7-valor.drl                 # Cálculo do montante a liquidar (preço pago vs atual)
+├── m7-meio-reembolso.drl        # Determinação do método de liquidação (dinheiro, cartão, vale)
+├── m8-controlos.drl             # Controlos operacionais, limites e anti-fraude
+├── m9-destino.drl               # Destino físico do artigo (vendas, armazém, destruição)
+├── online.drl                   # Especificidades de devoluções com origem Levi's.com
+├── transversais.drl             # Regras de orquestração e propagação de estado
+└── consultas.drl                # Drools Queries para extração rápida de conclusões
+```
 
-| Salience | Categoria | Regras | Proposito |
-|:---:|:---|:---|:---|
-| `100` | Classificacao | `r1`, `r2` | Determinar tipo de hemorragia (upper/lower) |
-| `90` | Diagnostico | `r3` -- `r12` | Deduzir diagnostico terminal especifico |
-| `-100` | Fallback | `r13` | Diagnostico desconhecido quando nenhuma regra diagnostica dispara |
+### 4.1 Sequenciação por Agenda Groups e Salience
 
-### 5.2 Arvore de Decisao
+Para assegurar que o raciocínio humano do perito Dustin Hopper é reproduzido fielmente, a inferência Drools progride através de **Agenda Groups** encadeados, com desempate fino via `salience`:
+
+```mermaid
+flowchart LR
+    M0["M0: Autorização"] --> M2["M2: Canal de Venda"]
+    M2 --> M3["M3: Elegibilidade Física"]
+    M3 --> M4M5["M4/M5: Comprovativo e Prazos"]
+    M4M5 --> M6["M6: Desfecho e Exceções"]
+    M6 --> M7["M7: Valor e Meio de Reembolso"]
+    M7 --> M8["M8: Controlos e Fraude"]
+    M8 --> M9["M9: Destino Físico do Artigo"]
+```
+
+### 4.2 Anatomia de uma Regra Levi's DRL
+
+Todas as regras seguem uma convenção estrita de nomenclatura e metadados declarativos para alimentar diretamente o motor de explicabilidade:
+
+```java
+rule "PT-003 Devolução verificada até 30 dias com etiquetas intactas"
+    agenda-group "M4-M5"
+    salience 80
+    @id("PT-003")
+    @modulo("M4-M5")
+    @descricao("Transação com recibo válido efetuada dentro do prazo normal de 30 dias com etiquetas originais intactas.")
+    @conclusoes("OUT-001=PERMITIR,OUT-002=REEMBOLSO_INTEGRAL")
+when
+    $pedido : Pedido( tipoPedido == TipoPedido.DEVOLUCAO )
+    $comp   : Comprovativo( valido == true, diasDesdeCompra <= 30 )
+    $artigo : Artigo( etiqueta == EstadoEtiqueta.INTACTA, estado == EstadoArtigo.NOVO )
+    $dec    : Decisao( terminal == false )
+then
+    modify($dec) {
+        setElegibilidade(ResultadoElegibilidade.PERMITIR),
+        adicionarRegraAcionada("PT-003")
+    };
+end
+```
+
+---
+
+## 5. Motor de Explicabilidade em 5 Vias (`pericial-explanation`)
+
+O requisito fundamental do sistema é a transparência. O módulo `pericial-explanation` analisa a execução da sessão e gera 5 perspetivas analíticas:
 
 ```mermaid
 flowchart TD
-    START["Evidencias Clinicas Recebidas"] --> CLASS{"bloodEar?"}
+    ROOT["Explicabilidade Drools Levis - 5 Vias"]
 
-    CLASS -->|"yes"| UPPER["r1: Hipotese 'upper type'"]
-    CLASS -->|"no"| LOWER["r2: Hipotese 'lower type'"]
+    HOW["Como? (How)<br>Rasto sequencial de regras<br>Módulos percorridos<br>Modificações na decisão"]
+    WHY["Porquê? (Why)<br>Justificação da recolha de dados<br>Políticas associadas à questão"]
+    WHYNOT["Porque não? (Why Not)<br>Regras contrafactuais não disparadas<br>Condições e predicados falhados"]
+    WHATIF["E se? (What If)<br>Simulação sem persistência<br>Variação instantânea de atributos"]
+    MISSING["O que falta? (Missing Data)<br>Identificação de dados omissos<br>Requisitos para aprovação total"]
 
-    UPPER --> U1{"earAche?"}
-    UPPER --> U2{"deafness?"}
-    UPPER --> U3{"cerebrospinal?"}
-
-    U1 -->|"yes"| OTOR1["r3: Otorrhagia"]
-    U2 -->|"yes"| OTOR2["r4: Otorrhagia"]
-    U3 -->|"yes"| SKULL["r5: Skull fracture"]
-
-    LOWER --> L1{"bloodNose?"}
-    LOWER --> L2{"bloodMouth + bloodBrown + vomiting?"}
-    LOWER --> L3{"bloodMouth + NOT bloodBrown + NOT vomiting?"}
-    LOWER --> L4{"bloodVagina?"}
-    LOWER --> L5{"bloodPenis?"}
-    LOWER --> L6{"bloodAnus + bloodCoffee?"}
-    LOWER --> L7{"bloodAnus + NOT bloodCoffee?"}
-
-    L1 -->|"yes"| EPIST["r6: Epistaxe"]
-    L2 -->|"yes"| HEMAT["r7: Hemathese"]
-    L3 -->|"yes"| MOUTH["r8: Mouth haemorrhage"]
-    L4 -->|"yes"| METRO["r9: Metrorrhagia"]
-    L5 -->|"yes"| HEMAU["r10: Hematuria"]
-    L6 -->|"yes"| MELEN["r11: Melena"]
-    L7 -->|"yes"| RECTA["r12: Rectal bleeding"]
-
-    OTOR1 -.-> DONE["Diagnostico Concluido"]
-    OTOR2 -.-> DONE
-    SKULL -.-> DONE
-    EPIST -.-> DONE
-    HEMAT -.-> DONE
-    MOUTH -.-> DONE
-    METRO -.-> DONE
-    HEMAU -.-> DONE
-    MELEN -.-> DONE
-    RECTA -.-> DONE
-
-    START --> FALLBACK{"Nenhuma conclusao?"}
-    FALLBACK -->|"sim"| UNKNOWN["r13: 'Look for the doctor!'"]
-    UNKNOWN -.-> DONE
+    ROOT --> HOW
+    ROOT --> WHY
+    ROOT --> WHYNOT
+    ROOT --> WHATIF
+    ROOT --> MISSING
 ```
 
-### 5.3 Regras de Classificacao (salience 100)
-
-* **`r1_upper_type_classification`:** Se `bloodEar == "yes"`, insere `Hypothesis("upper type")`.
-* **`r2_lower_type_classification`:** Se `bloodEar == "no"`, insere `Hypothesis("lower type")`.
-
-### 5.4 Regras Diagnosticas -- Tipo Superior (salience 90)
-
-* **`r3_otorrhagia_ear_ache`:** `upper type` + `earAche == "yes"` → `Conclusion(OTORRHAGIA)`.
-* **`r4_otorrhagia_deafness`:** `upper type` + `deafness == "yes"` → `Conclusion(OTORRHAGIA)`.
-* **`r5_skull_fracture`:** `upper type` + `cerebrospinal == "yes"` → `Conclusion(SKULL_FRACTURE)`.
-
-### 5.5 Regras Diagnosticas -- Tipo Inferior (salience 90)
-
-* **`r6_epistaxe`:** `lower type` + `bloodNose == "yes"` → `Conclusion(EPISTAXE)`.
-* **`r7_hemathese`:** `lower type` + `bloodMouth == "yes"` + `bloodBrown == "yes"` + `vomiting == "yes"` → `Conclusion(HEMATHESE)`.
-* **`r8_mouth_haemorrhage`:** `lower type` + `bloodMouth == "yes"` + `bloodBrown == "no"` + `vomiting == "no"` → `Conclusion(MOUTH_HAEMORRHAGE)`.
-* **`r9_metrorrhagia`:** `lower type` + `bloodVagina == "yes"` → `Conclusion(METRORRHAGIA)`.
-* **`r10_hematuria`:** `lower type` + `bloodPenis == "yes"` → `Conclusion(HEMATURIA)`.
-* **`r11_melena`:** `lower type` + `bloodAnus == "yes"` + `bloodCoffee == "yes"` → `Conclusion(MELENA)`.
-* **`r12_rectal_bleeding`:** `lower type` + `bloodAnus == "yes"` + `bloodCoffee == "no"` → `Conclusion(RECTAL_BLEEDING)`.
-
-### 5.6 Regra de Fallback (salience -100)
-
-* **`r13_unknown_diagnosis_fallback`:** Se `not Conclusion()` (nenhuma conclusao na Working Memory), insere `Conclusion(UNKNOWN)` com a mensagem `"Look for the doctor!"`.
+### 5.1 O Mecanismo *Why Not* (Porque Não?)
+Quando o operador questiona por que razão o pedido não resultou em `PERMITIR` direto ou por que razão não foi concedido reembolso monetário em dinheiro:
+1. O motor localiza todas as regras que poderiam ter produzido o desfecho pretendido (via metadado `@conclusoes`).
+2. Compara os padrões dessas regras com o estado dos factos presentes na memória de trabalho.
+3. Devolve uma estrutura tipada identificando exatamente que condição ou predicado falhou (ex.: `"Artigo apresenta etiquetas soltas em vez de intactas"` ou `"Dias desde a compra (45) excedem o limite de 30 dias"`).
 
 ---
 
 ## 6. Ciclo de Vida do Pedido (Request-Response Lifecycle)
 
-O diagrama de sequencia abaixo detalha a execucao completa de um pedido de avaliacao de evidencias clinicas dentro do micro-servico Drools:
+O diagrama abaixo detalha a cadeia completa de processamento de uma avaliação de devolução entre o Frontend, o FastAPI Orchestrator e o Drools Engine:
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Orch as Orquestrador (FastAPI)
-    participant Ctrl as InferenceController
-    participant Svc as InferenceServiceImpl
-    participant Kie as KieSession (Drools)
-    participant WM as Working Memory
+    actor Cliente as Operador / Frontend
+    participant FastAPI as Orchestrator FastAPI
+    participant LevisClient as LevisClient (httpx)
+    participant SpringCtrl as AvaliacaoController
+    participant Service as PericialServiceImpl
+    participant Drools as KieSession (Drools 8.44)
+    participant DB as PostgreSQL 16
 
-    Orch->>Ctrl: HTTP POST /api/v1/inference/evaluate (JSON Payload)
-    activate Ctrl
+    Cliente->>FastAPI: POST /api/v1/levis/avaliar (Payload JSON)
+    activate FastAPI
+    Note over FastAPI: Validação Pydantic v2 (PedidoAvaliacaoRequest)
 
-    rect rgb(240, 245, 255)
-        note over Ctrl: Validacao Bean Validation (@Valid)<br/>Falha gera MethodArgumentNotValidException (400)
-    end
+    FastAPI->>LevisClient: evaluate(pedido)
+    activate LevisClient
+    Note over LevisClient: Garante token JWT dev válido
 
-    Ctrl->>Svc: inferenceService.evaluate(requestDto)
-    activate Svc
+    LevisClient->>SpringCtrl: POST /api/v1/avaliacoes (com Bearer token)
+    activate SpringCtrl
+    Note over SpringCtrl: Bean Validation (@Valid PedidoAvaliacaoDto)
 
-    rect rgb(245, 255, 245)
-        note over Svc: Conversao DTO para Dominio<br/>Evidences evidences = requestDto.toDomain()<br/>Normalizacao defensiva (null/vazio para "no")
-    end
+    SpringCtrl->>Service: avaliar(pedidoDto)
+    activate Service
 
-    Svc->>Kie: kieContainer.newKieSession("haemorrhageKSession")
-    activate Kie
-    note over Kie: Sessao stateful criada
+    Service->>Drools: Criar KieSession stateful e registar listener
+    activate Drools
 
-    Svc->>Kie: addEventListener(DefaultAgendaEventListener)<br/>Registo de listener para tracking de firedRules
+    Service->>Drools: Inserir factos: Pedido, Artigos, Comprovativo
+    Service->>Drools: Disparar agenda-groups (modulos M0 a M9)
+    Note over Drools: Avaliação em rede Rete-OO das 98 regras
+    Drools-->>Service: Decisao construída e rasto de regras disparadas
+    Service->>Drools: dispose()
+    deactivate Drools
 
-    Svc->>Kie: kSession.insert(evidences)
-    Kie->>WM: Facto Evidences inserido na Working Memory
-    activate WM
+    Service->>DB: Gravar AvaliacaoEntity (JSON payload, Decisão, Regras)
+    activate DB
+    DB-->>Service: Persistência confirmada (UUID gerado)
+    deactivate DB
 
-    Svc->>Kie: kSession.fireAllRules()
+    Service-->>SpringCtrl: DecisaoResponseDto
+    deactivate Service
 
-    rect rgb(255, 255, 240)
-        note over Kie, WM: Algoritmo Rete-OO: avaliacao de padroes<br/>1. Regras de classificacao (salience 100)<br/>2. Insercao de Hypothesis na WM<br/>3. Regras diagnosticas (salience 90)<br/>4. Insercao de Conclusion na WM<br/>5. Fallback se not Conclusion() (salience -100)
-    end
+    SpringCtrl-->>LevisClient: HTTP 200 DecisaoResponseDto
+    deactivate SpringCtrl
 
-    Kie-->>Svc: rulesCount (numero de regras disparadas)
+    LevisClient-->>FastAPI: Dicionário deserializado
+    deactivate LevisClient
 
-    Svc->>Kie: kSession.getObjects()
-    Kie->>WM: Extraccao de todos os objectos
-    WM-->>Kie: Collection de Evidences, Hypothesis, Conclusion
-    deactivate WM
-
-    rect rgb(245, 250, 255)
-        note over Svc: Filtragem e mapeamento:<br/>- Conclusion.class instances para conclusions[]<br/>- Hypothesis.class instance para hypothesis<br/>- primaryDiagnosis = conclusions[0] ou UNKNOWN
-    end
-
-    Svc->>Kie: kSession.dispose()
-    deactivate Kie
-    note over Kie: Sessao libertada (prevencao de memory leaks)
-
-    Svc-->>Ctrl: EvaluationResponseDto (status, diagnostico, firedRules, timestamp)
-    deactivate Svc
-
-    Ctrl-->>Orch: HTTP 200 OK (JSON com explicabilidade)
-    deactivate Ctrl
-```
-
-### Tracking de Regras Disparadas para Explicabilidade
-
-O servico regista um `DefaultAgendaEventListener` em cada `KieSession`, interceptando o evento `afterMatchFired` para capturar o nome de cada regra disparada. Esta lista (`firedRules`) e incluida na resposta JSON, proporcionando **transparencia total** sobre o raciocinio do motor:
-
-```java
-kSession.addEventListener(new DefaultAgendaEventListener() {
-    @Override
-    public void afterMatchFired(AfterMatchFiredEvent event) {
-        String ruleName = event.getMatch().getRule().getName();
-        firedRules.add(ruleName);
-    }
-});
+    FastAPI-->>Cliente: HTTP 200 OK DecisaoResponse (com UUID e Veredito)
+    deactivate FastAPI
 ```
 
 ---
 
-## 7. Tratamento Global de Erros
+## 7. Persistência Relacional e Auditoria (`pericial-persistence`)
 
-O componente [`GlobalExceptionHandler`](../../drools_engine/src/main/java/com/expert/drools/controllers/GlobalExceptionHandler.java) intercepta excepcoes em todos os controladores REST e devolve payloads de erro padronizados atraves do `ErrorResponseDto`:
+O módulo de persistência utiliza **Spring Data JPA**, **Hibernate** e **Flyway** para garantir conformidade e histórico auditável de retalho sobre a base de dados PostgreSQL:
 
-| Excepcao | Causa | Codigo HTTP | Campo `message` |
+* **Tabela `avaliacoes`:** Regista cada pedido submetido, timestamp UTC, identificador do colaborador, canal, payload JSON integral e desfecho (`PERMITIR`, `RECUSAR`, `REVER`, `ENCAMINHAR`).
+* **Tabela `artigos_avaliacao`:** Registo detalhado por artigo com indicação do destino físico atribuído (`Área de Vendas`, `Risco Biológico`, `Danificado / Return to Vendor`, `Armazém Central`).
+* **Tabela `auditoria_regras`:** Lista sequencial das regras disparadas durante a inferência, indexada por `avaliacao_id`, permitindo reconstrução forense exata do raciocínio.
+
+---
+
+## 8. Segurança e Gestão de Sessão (JWT)
+
+A API do motor de regras está protegida por **Spring Security 6** com tokens JWT:
+
+1. **Ambiente de Desenvolvimento (`dev`):**
+   * Endpoint `GET /api/v1/dev/colaboradores` fornece perfis pré-configurados (Operador de Caixa, Gerente de Loja, Supervisor).
+   * Endpoint `POST /api/v1/dev/tokens` gera instantaneamente um token JWT válido assinado para testes rápidos.
+   * O cliente `LevisClient` no FastAPI adquire e renova automaticamente este token de desenvolvimento em segundo plano.
+2. **Ambiente de Produção (`prod`):**
+   * Validação de tokens emitidos pelo fornecedor OIDC corporativo da cadeia de retalho, inspecionando assinaturas RSA e claims de autorização.
+
+---
+
+## 9. Tratamento Global de Erros e Resiliência
+
+O componente `GlobalExceptionHandler` no módulo `pericial-api` intercepta exceções e mapeia-as em contratos padronizados:
+
+| Exceção | Origem | Código HTTP | Significado |
 |:---|:---|:---:|:---|
-| `MethodArgumentNotValidException` | Falha de validacao Bean Validation (`@Pattern`, `@Valid`) | `400 Bad Request` | `"Input validation failed"` |
-| `HttpMessageNotReadableException` | JSON malformado, corpo vazio ou tipos incompativeis | `400 Bad Request` | `"Malformed JSON request body"` |
-| `Exception` (generica) | Erro interno nao previsto (falha Drools, NPE, etc.) | `500 Internal Server Error` | `"An unexpected error occurred while processing the inference request"` |
-
-### Estrutura do Payload de Erro
-
-Todas as respostas de erro seguem a mesma estrutura `ErrorResponseDto`:
-
-```json
-{
-  "status": 400,
-  "error": "Bad Request",
-  "message": "Input validation failed",
-  "details": [
-    "bloodEar: Value must be either 'yes' or 'no'"
-  ],
-  "timestamp": "2026-10-01T14:00:00Z"
-}
-```
-
-O campo `details` e particularmente relevante em erros de validacao, onde cada violacao e listada individualmente com o nome do campo e a mensagem de restricao.
+| `MethodArgumentNotValidException` | Bean Validation nos DTOs | `400 Bad Request` | Formato de campos, datas ou valores monetários inválidos. |
+| `AvaliacaoNaoEncontradaException` | Consulta por ID inexistente | `404 Not Found` | O UUID da avaliação não existe no histórico da base de dados. |
+| `RegraNaoEncontradaException` | Consulta de regra inválida | `404 Not Found` | O código de regra DRL solicitado não existe na base de conhecimento. |
+| `DroolsExecutionException` | Falha interna do motor KIE | `500 Internal Error` | Inconsistência na execução da memória de trabalho. |
 
 ---
 
-## 8. Documentos Relacionados
+## 10. Referência Histórica: Arquivo do Modelo Clínico
 
-* [Visao Global da Arquitetura do Sistema](system_overview.md) -- Posicionamento do Drools Engine no ecossistema de micro-servicos.
-* [Interacoes entre Servicos e Fluxos de Dados](service_interactions.md) -- Fluxo Orchestrator para Drools Engine e pipeline de transformacao.
-* [Referencia da API do Motor Drools](../api/drools_engine_api.md) -- Especificacao tecnica dos endpoints `/api/v1/inference/*`.
-* [Contentorizacao e Dockerfiles](../deployment/docker.md) -- Configuracao do contentor `expert-drools-engine`.
+Antes da implementação do domínio completo de retalho da Levi's, a Prova de Conceito (POC) do motor Drools correu uma base de regras académica para diagnóstico diferencial de hemorragias (`drools_engine/src/main/resources/rules/haemorrhage_rules.drl`). Esse protótipo inicial encontra-se arquivado e documentado em [`docs/history/drools_implementation_plan.md`](../history/drools_implementation_plan.md) para fins de comparação pedagógica entre sistemas periciais médicos e de retalho.
+
+---
+
+## 11. Documentos Relacionados
+
+* [Visão Global da Arquitetura do Sistema](system_overview.md) — Posicionamento do Drools Engine no ecossistema global.
+* [Interações entre Serviços e Fluxos de Dados](service_interactions.md) — Diagramas de sequência e topologia de rede.
+* [Referência da API do Orquestrador](../api/orchestrator_api_v1.md) — Endpoints públicos `/api/v1/levis/*`.
+* [Plano de Integração Drools Levi's](../history/drools_levis_integration_plan.md) — Roteiro de desenvolvimento e critérios de aceitação.

@@ -12,9 +12,13 @@ import httpx
 from app.api.v1.endpoints.health import router as health_router
 from app.api.v1.router import api_v1_router
 from app.clients.drools_client import DroolsClient
+from app.clients.levis_client import LevisClient
 from app.clients.prolog_client import PrologClient
 from app.core.config import settings
+from app.db.init_db import init_db
+from app.db.session import async_engine
 from app.services.drools_service import DroolsService
+from app.services.levis_service import LevisService
 from app.services.orchestrator_service import OrchestratorService
 
 
@@ -61,12 +65,36 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         drools_client=drools_client,
     )
 
+    # Initialize dedicated HTTP client and service for Levi's Drools Expert
+    levis_http_client = httpx.AsyncClient(
+        base_url=settings.LEVIS_DROOLS_URL,
+        timeout=settings.LEVIS_TIMEOUT_SECONDS,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
+    )
+    levis_client = LevisClient(
+        base_url=settings.LEVIS_DROOLS_URL,
+        timeout=settings.LEVIS_TIMEOUT_SECONDS,
+        client=levis_http_client,
+    )
+    levis_service = LevisService(levis_client=levis_client)
+
     app.state.http_client = http_client
     app.state.prolog_client = prolog_client
     app.state.drools_http_client = drools_http_client
     app.state.drools_client = drools_client
     app.state.drools_service = drools_service
     app.state.orchestrator_service = orchestrator_service
+    app.state.levis_http_client = levis_http_client
+    app.state.levis_client = levis_client
+    app.state.levis_service = levis_service
+    from app.services.retail_prolog_service import RetailPrologService
+    app.state.retail_prolog_service = RetailPrologService(
+        prolog_client=prolog_client,
+        levis_service=levis_service,
+    )
 
     if settings.INFERENCE_ENGINE_ENABLED:
         from app.clients.inference_client import InferenceClient
@@ -81,13 +109,34 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.inference_client = inference_client
         app.state.inference_service = inference_service
 
+    # Initialize database tables
+    await init_db()
+
+    # Seed official test scenarios idempotently (Drools & Prolog)
+    try:
+        from app.db.seed import seed_scenarios
+
+        await seed_scenarios(
+            force=False,
+            levis_service=app.state.levis_service,
+            retail_service=app.state.retail_prolog_service,
+        )
+    except Exception as exc:
+        import logging
+
+        logging.getLogger(__name__).warning("[Startup] Could not auto-seed scenarios on startup: %s", exc)
+
     yield
 
-    # Shutdown: Cleanly release network sockets and connection pools
+    # Shutdown: Cleanly release database engine, network sockets and connection pools
+    await async_engine.dispose()
     if not http_client.is_closed:
         await http_client.aclose()
     if not drools_http_client.is_closed:
         await drools_http_client.aclose()
+    if not levis_http_client.is_closed:
+        await levis_http_client.aclose()
+
 
 
 tags_metadata = [
@@ -114,6 +163,14 @@ tags_metadata = [
             "**Motor de Inferência Drools (Exemplo Clínico Haemorrhage)**. "
             "Avalia regras de produção em Java / Drools para diagnósticos clínicos de hemorragia, "
             "com rastreio completo de regras disparadas, hipóteses intermediárias deduzidas e diagnóstico final."
+        ),
+    },
+    {
+        "name": "Levi's Returns Expert Engine (Drools)",
+        "description": (
+            "**Motor Pericial de Devoluções Levi's (Drools Expert)**. "
+            "Avalia pedidos de devolução, troca e ajuste de preço utilizando 98 regras de produção Drools, "
+            "com suporte completo a explicabilidade (Porquê, Como, Porque Não, Dados em Falta e E se?)."
         ),
     },
     {

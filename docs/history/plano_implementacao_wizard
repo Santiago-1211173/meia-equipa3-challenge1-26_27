@@ -1,0 +1,208 @@
+# Plano de Implementação: Correção de Servidor, Parametrização de Preço e Integridade de Navegação no Wizard
+
+Este plano detalha as fases de execução técnica para permitir que um agente LLM integrado:
+1. Corrija o erro de validação (HTTP 422) nos motores de inferência.
+2. Parametrize o valor da transação no wizard sem quebrar a estética atual.
+3. Garanta a integridade sequencial dos passos (guards de rota).
+4. Implemente um **modal customizado de confirmação de saída** rigorosamente alinhado com o design system da app (minimalista, slick, moderno e profissional com elementos táteis 3D).
+
+O alinhamento estético e semântico da página de veredito final (`VerdictScreen`) permanece diferido para uma fase posterior.
+
+---
+
+## Fase 1: Resolução do Erro Interno do Servidor (HTTP 422 - Enum Mismatch)
+
+### 1.1. Contexto e Diagnóstico
+* **Erro observado nos logs:** `POST /api/v1/levis/avaliar HTTP/1.1 422 Unprocessable Entity`.
+* **Causa técnica:** Em [WizardContext.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardContext.tsx#L438-L462), a propriedade `pedidoExcecao.resolucaoPedida` é preenchida com `effectiveTipoPedido` (`TipoPedidoEnum`), contendo valores como `"DEVOLUCAO"` ou `"DEVOLUCAO_OFERTA"`.
+* **Requisito do contrato backend:** O schema Pydantic [PedidoExcecaoRequest](file:///root/meia-equipa3-challenge1-26_27/backend_orchestrator/app/schemas/levis.py#L503-L508) exige estritamente um valor de `TipoTransacaoEnum`:
+  `'REEMBOLSO'`, `'TROCA'`, `'TROCA_MESMO_ARTIGO'`, `'CREDITO_LOJA'`, `'AJUSTE_PRECO'` ou `'NENHUMA'`.
+
+### 1.2. Ações de Implementação
+1. **Adicionar função conversora pura** em [WizardContext.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardContext.tsx):
+   ```typescript
+   function mapTipoPedidoToResolucaoPedida(
+     requestType: WizardState["requestType"],
+     exchangeOption: WizardState["exchangeOption"]
+   ): "REEMBOLSO" | "TROCA" | "TROCA_MESMO_ARTIGO" | "CREDITO_LOJA" | "AJUSTE_PRECO" {
+     switch (requestType) {
+       case "DEVOLUCAO":
+         return "REEMBOLSO";
+       case "GIFT":
+         return "CREDITO_LOJA";
+       case "AJUSTE_PRECO":
+         return "AJUSTE_PRECO";
+       case "TROCA":
+         return exchangeOption === "MESMO_MODELO" ? "TROCA_MESMO_ARTIGO" : "TROCA";
+       default:
+         return "REEMBOLSO";
+     }
+   }
+   ```
+2. **Atualizar `buildReturnRequest()`**:
+   Substituir todas as ocorrências de `resolucaoPedida: effectiveTipoPedido` (linhas 438, 454 e 459) pela variável normalizada:
+   ```typescript
+   const effectiveResolucaoPedida = mapTipoPedidoToResolucaoPedida(
+     state.requestType,
+     state.exchangeOption
+   );
+   ```
+
+3. **Validação de Regressão:**
+   Confirmar que pedidos com `managerException = true` ou situações de contestação geram um JSON 100% em conformidade com o schema OpenAPI.
+
+---
+
+## Fase 2: Parametrização do Preço sem Alteração do Design
+
+### 2.1. Princípios de Design & Usabilidade
+* **Preservar a estética atual:** Manter exatamente a mesma estrutura, alturas de card, classes Tailwind e esquema de cores.
+* **Componentes existentes:** Usar a mesma tipografia (`font-headline-sm`, `font-body-md`), sombras táteis (`shadow-2xs`), bordas (`border-slate-200`) e paleta de cores neutras/emerald.
+* **Agilidade de balcão:** Permitir introdução rápida através de **presets táteis** com os valores mais frequentes do catálogo Levi's (`$39.99`, `$69.50`, `$89.90`, `$98.00`, `$148.00`), acompanhados de um campo numérico discreto e editável.
+
+### 2.2. Ações de Implementação
+1. **Estado em [WizardContext.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardContext.tsx):**
+   * Manter `totalPrice: number` no estado (default: `89.90`).
+   * Adicionar `precoAtualProduto?: number` para possibilitar testes de diferença em ajustes de preço (`PT-007`) e devoluções às cegas em Outlet (`CH-009`).
+   * Sincronizar em `buildReturnRequest()`:
+     - `compraOriginal.valorTotal = state.totalPrice`
+     - `compraOriginal.pagamento.valorPago = state.totalPrice`
+     - `artigos[0].precoPago = state.totalPrice`
+     - `artigos[0].produto.pvpOriginal = state.totalPrice`
+     - `artigos[0].produto.precoAtual = state.precoAtualProduto ?? state.totalPrice`
+     - Se `artigosTroca` existir: `artigosTroca[0].precoVenda = state.precoAtualProduto ?? state.totalPrice`
+
+2. **Edição Integrada no Passo 6 ([Step6Refund.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/Step6Refund.tsx)):**
+   * No card `"Top Banner Minimalista com Total a Devolver"` (linhas 101-128), substituir o valor fixo por um `<input type="number" step="0.01">` transparente/invisível integrado no mesmo badge `bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-lg`.
+   * Logo abaixo da descrição do card, adicionar pills de seleção rápida:
+     - `$39.99` (Outlet / Promoção)
+     - `$69.50` (Peça em Saldo)
+     - `$89.90` (Levi's 501 Original)
+     - `$98.00` (PVP Padrão)
+     - `$148.00` (Premium / Selvedge)
+
+---
+
+## Fase 3: Integridade de Navegação, Guarda de Passos e Modal Tátil de Saída
+
+### 3.1. Requisitos de Negócio e UX
+1. **Guarda Sequencial de Passos (Step Guard):** Impedir que um utilizador aceda diretamente via URL (ex: `/novo-atendimento/passo/3` ou `/passo/5`) sem ter completado os passos obrigatórios anteriores.
+2. **Encaminhamento Automático:** Se as pré-condições de um passo não estiverem satisfeitas, redirecionar de forma suave para o primeiro passo incompleto ou para o Passo 1.
+3. **Modal Customizado de Confirmação:** Substituir qualquer diálogo nativo feio do browser (`window.confirm`) por um componente tátil moderno, minimalista, perfeitamente coerente com o design do RetailFlow.
+4. **Proteção contra Saída Acidental:** Listener `beforeunload` para salvaguardar perda acidental de dados ao fechar a janela ou atualizar a página.
+
+### 3.2. Ações de Implementação
+
+#### A. Função de Validação Sequencial de Passos
+Em [WizardContext.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardContext.tsx):
+```typescript
+export function getFirstIncompleteStep(state: WizardState): number {
+  // Passo 1: Motor de inferência é obrigatório
+  if (!state.engine) return 1;
+
+  // Passo 2: Jurisdição, formato e canal são obrigatórios
+  if (!state.marketJurisdiction || !state.storeType || !state.purchaseChannel) {
+    return 2;
+  }
+
+  // Passo 3: Condição física e elegibilidade
+  if (!state.physicalCondition) return 3;
+
+  // Passo 4: Tipo de pedido e comprovativo
+  if (!state.requestType || !state.proofOfPurchase) return 4;
+
+  // Passo 5: Modalidade de troca (se for troca)
+  if (state.requestType === "TROCA" && (!state.exchangeOption || state.exchangeOption === "NENHUMA")) {
+    return 5;
+  }
+
+  return 6;
+}
+```
+
+#### B. Guarda de Rota em [WizardStepContainer.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardStepContainer.tsx)
+```typescript
+useEffect(() => {
+  const allowedStep = getFirstIncompleteStep(state);
+  if (stepNumber > allowedStep) {
+    router.replace(`/novo-atendimento/passo/${allowedStep}`);
+  } else {
+    goToStep(stepNumber);
+  }
+}, [stepNumber, state, router, goToStep]);
+```
+
+#### C. Especificação Estética Rigorosa do Modal Customizado (`ConfirmLeaveModal.tsx`)
+O modal deve seguir à risca os tokens do [globals.css](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/app/globals.css) para que pareça desenhado nativamente pela equipa de design:
+* **Backdrop Flutuante:** `fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150`
+* **Card Central Tátil:**
+  `card-tactile bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full border border-slate-200 shadow-2xl flex flex-col gap-5 animate-in zoom-in-95 duration-150`
+* **Ícone / Badge Superior:**
+  `w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center shadow-2xs shrink-0`
+  com ícone Material Symbols `warning` ou `assignment_late`.
+* **Tipografia e Conteúdo:**
+  - Eyebrow: `<span className="font-label-md text-[11px] font-bold text-amber-700 uppercase tracking-wider">Atendimento em Curso</span>`
+  - Título: `<h3 className="font-headline-sm text-slate-900 text-lg font-bold tracking-tight">Tem a certeza de que pretende sair?</h3>`
+  - Descrição: `<p className="font-body-md text-slate-500 text-xs sm:text-sm leading-relaxed">Os dados recolhidos para esta devolução serão descartados e terá de reiniciar a introdução desde o início.</p>`
+* **Botões Táteis (Ações com Micro-interações):**
+  - **Ação Segura (Continuar Atendimento):**
+    `px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-emerald-600`
+    (com foco automático inicial para proteção do operador).
+  - **Ação Destrutiva (Sair e Descartar):**
+    `px-5 py-2.5 rounded-xl bg-white hover:bg-rose-50 active:bg-rose-100 text-rose-600 hover:text-rose-700 font-semibold text-sm border border-slate-200 hover:border-rose-200 shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer`
+    (executa `resetWizard()` e redireciona).
+* **Acessibilidade Completa:**
+  - Atributos `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby`.
+  - Fecho com a tecla `Escape` (equivalente a cancelar/continuar atendimento).
+  - Fecho ao clicar no backdrop escurecido.
+
+#### D. Listener `beforeunload` para Fecho de Separador
+Em [WizardContext.tsx](file:///root/meia-equipa3-challenge1-26_27/dashboard/src/components/wizard/WizardContext.tsx):
+```typescript
+useEffect(() => {
+  const isDirty = Boolean(state.engine || state.marketJurisdiction);
+  if (!isDirty) return;
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    e.returnValue = "";
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+  return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+}, [state.engine, state.marketJurisdiction]);
+```
+
+---
+
+## Fase 4: Testes de Validação e Conformidade
+
+### 4.1. Cenários de Teste Obrigatórios
+1. **Teste de Proteção de Rota (Guard):**
+   - Limpar o `sessionStorage`.
+   - Navegar diretamente para `/novo-atendimento/passo/3` ou `/passo/5`.
+   - Confirmar redirecionamento instantâneo para `/novo-atendimento/passo/1`.
+2. **Teste de Navegação Sequencial:**
+   - Preencher Passo 1 (selecionar Drools) -> Avançar para Passo 2.
+   - Preencher Passo 2 (EUA, Mainline, Loja Física) -> Avançar para Passo 3.
+   - Confirmar que a navegação para trás e para a frente respeita a integridade dos dados.
+3. **Teste do Modal Tátil de Confirmação:**
+   - No Passo 2 ou 3, clicar no botão "Painel Inicial" ou tentar sair.
+   - Confirmar que surge o modal estilizado com design tátil 3D, backdrop com blur e tipografia Plus Jakarta Sans.
+   - Testar o botão "Continuar Atendimento" (permanece no passo).
+   - Testar o botão "Sair e Descartar" (limpa estado e vai para `/`).
+4. **Teste de Preço Parametrizado:**
+   - Alterar o preço para `$39.99` e `$148.00`.
+   - Concluir a avaliação e verificar que o motor calcula com base no novo valor.
+5. **Teste de Validação de Servidor (Zero Erros 422):**
+   - Submeter devoluções com exceção ativa e contestação de balcão.
+   - Inspecionar [orchestrator.log](file:///root/meia-equipa3-challenge1-26_27/logs/orchestrator.log) para confirmar resposta HTTP `200 OK`.
+
+---
+
+## Critérios de Sucesso
+* [x] Impossível saltar passos sem preencher os requisitos prévios (redirecionamento automático e transparente).
+* [x] Modal customizado com visual minimalista, slick, moderno e profissional, 100% fiel ao design system da app (sem caixas nativas do browser).
+* [x] Erro 422 eliminado em todas as modalidades de devolução, troca e oferta.
+* [x] Preço flexível com presets de catálogo Levi's e input direto sem alteração do layout.
+* [ ] Veredito final mantido para alinhamento posterior.

@@ -41,12 +41,12 @@ flowchart LR
 |:---|:---|:---|
 | **Contentorização e Dockerfiles** | [`docker.md`](docker.md) | Especificação detalhada dos Dockerfiles de cada micro-serviço (`prolog_engine`, `drools_engine` e `backend_orchestrator`), imagens base, compilação multi-stage, otimizações de cache de camadas, regras de `.dockerignore` e instruções de build individual. |
 | **Orquestração com Docker Compose** | [`docker_compose.md`](docker_compose.md) | Guia operacional completo do `docker-compose.yml`: resolução de rede bridge (`retail-network`), ordem de arranque (`depends_on`), ciclo de vida e comandos práticos (`up`, `logs`, `ps`, `down`) para o ecossistema de 3 serviços. |
-| **Variáveis de Ambiente e Configuração** | [`environment_variables.md`](environment_variables.md) | Mapeamento exaustivo de todas as variáveis suportadas (`PORT`, `PROLOG_ENGINE_URL`, `DROOLS_ENGINE_URL`, `CORS_ORIGINS`, `application.properties`, etc.), ordem de precedência e tratamento de parâmetros de runtime. |
-| **Resolução de Problemas (Troubleshooting)** | [`troubleshooting.md`](troubleshooting.md) | Catálogo de erros comuns (portas ocupadas 8000/8080/8082, conectividade DNS, timeouts, bloqueios de CORS, compilação DRL, memória JVM) e procedimentos passo-a-passo de mitigação. |
+| **Variáveis de Ambiente e Configuração** | [`environment_variables.md`](environment_variables.md) | Mapeamento exaustivo de todas as variáveis suportadas (`PORT`, `PROLOG_ENGINE_URL`, `PROLOG_ENGINE_MODE`, `INFERENCE_ENGINE_ENABLED`, `DROOLS_ENGINE_URL`, `CORS_ORIGINS`, `application.properties`, etc.), ordem de precedência, chaveamento funcional de motores e tratamento de parâmetros de runtime. |
+| **Resolução de Problemas (Troubleshooting)** | [`troubleshooting.md`](troubleshooting.md) | Catálogo de erros comuns (portas ocupadas 8000/8080/8082, conectividade DNS, timeouts, bloqueios de CORS, compilação DRL, memória JVM, omissão em `perguntavel/1`, esgotamento de mocks e isolamento de What-If) e procedimentos passo-a-passo de mitigação. |
 
 ---
 
-## 3. Guia de Início Rápido (Quick Start em 3 Comandos)
+## 3. Guia de Início Rápido (Quick Start em 4 Comandos)
 
 A partir da raiz do repositório:
 
@@ -58,7 +58,12 @@ docker compose up --build -d
 curl -X GET http://localhost:8000/health
 curl -X GET http://localhost:8082/api/v1/inference/health
 
-# 3. Testar a avaliação de regras no Drools Engine (porta 8082)
+# 3. Testar a avaliação de retalho no Motor SWI-Prolog via Orquestrador (porta 8000)
+curl -X POST http://localhost:8000/api/v1/retail/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{"facts": [["dias_desde_compra", 15], ["tem_recibo", "sim"], ["estado_produto", "intacto"]]}'
+
+# 4. Testar a avaliação de regras no Drools Engine (porta 8082)
 curl -X POST http://localhost:8082/api/v1/inference/evaluate \
   -H "Content-Type: application/json" \
   -d '{"haematuria": "yes"}'
@@ -70,17 +75,19 @@ curl -X POST http://localhost:8082/api/v1/inference/evaluate \
 
 | Serviço | Porta Host | Porta Contentor | Hostname Interno Docker | Finalidade |
 |:---|:---:|:---:|:---|:---|
-| **FastAPI Orchestrator** | `8000` | `8000` | `orchestrator` | Ponto de entrada da API REST pública e Swagger UI (`/docs`). |
-| **SWI-Prolog Engine** | `8080` | `8080` | `prolog-engine` | Motor de inferência dedutiva em lógica de primeira ordem. |
-| **Drools Engine** | `8082` | `8080` | `drools-engine` | Motor de inferência por regras de produção (Java 21 / Spring Boot 3). |
+| **FastAPI Orchestrator** | `8000` | `8000` | `orchestrator` | Ponto de entrada da API REST pública e Swagger UI (`/docs`), agregando rotas `/api/v1/retail/*` e `/api/v1/inference/*`. |
+| **SWI-Prolog Engine** | `8080` | `8080` | `prolog-engine` | Motor de retalho Levi's (71 regras em `/retail/*`) e motor de inferência académica (`/inference/*`). |
+| **Drools Engine** | `8082` | `8080` | `drools-engine` | Motor de inferência por regras de produção empresariais (Java 21 / Spring Boot 3). |
 
 ---
 
-## 5. Referências Cruzadas
+## 5. Documentos Relacionados
 
 * [Visão Geral da Arquitetura](../architecture/system_overview.md) — Diagrama e princípios estruturais do sistema.
+* [Arquitetura do Motor SWI-Prolog](../architecture/prolog_engine.md) — Clean Architecture, isolamento por paridade e ciclo ACM.
+* [API Interna do Motor SWI-Prolog](../api/prolog_engine_api.md) — Especificação REST dos endpoints `/retail/*` e `/inference/*`.
 * [Arquitetura do Motor Drools](../architecture/drools_engine.md) — Detalhes estruturais do micro-serviço Drools.
-* [Referência de APIs](../api/README.md) — Documentação dos endpoints expostos pelos contentores.
+* [Referência de APIs](../api/README.md) — Documentação de todos os endpoints expostos pelos contentores.
 * [API Interna do Motor Drools](../api/drools_engine_api.md) — Especificação REST do motor Drools.
 * [Guia de Primeiros Passos (Local)](../development/getting_started.md) — Execução em ambiente de desenvolvimento sem Docker.
 * [Estratégia de Testes](../development/testing.md) — Validação automatizada antes de construir as imagens.

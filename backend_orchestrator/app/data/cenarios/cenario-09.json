@@ -1,0 +1,62 @@
+{
+  "id": 9,
+  "titulo": "O conjunto de bodywear devolvido com um risco de segurança",
+  "estado": "a validar",
+  "aValidar": ["A-20"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "Compra feita na mesma loja Outlet.",
+    "A unidade experimentada e possivelmente manchada torna o conjunto usado e sujo (sujoOuInseguro)."
+  ],
+  "justificacao": [
+    "Transversal: unidade manchada → PC-008 isolar com manuseamento mínimo.",
+    "M3: bodywear → PC-007 aceite em qualquer estado (prevalece sobre PC-004/PC-005).",
+    "M4/M5: recibo de 21 dias → PT-001, PT-003 reembolso total no meio original; M7: cartão de crédito → TN-001 tokenizado; valor 29.99 (conjunto incompleto: preço pago, A-20).",
+    "M8: CT-001, CT-004, CT-005, CT-006, CT-007.",
+    "M9: bodywear usado e sujo → BW-004 risco biológico (prevalece sobre BW-003).",
+    "Resultado: PERMITIR reembolso de 29.99 no cartão de crédito; o conjunto é isolado por risco biológico."
+  ],
+  "pedido": {
+    "id": "C09",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO",
+    "loja": { "codigo": "US-OUT-090", "nome": "Outlet EUA", "mercado": "EUA", "tipoLoja": "OUTLET" },
+    "colaborador": { "id": "C-9", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-9" },
+    "cliente": { "forneceDados": true },
+    "compraOriginal": {
+      "idTransacao": "T-0909",
+      "canal": "OUTLET",
+      "dataCompra": "2026-03-10",
+      "pagamento": { "meio": "CREDITO", "valorPago": 29.99, "estadoConta": "ATIVA" },
+      "idStylistVenda": "S-99",
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "RECIBO_IMPRESSO", "confirmaCompra": true, "reciboOriginal": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "BW-BOXER-3PK-M", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "BODYWEAR", "vendidoNaLoja": true, "pvpOriginal": 29.99, "precoAtual": 29.99 },
+        "quantidade": 1,
+        "precoPago": 29.99,
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "sujoOuInseguro": true, "embalagemIntacta": false, "conjuntoCompleto": false }
+      }
+    ]
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "PERMITIR",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "REEMBOLSO",
+    "valorDevolucao": 29.99,
+    "baseValor": "VALOR_PAGO",
+    "meioReembolso": "MEIO_ORIGINAL",
+    "aprovacao": "NENHUMA",
+    "terminal": false,
+    "documentacao": { "idStylistAtribuido": "S-99", "reciboAgrafado": true, "retencaoAte": "2026-06-29" },
+    "regrasDisparadas": ["PC-008", "CT-003", "CH-001", "PC-007", "PT-001", "PT-003", "TN-001", "CT-001", "CT-004", "CT-005", "CT-006", "CT-007", "BW-004", "OUT-001"],
+    "regrasNaoDisparadas": ["PC-004", "PC-005", "BW-003", "BW-002", "CT-008"],
+    "artigos": {
+      "A-1": { "elegibilidade": "PERMITIR", "valorDevolucao": 29.99, "destino": "RISCO_BIOLOGICO", "regrasDisparadas": ["PC-008", "PC-007", "BW-004"] }
+    }
+  }
+}

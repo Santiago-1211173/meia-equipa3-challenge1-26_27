@@ -119,7 +119,17 @@ Copy-Item "backend_orchestrator\.env.example" "backend_orchestrator\.env"
 cp backend_orchestrator/.env.example backend_orchestrator/.env
 ```
 
-O ficheiro `.env` pré-configura as portas padrão para desenvolvimento local na máquina anfitriã (`http://127.0.0.1:8080` para o Prolog). Para a lista completa de variáveis suportadas, consulte [Variáveis de Ambiente](../deployment/environment_variables.md).
+O ficheiro `.env` pré-configura as portas padrão para desenvolvimento local na máquina anfitriã (`http://127.0.0.1:8080` para o Prolog) e define a chave de modo do motor pericial:
+
+```bash
+# Modo de avaliação pericial em Prolog: 'retail' (padrão), 'academic' ou 'dual'
+PROLOG_ENGINE_MODE=retail
+
+# Ativação do motor de inferência académico
+INFERENCE_ENGINE_ENABLED=true
+```
+
+Para a lista completa de variáveis suportadas, consulte [Variáveis de Ambiente](../deployment/environment_variables.md).
 
 ---
 
@@ -130,7 +140,7 @@ Para depurar e iterar rapidamente no código, os três serviços podem ser execu
 ```mermaid
 flowchart LR
     subgraph "Terminal 1 (Porta 8080)"
-        PL["SWI-Prolog Engine\nswipl src/main.pl"]
+        PL["SWI-Prolog Engine\nswipl src/main.pl\n(/retail/* & /inference/*)"]
     end
 
     subgraph "Terminal 2 (Porta 8082)"
@@ -141,9 +151,10 @@ flowchart LR
         FA["FastAPI Orchestrator\nuvicorn app.main:app --reload"]
     end
 
-    FA -->|"POST http://127.0.0.1:8080/evaluate"| PL
+    FA -->|"POST http://127.0.0.1:8080/retail/evaluate"| PL
     FA -.->|"DROOLS_ENGINE_URL :8082"| DR
     Client["Cliente HTTP / Browser"] -->|"http://localhost:8000"| FA
+    Client -->|"POST http://localhost:8000/api/v1/retail/evaluate"| FA
     Client -->|"POST http://localhost:8082/api/v1/inference/evaluate"| DR
 ```
 
@@ -156,18 +167,20 @@ cd prolog_engine
 swipl src/main.pl
 ```
 
-Deverá observar a seguinte confirmação nos registos do terminal:
+Deverá observar a seguinte confirmação nos registos do terminal, indicando a inicialização do servidor e o registo dos módulos de retalho e inferência académica:
 
 ```text
-[CONFIG] Loading environment configuration...
-[CONFIG] Port: 8080
+=================================================
+  Prolog Inference Engine - REST API Microservice
+  Retail Returns & Exchanges Diagnostic POC
+=================================================
+[MAIN] Initializing server on port 8080...
 [SERVER] Initializing Prolog HTTP server daemon on port 8080...
 [SERVER] Prolog HTTP server daemon successfully started on port 8080
-[ROUTES] Registering POST handler for /evaluate
-[MAIN] System initialization complete. Ready for queries.
+[MAIN] Microservice is ready to accept requests.
 ```
 
-O micro-serviço Prolog permanece ativo e à escuta de pedidos HTTP na porta `8080`.
+O micro-serviço Prolog permanece ativo e à escuta de pedidos HTTP na porta `8080`, disponibilizando as rotas `/retail/*`, `/inference/*` e `/evaluate`.
 
 ### Passo 2: Iniciar o Motor Drools Engine (Terminal 2)
 
@@ -257,7 +270,7 @@ Para instruções completas de operações e comandos de paragem, consulte [Orqu
 
 ## 7. Verificação e Validação do Sistema (Smoke Tests)
 
-Com os serviços em execução, execute os testes rápidos a seguir para validar a integridade da comunicação.
+Com os serviços em execução, execute os testes rápidos a seguir para validar a integridade da comunicação e o funcionamento dos motores periciais.
 
 ### 7.1 Teste de Diagnóstico e Saúde (Health Check)
 
@@ -278,13 +291,114 @@ curl -X GET http://localhost:8000/health
 {
   "status": "healthy",
   "prolog_engine": "connected",
-  "timestamp": "2026-09-27T20:55:00.123456Z"
+  "timestamp": "2026-10-14T19:00:00.000000Z"
 }
 ```
 
-### 7.2 Teste de Avaliação Pericial (Cenário POC Aprovado)
+### 7.2 Smoke Test do Motor de Retalho Prolog (Direto na Porta 8080)
 
-Submeta um cenário de teste com valor `42` para validar o fluxo ponta-a-ponta de inferência e a cadeia de explicabilidade:
+Submeta um cenário de devolução diretamente ao motor SWI-Prolog para validar as 71 regras da Levi's e as justificações normativas:
+
+**Via PowerShell:**
+```powershell
+$payload = @{
+    colaborador_autorizado = $true
+    canal_venda = "loja_fisica"
+    etiquetas_afixadas = $true
+    sinais_uso = $false
+    artigo_danificado = $false
+    comprovativo_compra = $true
+    dias_compra = 10
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8080/retail/evaluate" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $payload | ConvertTo-Json
+```
+
+**Via cURL (Bash):**
+```bash
+curl -X POST http://localhost:8080/retail/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "colaborador_autorizado": true,
+    "canal_venda": "loja_fisica",
+    "etiquetas_afixadas": true,
+    "sinais_uso": false,
+    "artigo_danificado": false,
+    "comprovativo_compra": true,
+    "dias_compra": 10
+  }'
+```
+
+**Resposta esperada (HTTP 200 OK):**
+```json
+{
+  "status": "success",
+  "decision": "approved",
+  "retail_decision": "permitir",
+  "justification": [
+    "[PT-003] Devolução dentro do prazo de 14/28 dias com comprovativo válido",
+    "[PC-001] Artigo em estado novo com etiquetas originais afixadas"
+  ],
+  "rules_fired": [
+    "HS-006",
+    "PC-001",
+    "PT-003"
+  ],
+  "facts_count": 8
+}
+```
+
+### 7.3 Smoke Test do Motor de Retalho via Orquestrador (Porta 8000)
+
+Valide o endpoint REST público exposto pelo FastAPI orquestrador, incluindo o mapeamento semântico de decisões:
+
+**Via PowerShell:**
+```powershell
+$payload = @{
+    colaborador_autorizado = $true
+    canal_venda = "loja_fisica"
+    etiquetas_afixadas = $true
+    sinais_uso = $false
+    artigo_danificado = $false
+    comprovativo_compra = $true
+    dias_compra = 10
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8000/api/v1/retail/evaluate" `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body $payload | ConvertTo-Json
+```
+
+**Via cURL (Bash):**
+```bash
+curl -X POST http://localhost:8000/api/v1/retail/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "colaborador_autorizado": true,
+    "canal_venda": "loja_fisica",
+    "etiquetas_afixadas": true,
+    "sinais_uso": false,
+    "artigo_danificado": false,
+    "comprovativo_compra": true,
+    "dias_compra": 10
+  }'
+```
+
+Também é possível disparar a avaliação através do endpoint genérico com o query parameter `?mode=retail`:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/evaluate?mode=retail" \
+  -H "Content-Type: application/json" \
+  -d '{"colaborador_autorizado": true, "canal_venda": "loja_fisica", "etiquetas_afixadas": true, "sinais_uso": false, "artigo_danificado": false, "comprovativo_compra": true, "dias_compra": 10}'
+```
+
+### 7.4 Smoke Test do Cenário Base da Prova de Conceito
+
+Submeta um cenário numérico com valor `42` para validar a retrocompatibilidade com a prova de conceito inicial:
 
 **Via PowerShell:**
 ```powershell
@@ -293,7 +407,7 @@ $payload = @{
     value = 42
 } | ConvertTo-Json
 
-Invoke-RestMethod -Uri "http://localhost:8000/api/v1/evaluate" `
+Invoke-RestMethod -Uri "http://localhost:8000/api/v1/evaluate?mode=academic" `
   -Method Post `
   -ContentType "application/json" `
   -Body $payload | ConvertTo-Json
@@ -301,7 +415,7 @@ Invoke-RestMethod -Uri "http://localhost:8000/api/v1/evaluate" `
 
 **Via cURL (Bash):**
 ```bash
-curl -X POST http://localhost:8000/api/v1/evaluate \
+curl -X POST "http://localhost:8000/api/v1/evaluate?mode=academic" \
   -H "Content-Type: application/json" \
   -d '{"scenario": "test", "value": 42}'
 ```
@@ -319,15 +433,7 @@ curl -X POST http://localhost:8000/api/v1/evaluate \
 }
 ```
 
-### 7.3 Acesso à Documentação Interativa OpenAPI
-
-O FastAPI gera automaticamente interfaces gráficas interativas e esquemas OpenAPI baseados nos modelos Pydantic:
-
-* **Swagger UI:** Aceda a [`http://localhost:8000/docs`](http://localhost:8000/docs) para explorar e disparar pedidos interativos.
-* **ReDoc:** Aceda a [`http://localhost:8000/redoc`](http://localhost:8000/redoc) para leitura da documentação formal das APIs.
-* **OpenAPI JSON:** Disponível em [`http://localhost:8000/openapi.json`](http://localhost:8000/openapi.json).
-
-### 7.4 Smoke Test do Motor Drools Engine
+### 7.5 Smoke Test do Motor Drools Engine
 
 Valide o estado do motor Drools e efetue uma avaliação clínica de teste:
 
@@ -337,18 +443,6 @@ Invoke-RestMethod -Uri "http://localhost:8082/api/v1/inference/health" -Method G
 ```
 ```bash
 curl -X GET http://localhost:8082/api/v1/inference/health
-```
-
-**Resposta esperada (HTTP 200 OK):**
-```json
-{
-  "status": "UP",
-  "service": "drools-engine",
-  "version": "1.0.0",
-  "activeKieBase": "rulesKieBase",
-  "totalRules": 13,
-  "timestamp": "2026-10-01T14:00:00"
-}
 ```
 
 **Avaliação Clínica no Drools (PowerShell & cURL):**
@@ -387,6 +481,14 @@ curl -X POST http://localhost:8082/api/v1/inference/evaluate \
 }
 ```
 
+### 7.6 Acesso à Documentação Interativa OpenAPI
+
+O FastAPI gera automaticamente interfaces gráficas interativas e esquemas OpenAPI baseados nos modelos Pydantic:
+
+* **Swagger UI:** Aceda a [`http://localhost:8000/docs`](http://localhost:8000/docs) para explorar e disparar pedidos interativos.
+* **ReDoc:** Aceda a [`http://localhost:8000/redoc`](http://localhost:8000/redoc) para leitura da documentação formal das APIs.
+* **OpenAPI JSON:** Disponível em [`http://localhost:8000/openapi.json`](http://localhost:8000/openapi.json).
+
 ---
 
 ## 8. Resumo de URLs e Portas de Desenvolvimento
@@ -394,10 +496,15 @@ curl -X POST http://localhost:8082/api/v1/inference/evaluate \
 | Recurso | URL Local | Descrição |
 |:---|:---|:---|
 | **API Pública do Orquestrador** | `http://localhost:8000` | Ponto de entrada REST para o Frontend e clientes externos. |
-| **Health Check Global** | `http://localhost:8000/health` | Diagnóstico de integridade e verificação de ping ao Prolog. |
-| **Avaliação de Cenários** | `http://localhost:8000/api/v1/evaluate` | Endpoint principal de orquestração de inferência pericial. |
-| **Swagger UI Interativo** | `http://localhost:8000/docs` | Interface gráfica OpenAPI para testes no navegador. |
-| **API Interna SWI-Prolog** | `http://localhost:8080/evaluate` | Motor de inferência dedutiva (apenas comunicação interna). |
+| **Health Check Global** | `http://localhost:8000/health` | Diagnóstico de integridade e verificação de conectividade aos motores. |
+| **Avaliação Retalho Orquestrador** | `http://localhost:8000/api/v1/retail/evaluate` | Endpoint dedicado para diagnóstico de devoluções no retalho. |
+| **Avaliação Geral com Toggle** | `http://localhost:8000/api/v1/evaluate?mode=retail` | Endpoint unificado com suporte a query parameter `?mode=`. |
+| **Swagger UI Interativo** | `http://localhost:8000/docs` | Interface gráfica OpenAPI para testes interativos no navegador. |
+| **API Interna Prolog (Retalho)** | `http://localhost:8080/retail/evaluate` | Avaliação dedutiva direta sobre as 71 regras Levi's. |
+| **Diálogo Interativo ACM Prolog** | `http://localhost:8080/retail/interactive` | Interrogação dialógica com aquisição dinâmica de premissas. |
+| **Sandbox Contrafactual What-If** | `http://localhost:8080/retail/whatif` | Simulação transacional em sandbox isolada sem efeitos colaterais. |
+| **Explicações Retrospetivas How** | `http://localhost:8080/retail/how` | Árvore causal dedutiva da decisão com IDs normativos. |
+| **Diagnóstico de Falha Why-Not** | `http://localhost:8080/retail/whynot` | Árvore de premissas não satisfeitas para objetivos rejeitados. |
 | **API Interna Drools Engine** | `http://localhost:8082/api/v1/inference/evaluate` | Motor de inferência por regras de produção (Spring Boot / Drools). |
 | **Health Check Drools** | `http://localhost:8082/api/v1/inference/health` | Diagnóstico do KieContainer e total de regras ativas. |
 
@@ -408,5 +515,8 @@ curl -X POST http://localhost:8082/api/v1/inference/evaluate \
 Após confirmar a execução bem-sucedida do sistema em ambiente local:
 * Consulte a [Estratégia e Execução de Testes](testing.md) para correr a suíte de testes automatizados (Pytest, PLUnit e JUnit 5).
 * Consulte as [Convenções de Código e Boas Práticas](coding_conventions.md) antes de submeter alterações de código.
-* Consulte a [Referência de APIs](../api/README.md), a [API do Orquestrador](../api/orchestrator_api_v1.md) e a [API do Drools Engine](../api/drools_engine_api.md) para conhecer em detalhe os contratos e modelos de dados do sistema.
-* Consulte a [Arquitetura do Motor Drools](../architecture/drools_engine.md) e a [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) para aprofundar os princípios de inferência.
+* Consulte a [API do Orquestrador FastAPI](../api/orchestrator_api_v1.md) e a [API Interna do Motor Prolog](../api/prolog_engine_api.md) para conhecer em detalhe os contratos e rotas de retalho.
+* Consulte a [Referência de Esquemas e Contratos](../api/schemas.md) para aprofundar os modelos Pydantic de retalho.
+* Consulte a [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) e a [Explicabilidade Pericial](../domain/explainability.md) para os fundamentos das 5 vias de justificação.
+* Consulte a [Base de Conhecimento Pericial](../domain/expert_knowledge.md) para a tabela das 71 regras da Levi's e precedências normativas.
+

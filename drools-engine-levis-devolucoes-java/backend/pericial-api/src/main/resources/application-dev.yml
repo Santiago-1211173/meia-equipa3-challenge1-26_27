@@ -9,4 +9,4 @@ pericial:
   seguranca:
     # Chave só para desenvolvimento local; em produção não há chave (tokens do fornecedor OIDC).
     chave-hmac: ${PERICIAL_JWT_CHAVE:chave-local-de-desenvolvimento-nao-usar-em-producao}
-    origens-cors: ${PERICIAL_CORS_ORIGENS:http://localhost:4200}
+    origens-cors: ${PERICIAL_CORS_ORIGENS:http://localhost:4200,http://localhost:3000}

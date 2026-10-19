@@ -128,20 +128,20 @@ O sistema é composto por micro-serviços orquestrados:
 ### 0.3 Componentes do Sistema a Documentar
 
 ```mermaid
-graph TD
-    subgraph Serviços["Serviços do Sistema"]
+flowchart TD
+    subgraph Servicos ["Serviços do Sistema"]
         FE["Frontend (futuro)"]
-        ORCH["Backend Orquestrador<br/>Python/FastAPI<br/>Porta 8000"]
-        PROLOG["Motor Prolog<br/>SWI-Prolog<br/>Porta 8080"]
-        DROOLS["Motor Drools<br/>Java (futuro)"]
+        ORCH["Backend Orquestrador<br>Python/FastAPI<br>Porta 8000"]
+        PROLOG["Motor Prolog<br>SWI-Prolog<br>Porta 8080"]
+        DROOLS["Motor Drools<br>Java (futuro)"]
     end
 
-    subgraph Infra["Infraestrutura"]
+    subgraph Infra ["Infraestrutura"]
         DC["Docker Compose"]
         NET["retail-network (bridge)"]
     end
 
-    subgraph Docs["Documentação Necessária"]
+    subgraph Docs ["Documentação Necessária"]
         D1["Arquitetura Global"]
         D2["API Reference (FastAPI + Prolog)"]
         D3["Deploy & Operações"]
@@ -204,15 +204,15 @@ docs/
 ## 2. ROTEIRO DE IMPLEMENTAÇÃO FASEADA
 
 ```mermaid
-graph TD
-    P0["Fase 0: Scaffolding<br/>Criar estrutura de diretórios"] --> P1
-    P1["Fase 1: Domínio de Negócio<br/>(docs/domain/)"] --> P2
-    P2["Fase 2: Arquitetura<br/>(docs/architecture/)"] --> P3
-    P3["Fase 3: Referência de APIs<br/>(docs/api/)"] --> P4
-    P4["Fase 4: Deploy & Operações<br/>(docs/deployment/)"] --> P5
-    P5["Fase 5: Desenvolvimento<br/>(docs/development/)"] --> P6
-    P6["Fase 6: Histórico & Migração<br/>(docs/history/)"] --> P7
-    P7["Fase 7: Índices, README raiz<br/>e Revisão Final"]
+flowchart TD
+    P0["Fase 0: Scaffolding<br>Criar estrutura de diretórios"] --> P1
+    P1["Fase 1: Domínio de Negócio<br>(docs/domain/)"] --> P2
+    P2["Fase 2: Arquitetura<br>(docs/architecture/)"] --> P3
+    P3["Fase 3: Referência de APIs<br>(docs/api/)"] --> P4
+    P4["Fase 4: Deploy & Operações<br>(docs/deployment/)"] --> P5
+    P5["Fase 5: Desenvolvimento<br>(docs/development/)"] --> P6
+    P6["Fase 6: Histórico & Migração<br>(docs/history/)"] --> P7
+    P7["Fase 7: Índices, README raiz<br>e Revisão Final"]
 ```
 
 ---

@@ -101,6 +101,93 @@ evaluate_scenario(Input, Decision, Explanations) :-
 1. **Uso de Cut (`!`):** Quando uma regra pericial atinge uma conclusão definitiva e inequívoca, utilize o corte (`!`) para evitar *backtracking* espúrio que geraria respostas ambíguas.
 2. **Explicabilidade Obrigatória:** Todo o predicado de avaliação deve unificar uma lista de strings (`Explanations`) fundamentando os factos verificados (*Why*) ou as falhas de política detetadas (*Why not*).
 
+### 4.5 Convenções da DSL Declarativa do Motor de Retalho (`src/core/retail_engine/`)
+
+As regras periciais do motor de retalho da Levi's são codificadas na base de conhecimento [`retail_rules.pl`](../../prolog_engine/src/core/retail_engine/kb/retail_rules.pl) através de uma DSL (*Domain-Specific Language*) declarativa canónica inspirada na formulação clássica de sistemas periciais:
+
+#### 4.5.1 Sintaxe Declarativa das Regras
+Toda a regra deve respeitar a estrutura sintática de operadores canónicos (`regra/1`, `se/2`, `entao/2`, `e/2`, `nao/1`):
+
+```prolog
+regra 'ID-001'
+    se Premissa1 e Premissa2 e nao PremissaNegada
+    entao Conclusao.
+```
+
+* **Identificador de Regra:** Átomo entre aspas simples composto pelo prefixo da família e número sequencial de 3 dígitos (ex.: `'HS-006'`, `'PC-001'`, `'PT-003'`).
+* **Conjunção de Premissas:** Utilizar exclusivamente o operador infixo `e` (prioridade 600) para ligar premissas e sub-objetivos.
+* **Negação Lógica:** Utilizar o operador prefixo `nao` (prioridade 500) para testar a ausência de facto ou contra-prova.
+* **Conclusão:** Termo atómico representativo da inferência ou da ação decisória (`permitir`, `recusar`, `rever`, `vale_loja`).
+
+#### 4.5.2 Prefixos Canónicos das 9 Famílias Normativas
+O código de cada regra deve pertencer obrigatoriamente a uma das nove famílias normativas aprovadas pelo perito e pelo RPAC:
+
+| Prefixo | Família Normativa | Descrição de Domínio |
+|:---:|:---|:---|
+| `HS` | **Hard Stops** | Impedimentos normativos intransponíveis (fraude, falsificação, operador não autorizado). |
+| `PC` | **Product Condition** | Verificação física do artigo (etiquetas originais, sinais de uso, lavagem, odores, salubridade). |
+| `PT` | **Proof & Timeframe** | Validação temporal e documental (prazos de 14/28 dias, talão, extrato, fidelidade). |
+| `CH` | **Channel Specific** | Políticas específicas do canal de venda (loja física, online nacional/internacional, outlets, b2b). |
+| `TN` | **Tender Types** | Determinação do meio de reembolso (método original, cartão bancário, vale de loja). |
+| `EP` | **Exchange / Price** | Regras para trocas diretas de tamanho, compensação de preços e campanhas promocionais. |
+| `EX` | **Exceptions & Overrides** | Encaminhamento para gerência, exceções comerciais e defeitos comprovados de fabrico. |
+| `CT` | **Controls & Fraud Prevention** | Mecanismos de salvaguarda, limitação de devoluções consecutivas e registo de operador. |
+| `BW` | **Bodywear & Intimates** | Salvaguarda estrita de higiene em roupa interior, peças íntimas e artigos de banho. |
+
+#### 4.5.3 Hierarquia Estrita de Precedências (1 a 7)
+A ordem de avaliação na base de conhecimento reflete os 7 níveis normativos de precedência estabelecidos pelo perito humano:
+1. **Precedência 1:** `HS-006` (operador não autorizado pára imediatamente o processo).
+2. **Precedência 2:** Encaminhamento obrigatório de canal (`CH-002`, `CH-007`, `CH-008`).
+3. **Precedência 3:** Hard Stops comerciais (`HS-001` a `HS-004`).
+4. **Precedência 4:** Salubridade e risco biológico (`PC-008`, `BW-004`).
+5. **Precedência 5:** Condição de categoria específica (`PC-007`) antes da geral (`PC-001` a `PC-005`).
+6. **Precedência 6:** Prazos e comprovativos de compra (`PT-001` a `PT-008`).
+7. **Precedência 7:** Exceções comerciais e revisão da gerência (`EX-001` a `EX-008`).
+
+#### 4.5.4 Metaconhecimento Declarativo Obrigatório
+Cada nova regra introduzida na base de conhecimento requer a declaração concomitante de três elementos de metaconhecimento:
+
+1. **Indexação de Disparo (`facto_dispara_regras/2`):**
+   Mapeia cada facto primário ou intermédio à lista ordenada de regras que o têm como antecedente, garantindo inferência *forward-chaining* de alta eficiência:
+   ```prolog
+   facto_dispara_regras(etiquetas_afixadas(sim), ['PC-001', 'PC-003']).
+   ```
+
+2. **Declaração de Atributos Perguntáveis (`perguntavel/1`):**
+   Declara explicitamente quais os factos primitivos que o motor tem autorização para recolher interativamente junto do operador através de `obtem_facto/2`:
+   ```prolog
+   perguntavel(sinais_uso(_)).
+   perguntavel(comprovativo_compra(_)).
+   ```
+   > [!IMPORTANT]
+   > Conclusões diagnósticas (`permitir`, `recusar`, `rever`, `elegivel_troca`) **NUNCA** podem ser declaradas como `perguntavel/1`. Apenas atributos factuais observáveis podem ser questionados ao operador.
+
+3. **Fundamentação Normativa (`regra_info/3`):**
+   Associa a cada regra o seu identificador, família e texto explicativo em linguagem natural (pt-PT), alimentando as vias de explicabilidade Why Ask e Output Why:
+   ```prolog
+   regra_info('PC-001', 'Product Condition',
+       'Artigo elegível para devolução por se encontrar em estado novo com etiquetas originais afixadas').
+   ```
+
+### 4.6 Isolamento Transacional e Gestão de Memória Dinâmica
+
+O micro-serviço Prolog armazena o estado de sessão e os factos deduzidos na base de dados dinâmica interna (`dynamic facto/2, ultimo_facto/1, ja_perguntado/1, regra_ativa/2`). Para evitar poluição de memória entre pedidos HTTP ou corrupção de estado perante falhas:
+
+1. **Uso Obrigatório de `setup_call_cleanup/3` em Operações Sandbox:**
+   Toda a operação que altere temporariamente a memória de trabalho (como a simulação contrafactual *What-If*) deve recorrer imperativamente a `setup_call_cleanup/3`:
+   ```prolog
+   % Padrão canónico de execução segura em sandbox
+   what_if(AddFacts, RemoveFacts, Result) :-
+       snapshot_current_facts(Snapshot),
+       setup_call_cleanup(
+           apply_sandbox_diff(AddFacts, RemoveFacts),
+           execute_simulation(Result),
+           restore_snapshot(Snapshot)
+       ).
+   ```
+2. **Limpeza Idempotente com `reset_engine/0`:**
+   O predicado `reset_engine/0` deve eliminar deterministicamente todos os factos assertados, predicados de rasto (`justifica/3`), fila de mocks e marcas de atributo já questionado (`ja_perguntado/1`).
+
 ---
 
 ## 5. Padrões de Código para Python & FastAPI (`backend_orchestrator/`)
@@ -267,11 +354,15 @@ O ficheiro [`.gitignore`](../../.gitignore) na raiz do repositório previne a in
 
 ---
 
-## 9. Referências Cruzadas
+## 9. Documentos Relacionados
 
 * [Guia de Primeiros Passos](getting_started.md) — Configuração e execução local dos serviços.
 * [Estratégia e Execução de Testes](testing.md) — Como escrever e executar testes alinhados com estas convenções.
 * [Arquitetura do Orquestrador](../architecture/fastapi_orchestrator.md) — Camadas e componentes do serviço Python.
 * [Arquitetura do Motor Prolog](../architecture/prolog_engine.md) — Padrão Clean Architecture no micro-serviço SWI-Prolog.
+* [Plano Mestre de Adaptação do Motor em Prolog](../architecture/prolog_expert_system_adaptation.md) — Teoria de perguntas do Prof. ACM e 71 regras da Levi's.
+* [Explicabilidade Pericial](../domain/explainability.md) — As 5 vias de justificação causal, porquê da pergunta e simulação What-If.
+* [Base de Conhecimento Pericial](../domain/expert_knowledge.md) — Mapeamento formal das 71 regras normativas e 9 famílias da Levi's.
 * [Arquitetura do Motor Drools](../architecture/drools_engine.md) — Camadas, DTOs e regras de produção em Java.
 * [Referência de Esquemas e Contratos](../api/schemas.md) — Especificação detalhada dos modelos Pydantic e DTOs Java.
+

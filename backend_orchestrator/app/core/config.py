@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import List, Union
+from typing import List, Literal, Union
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,7 +29,11 @@ class Settings(BaseSettings):
     PROLOG_TIMEOUT_SECONDS: float = 5.0
     DROOLS_ENGINE_URL: str = "http://localhost:8082"
     DROOLS_TIMEOUT_SECONDS: float = 5.0
+    LEVIS_DROOLS_URL: str = "http://localhost:8082"
+    LEVIS_TIMEOUT_SECONDS: float = 10.0
+    DATABASE_URL: str = "postgresql+asyncpg://pericial:pericial@localhost:5432/pericial"
     INFERENCE_ENGINE_ENABLED: bool = True  # Feature toggle for the academic example engine (sp_exp2.pl from Moodle)
+    PROLOG_ENGINE_MODE: Literal["retail", "academic", "dual"] = "retail"  # Feature toggle: retail vs academic vs dual
     CORS_ORIGINS: List[str] = [
         "http://localhost:3000",
         "http://localhost:5173",

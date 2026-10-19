@@ -1,0 +1,434 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "#d2d9f4",
+            "on-tertiary": "#ffffff",
+            "secondary-container": "#2170e4",
+            "surface": "#faf8ff",
+            "outline-variant": "#bbcabf",
+            "on-surface-variant": "#3c4a42",
+            "on-primary-fixed": "#002113",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-primary": "#ffffff",
+            "outline": "#6c7a71",
+            "on-secondary-fixed-variant": "#004395",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#d8e2ff",
+            "surface-tint": "#006c49",
+            "surface-container": "#eaedff",
+            "surface-variant": "#dae2fd",
+            "surface-container-highest": "#dae2fd",
+            "secondary": "#0058be",
+            "inverse-surface": "#283044",
+            "error": "#ba1a1a",
+            "surface-container-low": "#f2f3ff",
+            "tertiary-container": "#e29100",
+            "on-secondary-container": "#fefcff",
+            "background": "#faf8ff",
+            "on-primary-container": "#00422b",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-bright": "#faf8ff",
+            "on-surface": "#131b2e",
+            "inverse-primary": "#4edea3",
+            "on-tertiary-container": "#523200",
+            "surface-container-lowest": "#ffffff",
+            "primary-fixed-dim": "#4edea3",
+            "on-background": "#131b2e",
+            "primary-fixed": "#6ffbbe",
+            "on-error-container": "#93000a",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed": "#ffddb8",
+            "tertiary-fixed-dim": "#ffb95f",
+            "primary": "#006c49",
+            "primary-container": "#10b981",
+            "on-secondary-fixed": "#001a42",
+            "error-container": "#ffdad6",
+            "tertiary": "#855300",
+            "on-primary-fixed-variant": "#005236",
+            "inverse-on-surface": "#eef0ff",
+            "surface-container-high": "#e2e7ff",
+            "secondary-fixed-dim": "#adc6ff"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary">
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-surface-container shadow-sm">
+<div class="h-20 w-full max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center text-on-primary shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-[24px]">point_of_sale</span>
+</div>
+<div class="flex flex-col">
+<span class="font-extrabold text-lg text-on-surface tracking-tight leading-none">RetailFlow</span>
+<span class="text-xs text-primary tracking-wider uppercase font-extrabold mt-0.5">FRONTLINE AI</span>
+</div>
+</div>
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 bg-surface-container-high rounded-full border border-surface-dim/40">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container animate-pulse"></span>
+<span class="text-xs text-on-surface-variant font-bold">Loja Central • Caixa Aberto</span>
+</div>
+</div>
+<nav class="hidden lg:flex items-center gap-1.5 p-1 bg-surface-container rounded-full">
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/60 transition-colors" href="#">Painel Principal</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold bg-primary-container text-white shadow-sm shadow-primary-container/30 transition-all" href="#">Novo Atendimento</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/60 transition-colors" href="#">Decisões &amp; Histórico</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/60 transition-colors" href="#">Cérebro dos Motores</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/60 transition-colors" href="#">Políticas da Loja</a>
+</nav>
+<div class="flex items-center gap-3">
+
+<div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white shadow-sm ring-2 ring-primary/20">
+<span class="material-symbols-outlined text-[19px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Container -->
+<main class="w-full pt-28 pb-16 flex-1 flex flex-col items-center">
+<div class="w-full max-w-4xl px-4 sm:px-6 space-y-6">
+<!-- Stepper Pill & Screen Header -->
+<div class="flex flex-col items-center text-center space-y-2 pt-2">
+<div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 text-primary border border-emerald-200 text-xs font-extrabold tracking-wider uppercase">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          PASSO 3 DE 4
+        </div>
+<h1 class="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight">
+          Elegibilidade do Produto
+        </h1>
+<p class="text-base text-on-surface-variant max-w-xl font-medium">
+          Confirme os detalhes da peça e a sua condição física para validar a devolução.
+        </p>
+</div>
+<!-- CARD 1: Validação Inicial da Peça -->
+<div class="w-full bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-surface-container space-y-5">
+<div class="flex items-center gap-3 border-b border-surface-container pb-4">
+<div class="w-8 h-8 rounded-full bg-emerald-100 text-primary flex items-center justify-center font-extrabold text-sm">
+            1
+          </div>
+<div>
+<h2 class="text-xl font-extrabold text-on-surface">Validação Inicial da Peça</h2>
+<p class="text-xs text-on-surface-variant font-medium">Verificação imediata de catálogo e integridade de corte.</p>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Row 1: Código de barras -->
+<div class="bg-surface rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-surface-container/60 hover:border-emerald-200 transition-colors">
+<div class="space-y-1">
+<h3 class="text-base font-bold text-on-surface">Código de barras ou etiqueta reconhecida?</h3>
+<p class="text-sm text-on-surface-variant font-medium">
+                Leitura no scanner ou inserção do código da peça.
+              </p>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-white font-bold text-sm flex items-center gap-2 shadow-sm shadow-primary-container/30 hover:brightness-105 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[19px]">check_circle</span>
+                Sim, reconhecido
+              </button>
+<button class="px-4 py-2.5 rounded-full bg-white border border-surface-dim text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all" type="button">
+                Não
+              </button>
+</div>
+</div>
+<!-- Row 2: Marca permitida -->
+<div class="bg-surface rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-surface-container/60 hover:border-emerald-200 transition-colors">
+<div class="space-y-1">
+<h3 class="text-base font-bold text-on-surface">Marca permitida na loja?</h3>
+<p class="text-sm text-on-surface-variant font-medium">
+                Artigo elegível da marca, sem marcas excluídas.
+              </p>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-white font-bold text-sm flex items-center gap-2 shadow-sm shadow-primary-container/30 hover:brightness-105 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[19px]">check_circle</span>
+                Sim, elegível
+              </button>
+<button class="px-4 py-2.5 rounded-full bg-white border border-surface-dim text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all" type="button">
+                Não
+              </button>
+</div>
+</div>
+<!-- Row 3: Alterações ou bainhas -->
+<div class="bg-surface rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-surface-container/60 hover:border-emerald-200 transition-colors">
+<div class="space-y-1">
+<h3 class="text-base font-bold text-on-surface">A peça tem alterações ou bainhas feitas?</h3>
+<p class="text-sm text-on-surface-variant font-medium">
+                Bainhas cortadas, bordados ou costuras modificadas.
+              </p>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-white font-bold text-sm flex items-center gap-2 shadow-sm shadow-primary-container/30 hover:brightness-105 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[19px]">check_circle</span>
+                Não, corte original
+              </button>
+<button class="px-4 py-2.5 rounded-full bg-white border border-surface-dim text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all" type="button">
+                Sim, alterada
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- CARD 2: Duas Categorias Especiais em Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card A: Roupa Interior / Peça Íntima -->
+<div class="bg-white rounded-3xl p-6 shadow-sm border border-surface-container flex flex-col justify-between space-y-4">
+<div class="space-y-1.5">
+<div class="w-8 h-8 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm mb-2">
+<span class="material-symbols-outlined text-[20px]">styler</span>
+</div>
+<h3 class="text-lg font-bold text-on-surface">Roupa Interior ou Peça Íntima?</h3>
+<p class="text-sm text-on-surface-variant font-medium">
+              Peças em contacto direto com o corpo têm regras especiais de higiene.
+            </p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="py-2.5 px-3 rounded-full bg-primary-container text-white font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm shadow-primary-container/20 hover:brightness-105 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">check</span>
+              Não (Normal)
+            </button>
+<button class="py-2.5 px-3 rounded-full bg-surface-container text-on-surface-variant font-bold text-sm flex items-center justify-center hover:bg-surface-container-high transition-colors" type="button">
+              Sim (Peça Íntima)
+            </button>
+</div>
+</div>
+<!-- Card B: Defeito de Fabrico -->
+<div class="bg-white rounded-3xl p-6 shadow-sm border border-surface-container flex flex-col justify-between space-y-4">
+<div class="space-y-1.5">
+<div class="w-8 h-8 rounded-2xl bg-emerald-100 text-primary flex items-center justify-center font-bold text-sm mb-2">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<h3 class="text-lg font-bold text-on-surface">Tem defeito de fabrico visível?</h3>
+<p class="text-sm text-on-surface-variant font-medium">
+              Falha de costura, tecido desfiado ou rebite danificado de origem.
+            </p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="py-2.5 px-3 rounded-full bg-primary-container text-white font-bold text-sm flex items-center justify-center gap-1.5 shadow-sm shadow-primary-container/20 hover:brightness-105 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">check</span>
+              Sem defeito aparente
+            </button>
+<button class="py-2.5 px-3 rounded-full bg-surface-container text-on-surface-variant font-bold text-sm flex items-center justify-center hover:bg-surface-container-high transition-colors" type="button">
+              Defeito confirmado
+            </button>
+</div>
+</div>
+</div>
+<!-- CARD 3: Estado Físico da Peça (3x2 Grid) -->
+<div class="w-full bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-surface-container space-y-5">
+<div class="flex items-center gap-3 border-b border-surface-container pb-4">
+<div class="w-8 h-8 rounded-full bg-emerald-100 text-primary flex items-center justify-center font-extrabold text-sm">
+            2
+          </div>
+<div>
+<h2 class="text-xl font-extrabold text-on-surface">Estado Físico da Peça</h2>
+<p class="text-xs text-on-surface-variant font-medium">Selecione o estado real da peça entregue pelo cliente.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+<!-- 1. Não usado, com etiquetas (SELECTED ACTIVE) -->
+<div class="p-4 rounded-2xl bg-emerald-50/70 border-2 border-primary-container shadow-sm flex flex-col justify-between gap-3 cursor-pointer transition-all hover:shadow-md ring-2 ring-primary-container/20">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary text-[24px]">sell</span>
+<div class="w-6 h-6 rounded-full bg-primary-container text-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Não usado, com etiquetas
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Estado novo com etiqueta intacta
+              </p>
+</div>
+</div>
+<!-- 2. Não usado, etiquetas soltas -->
+<div class="p-4 rounded-2xl bg-surface border border-surface-container hover:border-emerald-300 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:bg-white shadow-sm">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-outline text-[24px]">label_off</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline"></div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Não usado, etiquetas soltas
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Sem uso, etiquetas na sacola ou desprendidas
+              </p>
+</div>
+</div>
+<!-- 3. Não usado, sem etiquetas -->
+<div class="p-4 rounded-2xl bg-surface border border-surface-container hover:border-emerald-300 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:bg-white shadow-sm">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-outline text-[24px]">checkroom</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline"></div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Não usado, sem etiquetas
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Sem sinais de uso, mas sem etiqueta original
+              </p>
+</div>
+</div>
+<!-- 4. Claramente usado -->
+<div class="p-4 rounded-2xl bg-surface border border-surface-container hover:border-amber-300 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:bg-white shadow-sm">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-outline text-[24px]">footprint</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline"></div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Claramente usado
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Com sinais de desgaste ou vincos de uso
+              </p>
+</div>
+</div>
+<!-- 5. Lavado -->
+<div class="p-4 rounded-2xl bg-surface border border-surface-container hover:border-amber-300 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:bg-white shadow-sm">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-outline text-[24px]">local_laundry_service</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline"></div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Lavado
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Odor a detergente ou alteração no tecido
+              </p>
+</div>
+</div>
+<!-- 6. Sujo ou manchado -->
+<div class="p-4 rounded-2xl bg-surface border border-surface-container hover:border-red-300 flex flex-col justify-between gap-3 cursor-pointer transition-all hover:bg-white shadow-sm">
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-outline text-[24px]">cleaning_services</span>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center text-outline"></div>
+</div>
+<h4 class="text-base font-bold text-on-surface leading-tight">
+                Sujo ou manchado
+              </h4>
+<p class="text-xs text-on-surface-variant font-medium leading-relaxed">
+                Manchas ou sem condições de higiene
+              </p>
+</div>
+</div>
+</div>
+</div>
+<!-- CARD 4: Pronta para voltar a ser vendida? -->
+<div class="w-full bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-surface-container">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">storefront</span>
+<h3 class="text-lg font-bold text-on-surface">Pronta para voltar a ser vendida?</h3>
+</div>
+<p class="text-sm text-on-surface-variant font-medium">
+              A peça pode voltar diretamente ao expositor de venda?
+            </p>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-white font-bold text-sm flex items-center gap-2 shadow-sm shadow-primary-container/30 hover:brightness-105 active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[19px]">check_circle</span>
+              Sim, pronta para revenda
+            </button>
+<button class="px-4 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-bold text-sm hover:bg-surface-container-high transition-colors" type="button">
+              Não
+            </button>
+</div>
+</div>
+</div>
+<!-- Bottom Progress Bar & Navigation Tray -->
+<div class="pt-4 space-y-4">
+<!-- Segmented 4-step progress bar -->
+<div class="space-y-2">
+<div class="flex items-center justify-between text-xs font-extrabold text-on-surface-variant px-1">
+<span class="">PROGRESSO DA AVALIAÇÃO</span>
+<span class="">Passo 3 de 4</span>
+</div>
+<div class="w-full grid grid-cols-4 gap-2.5">
+<div class="h-2.5 rounded-full bg-primary-container"></div>
+<div class="h-2.5 rounded-full bg-primary-container"></div>
+<div class="h-2.5 rounded-full bg-primary-container"></div>
+<div class="h-2.5 rounded-full bg-surface-container-high"></div>
+</div>
+</div>
+<!-- Sticky-styled Navigation Action Footer -->
+<div class="w-full bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-surface-container flex flex-col sm:flex-row items-center justify-between gap-4">
+<!-- Back Action -->
+<a class="w-full sm:w-auto px-6 py-3 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high font-bold text-sm flex items-center justify-center gap-2 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+<span class="">Voltar ao Passo 2</span>
+</a>
+<!-- Middle Hint -->
+<div class="text-center">
+<span class="text-xs text-on-surface-variant uppercase font-bold tracking-wider">A SEGUIR:</span>
+<span class="text-xs font-bold text-on-surface block sm:inline sm:ml-1">Comprovativo e Prazo (Passo 4)</span>
+</div>
+<!-- Forward Action -->
+<button class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary-container hover:bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md shadow-primary-container/30 border-b-2 border-emerald-700 active:translate-y-0.5 active:border-b-0 transition-all" type="button">
+<span class="">Continuar para Passo 4</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Clean Subtle Footer -->
+<footer class="w-full bg-white border-t border-surface-container py-3">
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-on-surface-variant">
+<span class="font-bold text-on-surface">RetailFlow POS Frontline v2.4</span>
+<div class="flex items-center gap-1.5 text-primary font-bold">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span class="">Ambiente Criptografado &amp; Auditado</span>
+</div>
+</div>
+</footer>
+
+
+</body></html>

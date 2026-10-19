@@ -137,12 +137,12 @@ O cliente HTTP assíncrono (`prolog_client.py`) comunicará com o micro-serviço
 ## 4. Roteiro de Implementação Faseada
 
 ```mermaid
-graph TD
-    F1[Fase 1: Setup & Configurações] --> F2[Fase 2: Schemas Pydantic]
-    F2 --> F3[Fase 3: Cliente Assíncrono Prolog]
-    F3 --> F4[Fase 4: Orquestração & Endpoints FastAPI]
-    F4 --> F5[Fase 5: Testes Automatizados com Pytest]
-    F5 --> F6[Fase 6: Docker & Docker Compose]
+flowchart TD
+    F1["Fase 1: Setup e Configurações"] --> F2["Fase 2: Schemas Pydantic"]
+    F2 --> F3["Fase 3: Cliente Assíncrono Prolog"]
+    F3 --> F4["Fase 4: Orquestração e Endpoints FastAPI"]
+    F4 --> F5["Fase 5: Testes Automatizados com Pytest"]
+    F5 --> F6["Fase 6: Docker e Docker Compose"]
 ```
 
 ---

@@ -1,0 +1,30 @@
+# ==============================================================================
+# MEIA 2026/2027 · ENGCIA · Desafio 1 (Equipa 3)
+# PostgreSQL Mínimo e Isolado para Avaliação do Motor Drools Spring Boot
+# ==============================================================================
+# Arranque rápido:
+#   docker compose -f docker-compose-minimal.yml up -d
+# Parar contentor:
+#   docker compose -f docker-compose-minimal.yml down
+# ==============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: drools-levis-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pericial
+      POSTGRES_USER: pericial
+      POSTGRES_PASSWORD: pericial
+    volumes:
+      - dados-postgres-minimal:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pericial -d pericial"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  dados-postgres-minimal:

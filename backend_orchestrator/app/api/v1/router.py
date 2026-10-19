@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import drools, evaluate, health
+from app.api.v1.endpoints import drools, evaluate, health, inferences, levis, retail
 
 api_v1_router = APIRouter()
 
 api_v1_router.include_router(health.router, tags=["Health"])
 api_v1_router.include_router(evaluate.router, tags=["Evaluation"])
+api_v1_router.include_router(retail.router)
 api_v1_router.include_router(drools.router)
+api_v1_router.include_router(levis.router)
+api_v1_router.include_router(inferences.router)
 
 from app.core.config import settings
 

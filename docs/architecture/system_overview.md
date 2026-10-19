@@ -1,5 +1,5 @@
 # Visão Global da Arquitetura do Sistema
-### *Retail Returns & Exchanges Diagnostic Expert System*
+### *Sistema Pericial de Diagnóstico para Devoluções e Trocas no Retalho*
 
 ---
 
@@ -7,12 +7,16 @@
 
 O sistema adota uma arquitetura de micro-serviços distribuídos orientada a **inferência baseada em conhecimento**, separando de forma estrita o canal de comunicação e validação de dados da execução das regras de diagnóstico.
 
-A solucao e desenhada para permitir que multiplos motores de inteligencia artificial simbolica -- **SWI-Prolog** (logica declarativa de primeira ordem) e **Apache KIE Drools** (regras de producao Rete-OO) -- avaliem cenarios clinicos e de devolucao de mercadorias no retalho, fornecendo decisoes deterministicas e cadeias de justificacao auditaveis (*Why / Why not*).
+A solução é desenhada para permitir que múltiplos motores de inteligência artificial simbólica — **SWI-Prolog** (lógica declarativa de primeira ordem) e **Apache KIE Drools** (regras de produção Rete-OO) — avaliem cenários clínicos e de devolução de mercadorias no retalho, fornecendo decisões determinísticas e cadeias de justificação auditáveis (*Why / Why not*).
+
+No micro-serviço SWI-Prolog, o sistema disponibiliza dois motores de inferência completos e isolados por paridade:
+1. **Motor Pericial de Retalho da Levi's (`/retail/*`):** Implementação completa com 71 regras normativas, diálogo interativo ACM e 5 vias de explicabilidade.
+2. **Motor Académico de Veículos (`/inference/*`):** Adaptação do motor `sp_exp2.pl` de referência pedagógica.
 
 ```mermaid
 flowchart TD
     subgraph ClientLayer ["Camada de Apresentação (Clientes)"]
-        UI["Interface de Loja / POS Web App<br/>(React / Vue / Mobile — Futuro)"]
+        UI["Interface de Loja / POS Web App<br/>(React / Vue / Mobile)"]
         CLI["Ferramentas de Linha de Comandos<br/>(cURL / PowerShell / Scripts)"]
     end
 
@@ -23,21 +27,21 @@ flowchart TD
     end
 
     subgraph InferenceLayer ["Camada de Inferência Pericial (Sistemas Simbólicos)"]
-        PROLOG["Micro-servico SWI-Prolog<br/>Daemon HTTP Multi-threaded<br/>Porta 8080 (Implementado)"]
-        DROOLS["Micro-servico Drools Engine<br/>Java 21 / Spring Boot 3.3 / Drools 8.44<br/>Porta 8082 Host / 8080 Contentor (Implementado)"]
+        PROLOG["Micro-serviço SWI-Prolog<br/>Daemon HTTP Multi-threaded<br/>Porta 8080 (71 Regras Retalho + Veículos)"]
+        DROOLS["Micro-serviço Drools Engine<br/>Java 21 / Spring Boot 3.3 / Drools 8.44<br/>Porta 8082 Host / 8080 Contentor"]
     end
 
     subgraph NetworkInfra ["Infraestrutura de Rede Virtualizada"]
         DOCKER["Docker Compose Bridge Network<br/>(retail-network)"]
     end
 
-    UI -->|"HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
-    CLI -->|"HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
+    UI -->|"HTTP POST /api/v1/retail/*<br/>HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
+    CLI -->|"HTTP POST /api/v1/retail/*<br/>HTTP POST /api/v1/evaluate<br/>HTTP /api/v1/inference/*"| API
 
     API --- VAL
     API --- POOL
 
-    POOL -->|"HTTP POST /evaluate<br/>HTTP /inference/*<br/>(http://prolog-engine:8080)"| PROLOG
+    POOL -->|"HTTP /retail/*<br/>HTTP /inference/*<br/>HTTP POST /evaluate<br/>(http://prolog-engine:8080)"| PROLOG
     POOL -->|"HTTP POST /api/v1/inference/evaluate<br/>HTTP GET /api/v1/inference/health<br/>(http://drools-engine:8080)"| DROOLS
 
     PROLOG --- DOCKER
@@ -67,26 +71,28 @@ flowchart TD
   7. Ponto de extensão para auditoria comparativa entre motores (Prolog vs Drools).
 
 ### 2.3 Micro-serviço Motor SWI-Prolog (`prolog-engine`)
-* **Função:** Motor lógico de primeira ordem que aloja dois subsistemas de inferência pericial segmentados:
-  * **Motor A (Exemplo dos Professores / Moodle — `sp_exp2.pl`):** Motor *forward-chaining* modular adaptado diretamente dos ficheiros de apoio do Moodle (`sp_exp2.pl`, `veiculos2.txt`), com metaconhecimento e explicabilidade bidirecional (*How* / *Why Not*), exposto em `/inference/*`.
-  * **Motor B (Domínio de Negócio — Devoluções no Retalho):** Motor de regras do caso de uso real de retalho com o perito Dustin Hopper (`rules.pl`, exposto em `/evaluate`), cuja POC atual será expandida em fases futuras do projeto.
-* **Tecnologia:** SWI-Prolog (versão oficial `swipl:latest`), estruturado em **Clean Architecture**.
+* **Função:** Motor lógico de primeira ordem que aloja dois subsistemas de inferência pericial segmentados sob o Princípio do Isolamento por Paridade:
+  * **Motor de Retalho da Levi's (Implementado e Validado):** Motor pericial normativo com 71 regras codificadas em 9 famílias temáticas (`HS`, `PC`, `PT`, `CH`, `TN`, `EP`, `EX`, `CT`, `BW`), precedência estrita de 7 níveis (RPAC-Team3), 41 atributos observáveis formulados em pt-PT, ciclo dialógico ACM com `obtem_facto/2` e `ja_perguntado/1`, e 5 vias completas de explicabilidade (*How*, *Why Ask*, *Why Decision*, *Why Not*, *What-If* sandbox). Exposto nos 7 endpoints REST `/retail/*` (`evaluate`, `interactive`, `whatif`, `how`, `whynot`, `facts`, `reset`) e validado por 73 testes PLUnit específicos.
+  * **Motor Académico de Veículos (`sp_exp2.pl`):** Motor *forward-chaining* modular adaptado diretamente dos ficheiros de apoio do Moodle (`sp_exp2.pl`, `veiculos2.txt`), com metaconhecimento (`facto_dispara_regras/2`) e explicabilidade causal bidirecional (*How* / *Why Not*), preservado e exposto na família de rotas `/inference/*` com 8 testes PLUnit.
+* **Tecnologia:** SWI-Prolog (versão oficial `swipl:latest`), estruturado rigorosamente em **Clean Architecture** com isolamento total entre transporte (`src/api/`) e domínio (`src/core/`).
 * **Responsabilidades:**
   1. Exposição de um daemon HTTP nativo multi-threaded (`thread_httpd`) na porta `8080`.
-  2. Receção de factos em JSON e conversão declarativa em dicionários Prolog (*Prolog Dicts*).
-  3. Execução de regras de inferência pura (`rules.pl`) para cenários do domínio de retalho (`POST /evaluate`).
-  4. Execução do motor de exemplo dos professores (`engine.pl`) com metaconhecimento e explicabilidade causal (`how`/`whynot`) sobre bases carregáveis como veículos (`POST /inference/*`).
-  5. Dedução de decisões (`approved`, `rejected`, `store_credit_only`, `manager_override`) e geração da cadeia de justificações (`justification`).
+  2. Receção de factos em JSON e conversão declarativa em dicionários Prolog (*Prolog Dicts*) e termos de facto tipados.
+  3. Execução de deduções normativas em lote via `POST /retail/evaluate` e simulações interativas via `POST /retail/interactive`.
+  4. Execução de simulações contrafactuais com isolamento transacional (`setup_call_cleanup/3`) em `POST /retail/whatif`.
+  5. Fornecimento das 5 vias de explicabilidade pericial em tempo real (`POST /retail/how` e `POST /retail/whynot`).
+  6. Preservação da linha de base académica com o motor de veículos (`POST /inference/*`).
+  7. Dedução determinística dos desfechos (`approved`, `rejected`, `store_credit_only`, `manager_override`) e geração da cadeia de justificações auditáveis.
 
-### 2.4 Micro-servico Motor Drools (`drools-engine` -- Implementado)
-* **Funcao:** Segundo motor de inferencia baseado em regras de producao (*Forward Chaining* via algoritmo Rete-OO), especializado no dominio clinico de diagnostico diferencial de hemorragias.
+### 2.4 Micro-serviço Motor Drools (`drools-engine` — Implementado)
+* **Função:** Segundo motor de inferência baseado em regras de produção (*Forward Chaining* via algoritmo Rete-OO), especializado no domínio clínico de diagnóstico diferencial de hemorragias.
 * **Tecnologia:** Java 21 com Spring Boot 3.3.4, Apache KIE Drools 8.44.0.Final, Lombok e Bean Validation (Jakarta).
 * **Responsabilidades:**
-  1. Exposicao de uma API REST na porta `8080` (contentor) / `8082` (host) com dois endpoints: `POST /api/v1/inference/evaluate` e `GET /api/v1/inference/health`.
-  2. Rececao de evidencias clinicas em JSON (`EvidencesRequestDto`) com 13 campos binarios (`yes`/`no`) validados por `@Pattern`.
-  3. Conversao defensiva para factos de dominio (`Evidences`) via metodo `toDomain()` com normalizacao de valores ausentes.
-  4. Insercao de factos na Working Memory, disparo do algoritmo Rete-OO (`fireAllRules`) e extracao de `Hypothesis` e `Conclusion`.
-  5. Rastreabilidade completa via lista `firedRules` (explicabilidade) incluida na resposta JSON.
+  1. Exposição de uma API REST na porta `8080` (contentor) / `8082` (host) com dois endpoints: `POST /api/v1/inference/evaluate` e `GET /api/v1/inference/health`.
+  2. Receção de evidências clínicas em JSON (`EvidencesRequestDto`) com 13 campos binários (`yes`/`no`) validados por `@Pattern`.
+  3. Conversão defensiva para factos de domínio (`Evidences`) via método `toDomain()` com normalização de valores ausentes.
+  4. Inserção de factos na Working Memory, disparo do algoritmo Rete-OO (`fireAllRules`) e extração de `Hypothesis` e `Conclusion`.
+  5. Rastreabilidade completa via lista `firedRules` (explicabilidade) incluída na resposta JSON.
   6. Tratamento global de erros (`GlobalExceptionHandler`) com payloads padronizados para erros 400 e 500.
 
 ---
@@ -99,7 +105,7 @@ flowchart TD
 
 ### 3.2 Desacoplamento e Clean Architecture
 Cada componente do sistema possui limites arquiteturais bem definidos:
-* A camada core de regras do Prolog (`rules.pl`) desconhece que existe uma API HTTP ou tráfego de rede.
+* A camada core de regras do Prolog (`retail_engine/` e `inference/`) desconhece que existe uma API HTTP ou tráfego de rede.
 * O orquestrador trata os motores de inferência como serviços remotos independentes através de contratos HTTP/JSON bem especificados.
 * O fracasso, lentidão ou substituição de um motor de inferência não corrompe a estabilidade da camada de orquestração.
 
@@ -116,18 +122,21 @@ Cada componente do sistema possui limites arquiteturais bem definidos:
 | **Orquestração** | Backend Orchestrator | Python / FastAPI / Pydantic v2 | Python 3.11-slim | `8000` |
 | **Cliente HTTP** | Async Transport Client | HTTPX (`AsyncClient`) | httpx >= 0.27.0 | — |
 | **Servidor ASGI** | Web Server Gateway | Uvicorn (Standard Worker) | uvicorn >= 0.30.0 | `8000` |
-| **Motor Logico (Prolog)** | Micro-servico Prolog | SWI-Prolog (`thread_httpd`) | `swipl:latest` | `8080` |
-| **Motor Logico (Drools)** | Micro-servico Drools Engine | Java 21 / Spring Boot 3.3 / Drools 8.44 | `eclipse-temurin:21-jre-alpine` | `8080` (contentor) / `8082` (host) |
-| **Contentorizacao** | Virtualizacao de Servicos | Docker / Docker Compose | v2+ (Compose file 3.8+) | -- |
+| **Motor Lógico (Prolog Retalho)** | Motor Levi's (71 Regras, ACM, 5 Vias) | SWI-Prolog (`retail_engine`) | `swipl:latest` | `8080` (`/retail/*`) |
+| **Motor Lógico (Prolog Académico)** | Motor de Veículos (`sp_exp2.pl`) | SWI-Prolog (`inference`) | `swipl:latest` | `8080` (`/inference/*`) |
+| **Motor Lógico (Drools)** | Micro-serviço Drools Engine | Java 21 / Spring Boot 3.3 / Drools 8.44 | `eclipse-temurin:21-jre-alpine` | `8080` (contentor) / `8082` (host) |
+| **Contentorização** | Virtualização de Serviços | Docker / Docker Compose | v2+ (Compose file 3.8+) | — |
 | **Rede Interna** | Bridge Network | Docker Bridge (`retail-network`) | Driver nativo | — |
 
 ---
 
 ## 5. Documentos Relacionados
 
-* [Arquitetura do Motor Prolog](prolog_engine.md) -- Clean Architecture interna e ciclo de vida do micro-servico SWI-Prolog.
-* [Arquitetura do Motor Drools](drools_engine.md) -- Arquitectura interna do micro-servico Drools Engine baseado em regras de producao.
-* [Arquitetura do Orquestrador FastAPI](fastapi_orchestrator.md) -- Estrutura interna de camadas, lifespan e connection pooling em Python.
-* [Interacoes entre Servicos e Fluxos de Dados](service_interactions.md) -- Diagrama de sequencia ponta-a-ponta e tratamento de erros.
-* [Contexto de Negocio e Enquadramento Academico](../domain/business_context.md) -- Justificacao teorica e caso de uso.
-* [Orquestracao com Docker Compose](../deployment/docker_compose.md) -- Topologia e instrucoes operacionais de deploy.
+* [Arquitetura do Motor Prolog](prolog_engine.md) — Clean Architecture interna, isolamento por paridade e ciclo de vida do micro-serviço SWI-Prolog.
+* [Arquitetura do Motor Drools](drools_engine.md) — Arquitetura interna do micro-serviço Drools Engine baseado em regras de produção.
+* [Arquitetura do Orquestrador FastAPI](fastapi_orchestrator.md) — Estrutura interna de camadas, lifespan e connection pooling em Python.
+* [Interações entre Serviços e Fluxos de Dados](service_interactions.md) — Diagrama de sequência ponta-a-ponta, fluxo ACM e tratamento de erros.
+* [Base de Conhecimento e Heurísticas do Perito](../domain/expert_knowledge.md) — As 71 regras normativas da Levi's e 7 níveis de precedência.
+* [Modelo de Explicabilidade](../domain/explainability.md) — As 5 vias de explicabilidade pericial em Prolog vs. Drools.
+* [Contexto de Negócio e Enquadramento Académico](../domain/business_context.md) — Justificação teórica e caso de uso.
+* [Orquestração com Docker Compose](../deployment/docker_compose.md) — Topologia e instruções operacionais de deploy.

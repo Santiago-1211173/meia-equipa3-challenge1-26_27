@@ -1,0 +1,413 @@
+<!DOCTYPE html><html lang="pt-BR" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<title>RetailFlow - Caminho Online &amp; BackPocket</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#006c49",
+            "primary-container": "#10b981",
+            "on-primary": "#ffffff",
+            "primary-fixed": "#6ffbbe",
+            "on-primary-fixed": "#002113",
+            "secondary": "#0058be",
+            "secondary-container": "#2170e4",
+            "on-secondary": "#ffffff",
+            "secondary-fixed": "#d8e2ff",
+            "on-secondary-fixed": "#001a42",
+            "surface": "#faf8ff",
+            "surface-bright": "#faf8ff",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f3ff",
+            "surface-container": "#eaedff",
+            "surface-container-high": "#e2e7ff",
+            "surface-container-highest": "#dae2fd",
+            "on-surface": "#131b2e",
+            "on-surface-variant": "#3c4a42",
+            "outline": "#6c7a71",
+            "outline-variant": "#bbcabf",
+            "tertiary": "#855300",
+            "tertiary-fixed": "#ffddb8",
+            "on-tertiary-fixed": "#2a1700",
+            "tertiary-fixed-dim": "#ffb95f",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "background": "#faf8ff",
+            "on-background": "#131b2e"
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "lg": "1.5rem",
+            "xl": "2rem",
+            "2xl": "2.5rem",
+            "3xl": "3rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "gutter": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem"
+          },
+          fontFamily: {
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg": ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#faf8ff] font-sans text-on-surface min-h-screen flex flex-col justify-between antialiased selection:bg-primary-container selection:text-white">
+<!-- TOP SHELL / HEADER -->
+<header class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-surface-container-highest/60 shadow-[0_2px_12px_rgba(19,27,46,0.04)]">
+<div class="max-w-7xl mx-auto h-20 px-6 flex items-center justify-between gap-4">
+<!-- Brand & Store Pill -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2.5">
+<div class="w-11 h-11 rounded-2xl bg-primary-container flex items-center justify-center text-white shadow-md shadow-emerald-500/25">
+<span class="material-symbols-outlined text-[24px]">bolt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-extrabold text-[19px] leading-tight text-on-surface tracking-tight">RetailFlow</span>
+<span class="text-[11px] font-bold text-primary tracking-widest uppercase">FRONTLINE AI</span>
+</div>
+</div>
+<div class="hidden xl:flex items-center gap-2 bg-surface-container-low px-3.5 py-1.5 rounded-full border border-outline-variant/40">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-xs text-on-surface-variant font-bold">Loja Central • Caixa Aberto</span>
+</div>
+</div>
+<!-- Navigation tabs -->
+<nav class="hidden lg:flex items-center gap-1.5 bg-surface-container-low p-1.5 rounded-full border border-surface-container-highest/50">
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/80 transition-all" href="#">Painel Principal</a>
+<a aria-current="page" class="px-4 py-2 rounded-full text-xs font-bold bg-primary text-white shadow-sm flex items-center gap-1.5" href="#">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
+          Novo Atendimento
+        </a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/80 transition-all" href="#">Decisões &amp; Histórico</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/80 transition-all" href="#">Cérebro dos Motores</a>
+<a class="px-4 py-2 rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface hover:bg-white/80 transition-all" href="#">Políticas da Loja</a>
+</nav>
+<!-- Gamification Streak & Profile -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 bg-amber-50 px-3.5 py-1.5 rounded-full border border-amber-200/80 shadow-xs">
+
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-white shadow-sm flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN VIEWPORT -->
+<main class="w-full pt-28 pb-32 flex-1">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-8">
+<!-- PROGRESS INDICATOR & FLOW HEADER -->
+<div class="w-full flex flex-col items-center text-center gap-3">
+<!-- Conditional Branch Pill -->
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-primary shadow-xs">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-xs font-extrabold uppercase tracking-wider">COMPRA ONLINE &amp; BACKPOCKET • FLUXO ASSISTIDO</span>
+</div>
+<!-- Segmented Step Bar (Duolingo Style) -->
+<div class="w-full max-w-md flex items-center gap-2 my-1">
+<div class="h-2 flex-1 rounded-full bg-primary"></div>
+<div class="h-2 flex-1 rounded-full bg-primary"></div>
+<div class="h-2 flex-1 rounded-full bg-primary relative overflow-hidden">
+<span class="absolute inset-0 bg-primary-container animate-pulse opacity-60"></span>
+</div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest"></div>
+</div>
+<h1 class="text-3xl sm:text-4xl font-extrabold text-on-surface tracking-tight">
+          Caminho Online &amp; BackPocket
+        </h1>
+<p class="text-sm sm:text-base text-on-surface-variant max-w-xl font-medium">Tratamento simples de encomendas levi.com / levi.ca e pedidos BackPocket</p>
+</div>
+<!-- TACTILE CARDS CONTAINER -->
+<div class="w-full flex flex-col gap-6">
+<!-- BLOCO 1: Localização da Encomenda Web -->
+<section class="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-container-highest/60 flex flex-col gap-6 transition-all hover:shadow-[0_12px_36px_rgb(0,0,0,0.06)]">
+<div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-2xl bg-emerald-100 text-primary font-extrabold text-sm flex items-center justify-center shadow-xs">
+                1
+              </div>
+<div>
+<h2 class="text-lg sm:text-xl font-extrabold text-on-surface">Localização da Encomenda Web</h2>
+<p class="text-xs text-on-surface-variant font-medium">Validação de Encomenda &amp; Prova de Compra</p>
+</div>
+</div>
+<span class="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold"><span class="material-symbols-outlined text-[15px] text-primary">verified</span> Pronto a Processar</span>
+</div>
+<!-- Order scan & badge tactile bar -->
+
+<!-- Question Options (Tactile Duolingo Cards) -->
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant">
+              A encomenda foi localizada no portal BackPocket ou Levi.com?
+            </label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<!-- Option 1: Selected (Emerald Ring & Soft Pastel) -->
+<div class="relative bg-emerald-50/70 border-2 border-primary rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 cursor-pointer shadow-sm transition-all hover:translate-y-[-1px]">
+<div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-extrabold text-on-surface">Sim, Encomenda Localizada</span>
+<span class="text-xs text-on-surface-variant mt-0.5 leading-relaxed font-medium">Comprovativo eletrónico e dados da encomenda confirmados.</span>
+</div>
+</div>
+<!-- Option 2: Default / Unselected -->
+<div class="relative bg-white border-2 border-surface-container-highest/80 hover:border-outline-variant rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 cursor-pointer transition-all opacity-70 hover:opacity-100 hover:bg-surface-container-low/40">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant bg-white flex items-center justify-center shrink-0 mt-0.5"></div>
+<div class="flex flex-col">
+<span class="text-sm font-extrabold text-on-surface">Não Encontrada / Sem Registo</span>
+<span class="text-xs text-on-surface-variant mt-0.5 leading-relaxed font-medium">Requer verificação manual ou devolução sem registo prévio.</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- BLOCO 2: Método de Pagamento Original & Compliance Hard Stop -->
+<section class="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-container-highest/60 flex flex-col gap-6 transition-all hover:shadow-[0_12px_36px_rgb(0,0,0,0.06)]">
+<div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-2xl bg-emerald-100 text-primary font-extrabold text-sm flex items-center justify-center shadow-xs">
+                2
+              </div>
+<div>
+<h2 class="text-lg sm:text-xl font-extrabold text-on-surface">Método de Pagamento Original</h2>
+<p class="text-xs text-on-surface-variant font-medium">Identificação do meio original de pagamento</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface text-xs font-bold">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+              Detetado: CC Tokenizado
+            </span>
+</div>
+<!-- Amber/Red Compliance Banner -->
+
+<!-- 2x2 Payment Tender Grid -->
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant">
+              Selecione o meio original de liquidação:
+            </label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<!-- Card 1: Credit / Debit (Selected) -->
+<div class="relative bg-emerald-50/70 border-2 border-primary rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[22px]">credit_card</span>
+<span class="text-sm font-extrabold text-on-surface">Cartão de Crédito/Débito</span>
+</div>
+<div class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="text-xs text-on-surface-variant font-medium">Visa •••• 4920</span>
+<span class="px-2.5 py-0.5 rounded-full bg-emerald-200/70 text-emerald-900 text-[11px] font-extrabold">
+                    Token BackPocket Ativo
+                  </span>
+</div>
+</div>
+<!-- Card 2: Afterpay (With Hard Stop tag) -->
+<div class="relative bg-white border-2 border-surface-container-highest/80 hover:border-amber-400 rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer opacity-80 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-amber-700 text-[22px]">hourglass_top</span>
+<span class="text-sm font-extrabold text-on-surface">Afterpay (BNPL)</span>
+</div>
+<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-extrabold">Reembolso via App</span>
+</div>
+<span class="text-xs text-on-surface-variant leading-tight font-medium">
+                  Reembolso estrito pela app. Bloqueio em caixa.
+                </span>
+</div>
+<!-- Card 3: PayPal / Venmo -->
+<div class="relative bg-white border-2 border-surface-container-highest/80 hover:border-outline-variant rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer opacity-80 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[22px]">account_balance_wallet</span>
+<span class="text-sm font-extrabold text-on-surface">PayPal / Venmo</span>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant leading-tight font-medium">
+                  Crédito estornado à conta de origem digital.
+                </span>
+</div>
+<!-- Card 4: Apple / Google Pay -->
+<div class="relative bg-white border-2 border-surface-container-highest/80 hover:border-outline-variant rounded-2xl p-4 flex flex-col gap-2.5 cursor-pointer opacity-80 hover:opacity-100 transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-on-surface text-[22px]">contactless</span>
+<span class="text-sm font-extrabold text-on-surface">Apple Pay / Google Pay</span>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant leading-tight font-medium">
+                  Reembolso por aproximação ou via token salvaguardado.
+                </span>
+</div>
+</div>
+</div>
+</section>
+<!-- BLOCO 3: Janela de Expedição & Tipo de Resolução -->
+<section class="bg-white rounded-[2.5rem] p-6 sm:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-surface-container-highest/60 flex flex-col gap-6 transition-all hover:shadow-[0_12px_36px_rgb(0,0,0,0.06)]">
+<div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-2xl bg-emerald-100 text-primary font-extrabold text-sm flex items-center justify-center shadow-xs">
+                3
+              </div>
+<div>
+<h2 class="text-lg sm:text-xl font-extrabold text-on-surface">Janela de Expedição &amp; Tipo de Resolução</h2>
+<p class="text-xs text-on-surface-variant font-medium">Prazo de envio e preferência de devolução ou troca</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-low border border-surface-container-highest text-on-surface text-xs font-bold">
+              Envio: há 14 dias
+            </span>
+</div>
+<!-- Time Window Selection -->
+<div class="flex flex-col gap-2.5">
+<label class="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant">
+              Prazo decorrido desde a data de despacho (Tracking eletrónico):
+            </label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+<!-- Option 1: <= 30 days (Selected) -->
+<div class="relative bg-emerald-50/70 border-2 border-primary rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 cursor-pointer shadow-sm">
+<div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-extrabold text-on-surface">≤ 30 dias desde o envio</span>
+<span class="text-xs text-on-surface-variant mt-0.5 leading-relaxed font-medium">
+                    Elegível para estorno integral no método original de compra.
+                  </span>
+</div>
+</div>
+<!-- Option 2: > 30 days -->
+<div class="relative bg-white border-2 border-surface-container-highest/80 hover:border-outline-variant rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 cursor-pointer opacity-70 hover:opacity-100 transition-all">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant bg-white flex items-center justify-center shrink-0 mt-0.5"></div>
+<div class="flex flex-col">
+<span class="text-sm font-extrabold text-on-surface">&gt; 30 dias desde o envio</span>
+<span class="text-xs text-on-surface-variant mt-0.5 leading-relaxed font-medium">Elegível para Cartão de Oferta / Vale de Loja Levi's.</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CH-006: Troca vs Devolução Pura -->
+<div class="bg-surface-container-low/60 rounded-2xl p-4 sm:p-5 border border-surface-container-highest/70 flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<span class="text-xs font-extrabold uppercase tracking-wider text-on-surface">O cliente pretende trocar de artigo diretamente no balcão?</span>
+<span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-extrabold">
+                Omnicanal
+              </span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<button class="bg-white border-2 border-surface-container-highest hover:border-outline-variant text-on-surface-variant font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all opacity-80 hover:opacity-100" type="button">
+<span class="material-symbols-outlined text-[18px]">cached</span>
+                Sim, trocar tamanho/cor no balcão
+              </button>
+<button class="bg-emerald-100/70 border-2 border-primary text-primary font-extrabold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">assignment_returned</span>
+                Não, apenas devolução de artigo
+              </button>
+</div>
+</div>
+</section>
+<!-- CARD 4: PRÉ-VISUALIZAÇÃO DA DECISÃO (XAI LIVE - ESTILO DUOLINGO MINT) -->
+
+</div>
+<!-- BOTTOM ACTION BAR (STICKY DUOLINGO-STYLE PILL TRAY) -->
+<div class="w-full bg-white/95 backdrop-blur-md border border-surface-container-highest/80 rounded-3xl p-4 sm:p-5 shadow-[0_12px_36px_rgba(19,27,46,0.08)] flex flex-col sm:flex-row items-center justify-between gap-4">
+<!-- Back Button (Soft Pill) -->
+<button class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface font-extrabold text-sm flex items-center justify-center gap-2 border border-surface-container-highest/70 transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Voltar ao Passo 2
+        </button>
+<!-- Status Tag Indicator -->
+<div class="hidden md:flex items-center gap-2 text-xs text-on-surface-variant font-bold">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+<span class="">Sem impedimentos fiscais • Conexão BackPocket ativa</span>
+</div>
+<!-- 3D Tactile Emerald Primary Button (Duolingo Style) -->
+<button class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#006c49] hover:bg-[#00573a] text-white font-extrabold text-sm sm:text-base tracking-wide flex items-center justify-center gap-2.5 shadow-[0_5px_0_#00422b] hover:shadow-[0_2px_0_#00422b] active:shadow-[0_0_0_#00422b] active:translate-y-[4px] transition-all" id="btn-process-backpocket" type="button">
+<span class="">Processar na BackPocket</span>
+<span class="text-lg">🚀</span>
+</button>
+</div>
+</div>
+</main>
+<!-- FIXED BOTTOM STATUS BAR / FOOTER -->
+<footer class="fixed bottom-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md border-t border-surface-container-highest/60 py-2.5 px-6 shadow-xs">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-bold text-on-surface-variant">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px]">point_of_sale</span>
+<span class="">PDV #04 • Terminal 12-B</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[16px]">speed</span>
+<span class="">Latência Local: 14ms</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-0.5 rounded-full text-emerald-800 border border-emerald-200/80">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="">Motores Drools &amp; Prolog Ativos</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="">Segurança Criptografada</span>
+</div>
+</div>
+</div>
+</footer>
+<script>
+    const btnProcess = document.getElementById('btn-process-backpocket');
+    if (btnProcess) {
+      btnProcess.addEventListener('click', () => {
+        btnProcess.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>A Conectar à BackPocket...</span>';
+        btnProcess.classList.add('opacity-90');
+        setTimeout(() => {
+          btnProcess.innerHTML = '<span class="material-symbols-outlined text-[20px]">check_circle</span><span>Concluído no PDV #04!</span>';
+          btnProcess.classList.remove('bg-[#006c49]');
+          btnProcess.classList.add('bg-emerald-600');
+        }, 800);
+      });
+    }
+  </script>
+
+
+</body></html>

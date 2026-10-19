@@ -37,12 +37,15 @@ class OrchestratorService:
 
 
     async def evaluate_scenario(
-        self, scenario_data: Union[ScenarioInput, BaseModel, Dict[str, Any]]
+        self,
+        scenario_data: Union[ScenarioInput, BaseModel, Dict[str, Any]],
+        mode: Optional[str] = None,
     ) -> EvaluationResponse:
         """Evaluate a scenario against reasoning engines and return canonical response.
 
         Args:
             scenario_data: Scenario input model or dictionary of facts.
+            mode: Optional engine mode ('retail', 'academic', 'dual') overriding default.
 
         Returns:
             Canonical EvaluationResponse containing decision and explainability chain.
@@ -55,8 +58,11 @@ class OrchestratorService:
         else:
             raise ValueError(f"Unsupported scenario_data type: {type(scenario_data)}")
 
-        # 2. Invoke Prolog inference engine
-        raw_response = await self.prolog_client.evaluate(payload)
+        # 2. Invoke Prolog inference engine with mode toggle support
+        if mode is not None:
+            raw_response = await self.prolog_client.evaluate(payload, mode=mode)
+        else:
+            raw_response = await self.prolog_client.evaluate(payload)
 
         # 3. Architectural Extension Point for Drools Engine:
         # In future phases, we will invoke the Drools engine concurrently or sequentially:
@@ -79,10 +85,26 @@ class OrchestratorService:
         status = raw.get("status", "success")
         raw_decision = str(raw.get("decision", "rejected")).lower()
 
-        try:
-            decision = DecisionEnum(raw_decision)
-        except ValueError:
-            decision = DecisionEnum.ERROR if status == "error" else DecisionEnum.REJECTED
+        # Resilient decision mapping handling canonical enums and Portuguese domain terms
+        decision_map = {
+            "approved": DecisionEnum.APPROVED,
+            "permitir": DecisionEnum.APPROVED,
+            "aprovado": DecisionEnum.APPROVED,
+            "rejected": DecisionEnum.REJECTED,
+            "recusar": DecisionEnum.REJECTED,
+            "rejeitado": DecisionEnum.REJECTED,
+            "manager_override": DecisionEnum.MANAGER_OVERRIDE,
+            "rever": DecisionEnum.MANAGER_OVERRIDE,
+            "encaminhar": DecisionEnum.MANAGER_OVERRIDE,
+            "store_credit_only": DecisionEnum.STORE_CREDIT_ONLY,
+            "vale_loja": DecisionEnum.STORE_CREDIT_ONLY,
+            "credito_loja": DecisionEnum.STORE_CREDIT_ONLY,
+            "error": DecisionEnum.ERROR,
+        }
+        decision = decision_map.get(
+            raw_decision,
+            DecisionEnum.ERROR if status == "error" else DecisionEnum.REJECTED,
+        )
 
         justification = raw.get("justification", [])
         if not isinstance(justification, list):

@@ -1,4 +1,46 @@
 services:
+  levis-postgres:
+    image: postgres:16-alpine
+    container_name: levis-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pericial
+      POSTGRES_USER: pericial
+      POSTGRES_PASSWORD: pericial
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pericial -d pericial"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - levis_postgres_data:/var/lib/postgresql/data
+    networks:
+      - retail-network
+
+  drools-engine:
+    build:
+      context: ./drools-engine-levis-devolucoes-java
+      dockerfile: backend/pericial-api/Dockerfile
+    container_name: expert-drools-engine
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SERVER_PORT=8080
+      - PERICIAL_DB_URL=jdbc:postgresql://levis-postgres:5432/pericial
+      - PERICIAL_DB_UTILIZADOR=pericial
+      - PERICIAL_DB_PALAVRA_PASSE=pericial
+      - SPRING_FLYWAY_BASELINE_ON_MIGRATE=true
+      - SPRING_FLYWAY_BASELINE_VERSION=0
+    depends_on:
+      levis-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - retail-network
+
   prolog-engine:
     build:
       context: ./prolog_engine
@@ -6,19 +48,6 @@ services:
     container_name: retail-prolog-engine
     ports:
       - "8080:8080"
-    environment:
-      - PORT=8080
-    restart: unless-stopped
-    networks:
-      - retail-network
-
-  drools-engine:
-    build:
-      context: ./drools_engine
-      dockerfile: Dockerfile
-    container_name: expert-drools-engine
-    ports:
-      - "8082:8080"
     environment:
       - PORT=8080
     restart: unless-stopped
@@ -37,12 +66,34 @@ services:
       - PROLOG_ENGINE_URL=http://prolog-engine:8080
       - PROLOG_TIMEOUT_SECONDS=5.0
       - DROOLS_ENGINE_URL=http://drools-engine:8080
+      - LEVIS_DROOLS_URL=http://drools-engine:8080
+      - DATABASE_URL=postgresql+asyncpg://pericial:pericial@levis-postgres:5432/pericial
       - DEBUG=true
       - CORS_ORIGINS=["http://localhost:3000","http://localhost:5173","http://localhost:8000"]
       - INFERENCE_ENGINE_ENABLED=true
     depends_on:
-      - prolog-engine
-      - drools-engine
+      prolog-engine:
+        condition: service_started
+      drools-engine:
+        condition: service_started
+      levis-postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - retail-network
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: retail-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - GATEWAY_URL=http://orchestrator:8000
+    depends_on:
+      - orchestrator
     restart: unless-stopped
     networks:
       - retail-network
@@ -51,3 +102,6 @@ networks:
   retail-network:
     driver: bridge
 
+volumes:
+  levis_postgres_data:
+    driver: local

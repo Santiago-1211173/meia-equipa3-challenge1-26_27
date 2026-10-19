@@ -138,8 +138,16 @@ class DroolsClient:
             Dict containing health information (status, service, version, totalRules).
         """
         client = self._get_client()
-        url = f"{self.base_url}/api/v1/inference/health"
 
+        for endpoint in ["/actuator/health", "/api/v1/inference/health"]:
+            try:
+                response = await client.get(f"{self.base_url}{endpoint}", timeout=self.timeout)
+                if response.status_code == 200:
+                    return response.json()
+            except Exception:
+                continue
+
+        url = f"{self.base_url}/actuator/health"
         try:
             response = await client.get(url, timeout=self.timeout)
             response.raise_for_status()

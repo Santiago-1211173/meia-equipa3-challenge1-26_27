@@ -1,0 +1,66 @@
+{
+  "id": 7,
+  "titulo": "A substituição do cartão Interac no Canadá",
+  "estado": "a validar",
+  "aValidar": ["A-10", "A-11"],
+  "pressupostos": [
+    "Colaborador Key Holder (docs/06 não indica quem processa).",
+    "O cartão de substituição não é o mesmo cartão físico usado na compra (cartaoFisicoPresente = false).",
+    "O pedido de reembolso para o cartão de substituição ou em numerário é registado como exceção que exige um meio proibido."
+  ],
+  "justificacao": [
+    "M3/M4/M5: artigo elegível (PC-001), recibo original (PT-001), 18 dias → PT-003 reembolso no meio original.",
+    "M6: o cliente contesta a exigência do cartão → EX-002 explicar a política.",
+    "M7: Interac no Canadá → TN-011 exige o mesmo cartão físico; o cartão de substituição não é o mesmo (A-10) → REVER, sem reembolso Interac, sem numerário nem outro cartão. O Interac não segue TN-001/TN-004 (A-11).",
+    "M8: documentação preparada (CT-001, CT-004, CT-005, CT-006 recibo agrafado, CT-007).",
+    "M9: inspeção conforme → área de vendas.",
+    "Resultado: REVER com o responsável sénior; o reembolso de 79.50 fica sem meio definido."
+  ],
+  "pedido": {
+    "id": "C07",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO",
+    "loja": { "codigo": "CA-ML-070", "nome": "Mainline Canadá", "mercado": "CANADA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-7", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-7" },
+    "cliente": { "forneceDados": true, "contestaResultado": true },
+    "compraOriginal": {
+      "idTransacao": "T-0707",
+      "canal": "MAINLINE",
+      "dataCompra": "2026-03-13",
+      "pagamento": { "meio": "INTERAC", "valorPago": 79.50, "estadoConta": "ATIVA_CARTAO_PERDIDO", "cartaoFisicoPresente": false },
+      "idStylistVenda": "S-77",
+      "quantidadeComprada": 1
+    },
+    "comprovativo": { "tipo": "RECIBO_IMPRESSO", "confirmaCompra": true, "reciboOriginal": true },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "CA-541-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 79.50, "precoAtual": 79.50 },
+        "quantidade": 1,
+        "precoPago": 79.50,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "COLOCADAS" }
+      }
+    ],
+    "pedidoExcecao": {
+      "motivo": "Pede reembolso para o cartão de substituição ou em numerário.",
+      "resolucaoPedida": "REEMBOLSO",
+      "exigeMeioProibido": true
+    }
+  },
+  "indicadoresFraude": [],
+  "esperado": {
+    "elegibilidade": "REVER",
+    "tipoVerificacao": "VERIFICADA",
+    "tipoTransacao": "REEMBOLSO",
+    "valorDevolucao": 79.5,
+    "baseValor": "VALOR_PAGO",
+    "aprovacao": "RESPONSAVEL_SENIOR",
+    "terminal": false,
+    "documentacao": { "idStylistAtribuido": "S-77", "reciboAgrafado": true, "retencaoAte": "2026-06-29" },
+    "regrasDisparadas": ["CT-003", "CH-001", "PC-001", "PT-001", "PT-003", "EX-002", "TN-011", "CT-001", "CT-004", "CT-005", "CT-006", "CT-007", "CT-008", "OUT-001"],
+    "regrasNaoDisparadas": ["TN-001", "TN-004", "TN-012", "EX-003"],
+    "artigos": {
+      "A-1": { "elegibilidade": "PERMITIR", "valorDevolucao": 79.5, "destino": "AREA_VENDAS" }
+    }
+  }
+}

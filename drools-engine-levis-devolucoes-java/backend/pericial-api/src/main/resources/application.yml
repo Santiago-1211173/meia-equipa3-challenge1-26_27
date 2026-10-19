@@ -17,6 +17,7 @@ spring:
     locale: pt_PT
 
 server:
+  port: ${SERVER_PORT:8082}
   error:
     include-stacktrace: never
   shutdown: graceful

@@ -13,8 +13,11 @@
 
 :- use_module(api/server, [server_start/1, server_stop/1]).
 :- use_module(api/routes, [handle_evaluate/1]).
-:- use_module(api/inference_routes, []).   % Inference engine HTTP endpoints (modular plug-in)
+:- use_module(api/inference_routes, []).       % Inference engine HTTP endpoints (modular plug-in)
+:- use_module(api/retail_routes, []).          % Retail engine HTTP endpoints (modular plug-in)
 :- use_module(core/rules, [evaluate_scenario/3]).
+:- use_module(core/inference/engine, []).      % Academic reference inference engine (sp_exp2)
+:- use_module(core/retail_engine/engine, []).  % Isolated retail expert engine (Levi's returns)
 
 %!  get_port(-Port) is det.
 %

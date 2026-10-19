@@ -1,0 +1,83 @@
+# Diretrizes para Agentes · docs/material_aulas
+> **Ficheiro de Orientação Operacional e Contexto do Domínio**  
+> **Destinatários:** Agentes de IA e assistentes autónomos que acedam a este diretório.
+
+---
+
+## 1. Visão Geral e Contexto do Projeto
+
+Este diretório contém os materiais curriculares, especificações normativas e documentação base do **Desafio 1 (Ano Letivo 2026/2027)** do **MEIA** (*Mestrado em Engenharia de Inteligência Artificial*) do **ISEP**.
+
+* **Unidades Curriculares Envolvidas:**
+  * **ENGCIA** (*Engenharia do Conhecimento*)
+  * **PPROGIA** (*Paradigmas da Programação em Inteligência Artificial*)
+* **Equipa:** Grupo 3 – *SmartCloth AI*
+* **Problema:** Sistema Pericial de Avaliação da Elegibilidade de Devoluções e Trocas para as lojas **Levi Strauss & Co.** nos **Estados Unidos e Canadá** (lojas *Mainline*, *Outlet*, *levi.com*, *levi.ca* e canal omnicanal *BackPocket*).
+* **Perito do Domínio:** Dustin Hopper (*Gerente da Produtividade Geral do Retalho*, >20 anos de experiência).
+
+---
+
+## 2. Inventário de Ficheiros e Fontes da Verdade
+
+Cada documento possui a sua versão original binária (`.pdf` / `.docx`) e a respetiva versão convertida em Markdown (`.md`). **Dica essencial:** Para leitura, análise e geração de código, **utiliza sempre as versões `.md`**, pois contêm a informação completa, tabelas estruturadas e diagramas Mermaid navegáveis.
+
+| Ficheiro Markdown | Ficheiro Original | Conteúdo Principal e Propósito |
+| :--- | :--- | :--- |
+| **[`Returns & Exchanges Knowledge Base.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/material_aulas/Returns%20&%20Exchanges%20Knowledge%20Base.md)** | `.docx` | **Fonte da Verdade Normativa de Negócio.** Define os 8 passos da inferência, os factos de entrada (`IN-001` a `IN-010`), os 8 campos de saída (`OUT-001` a `OUT-008`) e as **71 regras de negócio** completas. |
+| **[`RPAC-Team3.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/material_aulas/RPAC-Team3.md)** | `.pdf` | **Relatório Prévio de Aquisição de Conhecimento do Grupo 3.** Contém a formalização do problema, perfil do perito, metodologia de aquisição, hierarquia/prioridade entre regras, 10 fluxogramas em Mermaid e terminologia do retalho. |
+| **[`MI_Perguntas_ACM.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/material_aulas/MI_Perguntas_ACM.md)** | `.pdf` | **Guia Pedagógico de Motor de Inferência (PPROGIA).** Explica quando o sistema deve perguntar, distinção entre factos perguntáveis (`perguntavel/1`) e inferíveis, tratamento do "não sei", estratégias de encadeamento e código Prolog (`sp_exp2`). |
+| **[`Challenges4Teams-26-27.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/material_aulas/Challenges4Teams-26-27.md)** | `.pdf` | **Enquadramento e Avaliação Curricular.** Pesos da avaliação (Blog 10%, Relatório 15%+15%, Demonstração 50%, Demo Day 10%), calendário, marcos de entrega e diretrizes gerais. |
+| **[`Criterios_Avaliacao_PPROGIA.md`](file:///c:/Users/santi/Desktop/meia-equipa3-challenge1-26_27/docs/material_aulas/Criterios_Avaliacao_PPROGIA.md)** | `.png` / Imagem | **Critérios de Avaliação Oficiais de PPROGIA.** Grelha de avaliação com ponderações (Base de Conhecimento 25%, Alterações ao MI 25%, Explicações 10%, Metaconhecimento 10%, Produto Final 10%, Demonstração 10%, GUI 5%, Extras 5%) e matriz de conformidade. |
+
+---
+
+## 3. Conceitos-Chave e Ontologia do Domínio
+
+### 3.1. Os Quatro Desfechos Possíveis (`OUT-001`)
+1. **`PERMITIR` (ALLOW):** O pedido é elegível e pode ser processado segundo a regra padrão.
+2. **`RECUSAR` (DENY):** O pedido viola uma regra obrigatória e não pode ser processado.
+3. **`REVER` (REVIEW):** A situação exige julgamento humano, verificação de condições ou aprovação da chefia (ex: *XStore Manager*). O sistema não decide sozinho.
+4. **`ENCAMINHAR` (ROUTE):** A transação exige um fluxo ou sistema separado obrigatório (*BackPocket*, processo de franquia do Canadá, app de pagamento).
+
+### 3.2. As 9 Famílias de Regras (Total: 71 Regras)
+* **`HS` (Hard Stop - 6 regras):** Condições impeditivas absolutas (SKU inválido, marcas excluídas como Dockers/Signature/Beyond Yoga, artigos alterados/personalizados, falta de credenciais).
+* **`PC` (Product Condition - 8 regras):** Estado físico da peça (etiquetas, lavado, usado, defeito de fabrico, insalubre/risco biológico, regime de *bodywear*).
+* **`PT` (Proof and Timeframe - 8 regras):** Comprovativo de compra (verificado vs. às cegas), prazos de 30 dias e ajuste de preço de 14 dias.
+* **`CH` (Channel and Store Type - 10 regras):** Interação entre canais (Mainline, Outlet, Online levi.com/ca, franquia Canadá, grossistas).
+* **`TN` (Refund Tender - 12 regras):** Regras de liquidação do reembolso (tokenização de cartões, débitos sem numerário, Interac físico, Afterpay, PayPal/Venmo).
+* **`EP` (Exchange and Promotion - 7 regras):** Regras de trocas (troca só de tamanho mantém promoção, mudança de modelo cobra preço atual) e promoções escalonadas.
+* **`EX` (Manager Review & Escalation - 8 regras):** Critérios de exceção da gestão, gestão de clientes perturbadores e limites inultrapassáveis.
+* **`CT` (Authorization & Completion Controls - 8 regras):** Quem pode operar no POS, recolha de assinaturas, retenção de faturas (90 dias) e atribuição da venda ao Stylist.
+* **`BW` (Bodywear Disposition - 4 regras):** Destino pós-devolução de roupa interior (área de vendas, saldos com 50% de desconto, baixa por dano ou risco biológico).
+
+### 3.3. Ordem de Prioridade e Resolução de Conflitos
+Ao modelar ou implementar o motor de inferência (Prolog, Drools ou Python), respeitar rigorosamente a seguinte precedência:
+1. **Autorização do Colaborador:** `HS-006` (impede a operação antes de qualquer verificação).
+2. **Encaminhamentos de Canal Obrigatórios:** `CH-002`, `CH-007`, `CH-008`.
+3. **Paragens Obrigatórias de Sistema / Procedência:** `HS-001` a `HS-004`.
+4. **Regras de Segurança / Salubridade:** `PC-008`, `BW-004` (disparam sempre, independentemente de qualquer outra condição).
+5. **Regras Específicas de Categoria:** `PC-007` (*Bodywear*) tem precedência sobre as regras gerais de condição física (`PC-001` a `PC-005`).
+6. **Comprovativo de Compra e Prazos:** `PT-001` a `PT-008`, `CH-003`, `CH-005`.
+7. **Regras de Exceção da Gestão:** `EX-001` a `EX-008` (nunca podem anular regras de paragem obrigatória, integridade ou canal).
+
+---
+
+## 4. Instruções de Implementação e Código
+
+### 4.1. Filosofia do Motor de Inferência (Prolog / Drools)
+* **Não pedir tudo à partida:** O sistema pericial deve questionar o utilizador **a pedido**, no momento em que uma regra precisa de validar uma premissa em falta.
+* **Factos Perguntáveis vs. Inferíveis:**
+  * Factos observáveis simples (ex: peso, tipo, se tem etiquetas, dias desde a compra) são `perguntavel/1`.
+  * Factos que resultam de raciocínio ou diagnóstico (ex: `classe(veículo, ligeiro)`, `elegibilidade(devolucao, permitir)`) **nunca** devem ser perguntados ao utilizador, têm de ser inferidos.
+* **Tratamento do "Não Sei":**
+  * Não converter "não sei" em negação lógica ou facto falso. Registar em `ja_perguntado/1` para evitar loop e deixar o motor tentar regras alternativas.
+* **Substituição no motor `sp_exp2`:** Na verificação de condições das regras, invocar `obtem_facto(C, N)` em vez de procurar cegamente `facto(N, C)`.
+
+---
+
+## 5. Boas Práticas ao Editar Ficheiros neste Diretório
+
+1. **Integridade dos Binários:** Nunca eliminar os ficheiros binários originais (`.pdf`, `.docx`), pois são artefactos fornecidos pelo corpo docente.
+2. **Sincronização Markdown:** Se forem efetuadas melhorias ou correções nas especificações do projeto, assegurar que as versões `.md` continuam consistentes com o repositório.
+3. **Diagramas:** Manter os fluxogramas expressos na sintaxe padrão **Mermaid** para preservar renderização direta no GitHub / IDE.
+4. **Rastreabilidade de Regras:** Qualquer justificação ou diagnóstico devolvido por sistemas desenvolvidos deve referenciar explicitamente os identificadores das regras aplicadas (ex: `[HS-003]`, `[PC-002]`, `[PT-001]`).

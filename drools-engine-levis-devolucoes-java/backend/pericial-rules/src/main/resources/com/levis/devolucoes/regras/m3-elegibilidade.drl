@@ -99,7 +99,7 @@ when
     $d  : Decisao( terminal == false )
     $a  : ArtigoDevolvido( produto != null, produto.skuReconhecidoPOS == true,
                            produto.marca == Marca.DOCKERS || produto.marca == Marca.LS_SIGNATURE
-                           || produto.marca == Marca.BEYOND_YOGA
+                           || produto.marca == Marca.BEYOND_YOGA || produto.marca == Marca.OUTRA
                            || ( produto.grossista == true && produto.vendidoNaLoja == false ) )
     $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false )
 then

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-bright": "#faf8ff",
+          "on-error-container": "#93000a",
+          "on-secondary-fixed": "#001a42",
+          "secondary-fixed": "#d8e2ff",
+          "tertiary-container": "#e29100",
+          "primary": "#006c49",
+          "on-background": "#131b2e",
+          "surface-container-low": "#f2f3ff",
+          "outline-variant": "#bbcabf",
+          "on-secondary": "#ffffff",
+          "surface-container-high": "#e2e7ff",
+          "on-secondary-fixed-variant": "#004395",
+          "primary-container": "#10b981",
+          "on-primary": "#ffffff",
+          "surface-container-highest": "#dae2fd",
+          "on-tertiary-fixed": "#2a1700",
+          "surface-container": "#eaedff",
+          "tertiary-fixed": "#ffddb8",
+          "on-secondary-container": "#fefcff",
+          "tertiary": "#855300",
+          "secondary-container": "#2170e4",
+          "on-primary-fixed": "#002113",
+          "inverse-on-surface": "#eef0ff",
+          "on-surface-variant": "#3c4a42",
+          "primary-fixed": "#6ffbbe",
+          "inverse-surface": "#283044",
+          "on-tertiary": "#ffffff",
+          "on-primary-fixed-variant": "#005236",
+          "on-tertiary-container": "#523200",
+          "primary-fixed-dim": "#4edea3",
+          "on-tertiary-fixed-variant": "#653e00",
+          "surface-tint": "#006c49",
+          "outline": "#6c7a71",
+          "surface-variant": "#dae2fd",
+          "on-error": "#ffffff",
+          "secondary": "#0058be",
+          "on-primary-container": "#00422b",
+          "background": "#faf8ff",
+          "inverse-primary": "#4edea3",
+          "surface": "#faf8ff",
+          "error-container": "#ffdad6",
+          "surface-dim": "#d2d9f4",
+          "tertiary-fixed-dim": "#ffb95f",
+          "error": "#ba1a1a",
+          "on-surface": "#131b2e",
+          "secondary-fixed-dim": "#adc6ff",
+          "surface-container-lowest": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "1rem",
+          "lg": "2rem",
+          "xl": "3rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "gutter": "1.5rem",
+          "space-sm": "0.5rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "margin-mobile": "1rem",
+          "space-md": "1rem",
+          "space-xl": "2.5rem",
+          "margin": "2rem",
+          "gutter-mobile": "1rem"
+        },
+        "fontFamily": {
+          "headline-lg-mobile": ["Plus Jakarta Sans"],
+          "body-xl": ["Plus Jakarta Sans"],
+          "display-hero": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "headline-sm": ["Plus Jakarta Sans"],
+          "headline-md": ["Plus Jakarta Sans"],
+          "label-lg": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "caption": ["Plus Jakarta Sans"],
+          "display-hero-mobile": ["Plus Jakarta Sans"],
+          "headline-lg": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+          "body-xl": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+          "display-hero": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700"}],
+          "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "700"}],
+          "headline-md": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+          "label-lg": ["14px", {"lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+          "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+          "display-hero-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+          "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 w-full px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-sm"><div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-[24px]">bolt</span></div><div class="flex flex-col"><span class="font-headline-sm text-headline-sm tracking-tight text-on-surface">RetailFlow</span><span class="font-caption text-caption text-on-surface-variant leading-none">Levi's Store Assistant</span></div></div><div class="hidden xl:flex items-center gap-space-xs bg-surface-container-low px-3 py-1.5 rounded-full"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-label-md text-label-md text-on-surface">Loja Central • Caixa Aberto</span></div></div><nav class="hidden lg:flex items-center gap-space-xs bg-surface-container p-1.5 rounded-full" data-active-classes="bg-primary-container text-on-primary-container font-label-lg text-label-lg rounded-full px-4 py-2 shadow-sm transition-all"><a class="px-4 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="painel-principal" href="#">Painel Principal</a><a aria-current="page" class="bg-primary-container text-on-primary-container font-label-lg text-label-lg rounded-full px-4 py-2 shadow-sm transition-all" data-path="novo-atendimento" href="#">Novo Atendimento</a><a class="px-4 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="decisoes-historico" href="#">Decisões &amp; Histórico</a><a class="px-4 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="cerebro-dos-motores" href="#">Cérebro dos Motores</a><a class="px-4 py-2 rounded-full font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" data-path="politicas-da-loja" href="#">Políticas da Loja</a></nav><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-tertiary-fixed px-3 py-1.5 rounded-full cursor-pointer hover:bg-tertiary-fixed-dim transition-colors"><span class="material-symbols-outlined text-tertiary text-[18px]">local_fire_department</span><span class="font-label-lg text-label-lg text-on-tertiary-fixed font-bold">18 seguidas</span></div><div class="flex items-center gap-space-sm pl-space-sm"><div class="hidden sm:flex flex-col text-right"><span class="font-label-lg text-label-lg text-on-surface leading-tight">Clara M.</span><span class="font-caption text-caption text-on-surface-variant leading-none">Operador N2</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-20 bg-surface min-h-screen"><div class="flex flex-col w-full pb-16">
+<div class="max-w-4xl mx-auto w-full py-8 px-6 space-y-6">
+<!-- 1. CABEÇALHO CENTRALIZADO COM BADGE DUOLINGO STYLE -->
+<div class="text-center flex flex-col items-center justify-center gap-2 pt-2 pb-1">
+<div class="inline-flex items-center gap-2 bg-emerald-50 text-primary border border-emerald-200/80 px-4 py-1.5 rounded-full shadow-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-md text-label-md tracking-wider uppercase font-extrabold text-primary">PASSO 5 DE 6 • TRANSAÇÃO &amp; EXCEÇÕES</span>
+</div>
+<h1 class="font-display-hero text-display-hero tracking-tight text-on-surface font-extrabold mt-1">5. Troca ou Exceção de Balcão</h1>
+<p class="font-body-xl text-body-xl text-on-surface-variant max-w-2xl">Indique se o cliente pretende trocar a peça ou se há contestação a requerer exceção.</p>
+</div>
+<!-- 2. BLOCO 1: O CLIENTE PRETENDE FAZER UMA TROCA? (REGRAS EP-001 & EP-002) -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 shadow-sm border border-surface-container-high/60 flex flex-col gap-6">
+<div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-sm shadow-xs shrink-0">
+            1
+          </div>
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">O cliente pretende fazer uma troca?</h2>
+<span class="font-caption text-caption text-on-surface-variant font-medium">Regras EP-001 &amp; EP-002 • Ajuste de Valor e Artigo</span>
+</div>
+</div>
+<span class="hidden sm:inline-flex items-center gap-1.5 bg-emerald-50 text-primary border border-emerald-100 font-label-md text-label-md px-3 py-1 rounded-full font-bold">
+<span class="material-symbols-outlined text-[16px]">touch_app</span> Seleção Tátil
+        </span>
+</div>
+<!-- Três opções táteis estilo Duolingo -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="swap-cards-container">
+<!-- Opção A: Não, Manter Devolução Normal (Ativa por padrão) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-emerald-50/70 hover:bg-emerald-50 flex flex-col justify-between gap-4 border-2 border-primary border-b-4 border-b-on-primary-container shadow-sm active:translate-y-0.5" id="swap-opt-none" onclick="setSwapOption('none')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[26px]">payments</span>
+</div>
+<span class="material-symbols-outlined text-primary text-[28px]" id="badge-opt-none">check_circle</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Não, Manter Devolução Normal</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Prossegue para o reembolso integral do artigo avaliado (<strong class="text-on-surface">$118.00 USD</strong>).</span>
+</div>
+<div class="inline-flex items-center gap-1 text-primary font-label-md text-label-md pt-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">verified</span> Sem custo extra
+          </div>
+</div>
+<!-- Opção B: Mesmo Modelo / Tamanho (EP-001) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5" id="swap-opt-same" onclick="setSwapOption('same')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-surface-container-high text-on-surface flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[26px]">checkroom</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[28px]" id="badge-opt-same">radio_button_unchecked</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Troca pelo Mesmo Modelo / Tamanho (EP-001)</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Mantém o preço original pago. Se houver diferença nula, não há cobrança.</span>
+</div>
+<div class="inline-flex items-center gap-1 text-on-surface-variant font-label-md text-label-md pt-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">swap_horiz</span> Diferença R$ 0,00
+          </div>
+</div>
+<!-- Opção C: Outro Artigo Diferente (EP-002) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5" id="swap-opt-diff" onclick="setSwapOption('diff')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[26px]">shopping_bag</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[28px]" id="badge-opt-diff">radio_button_unchecked</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Troca por Outro Artigo Diferente (EP-002)</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Crédito do valor elegível e cobrança do novo artigo ao preço atual.</span>
+</div>
+<div class="inline-flex items-center gap-1 text-on-surface-variant font-label-md text-label-md pt-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">point_of_sale</span> Acerto no caixa
+          </div>
+</div>
+</div>
+</div>
+<!-- 3. BLOCO 2: SITUAÇÃO DO CLIENTE NO BALCÃO (REGRAS EX-002 & EX-003) -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 shadow-sm border border-surface-container-high/60 flex flex-col gap-6">
+<div class="flex items-center justify-between border-b border-surface-container-low pb-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-sm shadow-xs shrink-0">
+            2
+          </div>
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">Situação do Cliente no Balcão</h2>
+<span class="font-caption text-caption text-on-surface-variant font-medium">Regras EX-002 &amp; EX-003 • Mediação e Escalonamento</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1.5 bg-surface-container-low text-on-surface-variant font-label-md text-label-md px-3 py-1 rounded-full font-bold">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span> Interação Ativa
+        </span>
+</div>
+<!-- Três cartões táteis em grelha Duolingo -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="dispute-cards-container">
+<!-- Card 1: Conforme / Aceite (Selecionado) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-emerald-50/70 hover:bg-emerald-50 flex flex-col justify-between gap-4 border-2 border-primary border-b-4 border-b-on-primary-container shadow-sm active:translate-y-0.5" id="dispute-card-ok" onclick="setDisputeOption('ok')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center text-headline-md shadow-inner">
+              😊
+            </div>
+<span class="material-symbols-outlined text-primary text-[28px]" id="badge-dispute-ok">check_circle</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Conforme / Aceite</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Cliente de acordo com a deliberação dos motores.</span>
+</div>
+<div class="inline-flex items-center gap-1 text-primary font-label-md text-label-md pt-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">done_all</span> Resolução Rápida
+          </div>
+</div>
+<!-- Card 2: Contesta Política (EX-002) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5" id="dispute-card-warn" onclick="setDisputeOption('warn')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center text-headline-md shadow-inner">
+              💬
+            </div>
+<span class="material-symbols-outlined text-outline-variant text-[28px]" id="badge-dispute-warn">radio_button_unchecked</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Contesta Política (EX-002)</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Apresentar explicações claras e alternativas previstas.</span>
+</div>
+<div class="inline-flex items-center gap-1 text-tertiary font-label-md text-label-md pt-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">support</span> Mediação Amigável
+          </div>
+</div>
+<!-- Card 3: Chamar Gerência (EX-003) -->
+<div class="cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5" id="dispute-card-alert" onclick="setDisputeOption('alert')">
+<div class="flex items-start justify-between">
+<div class="w-11 h-11 rounded-2xl bg-error-container text-on-error-container flex items-center justify-center text-headline-md shadow-inner">
+              ⚠️
+            </div>
+<span class="material-symbols-outlined text-outline-variant text-[28px]" id="badge-dispute-alert">radio_button_unchecked</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Chamar Gerência (EX-003)</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Cliente insatisfeito. Escalar ao supervisor de turno.</span>
+</div>
+<div class="inline-flex items-center gap-1 text-error font-label-md text-label-md pt-1 font-bold">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> Escalonamento N2
+          </div>
+</div>
+</div>
+</div>
+<!-- 4. BLOCO 3: ATIVAÇÃO DE EXCEÇÃO DA GESTÃO (EX-001 A EX-006) -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 md:p-8 shadow-sm border border-surface-container-high/60 flex flex-col gap-5">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-2xl bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold shadow-xs shrink-0">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Exceção de Gerência Necessária? (EX-001 a EX-006)</h2>
+<span class="font-caption text-caption text-on-surface-variant">Avalie se este caso exige desbloqueio por supervisor responsável</span>
+</div>
+</div>
+<!-- Toggle Pills Táteis Estilo Duolingo -->
+<div class="inline-flex p-1.5 bg-surface-container-low rounded-2xl border border-surface-container-high gap-1">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all bg-surface-container-lowest text-primary shadow-sm border border-surface-container-high/70" id="toggle-exc-no" onclick="setExceptionToggle(false)" type="button">
+<span class="material-symbols-outlined text-primary text-[20px]" id="icon-exc-no">check_circle</span>
+<span>Não (Processo Padrão)</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all text-on-surface-variant hover:text-on-surface" id="toggle-exc-yes" onclick="setExceptionToggle(true)" type="button">
+<span class="material-symbols-outlined text-outline-variant text-[20px]" id="icon-exc-yes">radio_button_unchecked</span>
+<span>Sim, Aplicar Exceção</span>
+</button>
+</div>
+</div>
+<!-- Aviso explicativo amigável das regras EX-004 e EX-006 -->
+<div class="p-4 rounded-2xl bg-surface-container-low/60 border border-surface-container-high/70 flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-[22px] mt-0.5 shrink-0">info</span>
+<p class="font-caption text-caption text-on-surface-variant leading-relaxed">
+<strong class="text-on-surface">Importante de Compliance:</strong> Regras Hard-Stop (<span class="font-bold text-on-surface">HS-001 a HS-004</span>) e compras efetuadas via <span class="font-bold text-on-surface">Afterpay</span> nunca admitem exceção em balcão conforme diretrizes <span class="font-bold text-on-surface">EX-004</span> e <span class="font-bold text-on-surface">EX-006</span>.
+        </p>
+</div>
+</div>
+<!-- 5. BARRA DE PROGRESSO NO FUNDO DO CARTÃO PRINCIPAL -->
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high/60 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md text-on-surface font-extrabold tracking-wider uppercase flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+          PROGRESSO DA AVALIAÇÃO • Passo 5 de 6 (83%)
+        </span>
+<span class="font-label-md text-label-md text-primary font-bold">Falta apenas 1 passo</span>
+</div>
+<div class="grid grid-cols-6 gap-2">
+<div class="h-3 rounded-full bg-primary-container shadow-xs"></div>
+<div class="h-3 rounded-full bg-primary-container shadow-xs"></div>
+<div class="h-3 rounded-full bg-primary-container shadow-xs"></div>
+<div class="h-3 rounded-full bg-primary-container shadow-xs"></div>
+<div class="h-3 rounded-full bg-primary-container shadow-xs relative overflow-hidden">
+<div class="absolute inset-0 bg-white/25 animate-pulse"></div>
+</div>
+<div class="h-3 rounded-full bg-surface-container-high"></div>
+</div>
+</div>
+<!-- 6. RODAPÉ DE AÇÕES DE NAVEGAÇÃO DUOLINGO STYLE (EXATAMENTE COMO PASSOS 3 E 4) -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 pb-8">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all font-label-lg text-label-lg border-2 border-surface-container-high border-b-4 border-b-outline-variant active:translate-y-0.5 font-bold" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+        Voltar ao Passo 4
+      </a>
+<div class="hidden md:flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px] text-primary">arrow_forward_ios</span>
+<span class="font-bold uppercase tracking-wider text-on-surface-variant">A SEGUIR: Meio de Reembolso (Passo 6)</span>
+</div>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-primary-container text-on-primary-container transition-all font-headline-sm text-headline-sm shadow-md border-2 border-primary border-b-4 border-b-on-primary-container hover:brightness-105 active:translate-y-0.5 active:border-b-2 font-bold" href="#">
+<span>Avançar para Passo 6 (Reembolso)</span>
+<span class="material-symbols-outlined text-[22px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<script>
+  // Script tátil para controle de opções Duolingo Style
+  function setSwapOption(option) {
+    const opts = ['none', 'same', 'diff'];
+    opts.forEach(opt => {
+      const card = document.getElementById('swap-opt-' + opt);
+      const badge = document.getElementById('badge-opt-' + opt);
+      if (opt === option) {
+        card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-emerald-50/70 hover:bg-emerald-50 flex flex-col justify-between gap-4 border-2 border-primary border-b-4 border-b-on-primary-container shadow-sm active:translate-y-0.5';
+        badge.textContent = 'check_circle';
+        badge.className = 'material-symbols-outlined text-primary text-[28px]';
+      } else {
+        card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5';
+        badge.textContent = 'radio_button_unchecked';
+        badge.className = 'material-symbols-outlined text-outline-variant text-[28px]';
+      }
+    });
+  }
+
+  function setDisputeOption(option) {
+    const opts = ['ok', 'warn', 'alert'];
+    opts.forEach(opt => {
+      const card = document.getElementById('dispute-card-' + opt);
+      const badge = document.getElementById('badge-dispute-' + opt);
+      if (opt === option) {
+        if (opt === 'ok') {
+          card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-emerald-50/70 hover:bg-emerald-50 flex flex-col justify-between gap-4 border-2 border-primary border-b-4 border-b-on-primary-container shadow-sm active:translate-y-0.5';
+          badge.textContent = 'check_circle';
+          badge.className = 'material-symbols-outlined text-primary text-[28px]';
+        } else if (opt === 'warn') {
+          card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-amber-50/70 hover:bg-amber-50 flex flex-col justify-between gap-4 border-2 border-tertiary border-b-4 border-b-on-tertiary-container shadow-sm active:translate-y-0.5';
+          badge.textContent = 'check_circle';
+          badge.className = 'material-symbols-outlined text-tertiary text-[28px]';
+        } else {
+          card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-red-50/70 hover:bg-red-50 flex flex-col justify-between gap-4 border-2 border-error border-b-4 border-b-on-error-container shadow-sm active:translate-y-0.5';
+          badge.textContent = 'check_circle';
+          badge.className = 'material-symbols-outlined text-error text-[28px]';
+        }
+      } else {
+        card.className = 'cursor-pointer transition-all duration-150 p-5 rounded-2xl bg-surface-container-lowest hover:bg-surface-container-low flex flex-col justify-between gap-4 border-2 border-surface-container-high border-b-4 border-b-outline-variant shadow-sm active:translate-y-0.5';
+        badge.textContent = 'radio_button_unchecked';
+        badge.className = 'material-symbols-outlined text-outline-variant text-[28px]';
+      }
+    });
+  }
+
+  function setExceptionToggle(isYes) {
+    const btnNo = document.getElementById('toggle-exc-no');
+    const btnYes = document.getElementById('toggle-exc-yes');
+    const iconNo = document.getElementById('icon-exc-no');
+    const iconYes = document.getElementById('icon-exc-yes');
+
+    if (isYes) {
+      btnYes.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all bg-amber-100/70 text-tertiary shadow-sm border border-amber-300';
+      iconYes.textContent = 'check_circle';
+      iconYes.className = 'material-symbols-outlined text-tertiary text-[20px]';
+
+      btnNo.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all text-on-surface-variant hover:text-on-surface';
+      iconNo.textContent = 'radio_button_unchecked';
+      iconNo.className = 'material-symbols-outlined text-outline-variant text-[20px]';
+    } else {
+      btnNo.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all bg-surface-container-lowest text-primary shadow-sm border border-surface-container-high/70';
+      iconNo.textContent = 'check_circle';
+      iconNo.className = 'material-symbols-outlined text-primary text-[20px]';
+
+      btnYes.className = 'flex items-center gap-2 px-5 py-2.5 rounded-xl font-label-lg text-label-lg font-bold transition-all text-on-surface-variant hover:text-on-surface';
+      iconYes.textContent = 'radio_button_unchecked';
+      iconYes.className = 'material-symbols-outlined text-outline-variant text-[20px]';
+    }
+  }
+</script></main><footer class="w-full bg-surface-container-low py-space-lg"><div class="w-full px-margin flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant font-caption text-caption"><span>© 2025 RetailFlow POS • Assistência Comercial Inteligente Levi's</span><div class="flex items-center gap-space-md"><a class="hover:text-on-surface transition-colors" href="#">Termos de Compliance</a><a class="hover:text-on-surface transition-colors" href="#">Suporte do Terminal</a><a class="hover:text-on-surface transition-colors" href="#">Status da Loja</a></div></div></footer>
+</body></html>

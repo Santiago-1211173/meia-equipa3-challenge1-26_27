@@ -1,0 +1,67 @@
+{
+  "id": 6,
+  "titulo": "A devolução sem recibo de artigos em estados diferentes",
+  "estado": "a validar",
+  "aValidar": ["A-01", "A-15", "A-16", "A-25", "A-26", "A-27", "A-28"],
+  "pressupostos": [
+    "Loja Mainline (docs/06 diz apenas \"uma loja dos EUA\"); colaborador Key Holder.",
+    "Canal de compra desconhecido.",
+    "O cliente defensivo não fornece dados pessoais (PT-006).",
+    "O par com mancha visível é registado como usado e sujo (sujoOuInseguro).",
+    "O colaborador regista a incapacidade de explicar onde e quando os artigos foram comprados como indício de fraude de nível significativo (A-27).",
+    "O pedido de reembolso em numerário numa devolução às cegas é registado como exceção que exige um meio proibido."
+  ],
+  "justificacao": [
+    "Transversal: indício de fraude significativo (A-27) → EX-008 suspende a transação e escala para District/Area e Global Safety and Security; nenhum módulo seguinte é avaliado.",
+    "Transversal: o par com mancha é sujo/inseguro → PC-008 isolamento por risco biológico, mesmo com a transação suspensa (A-28).",
+    "Sem a suspensão, os resultados por artigo seriam PC-003 (rever), PC-004 (rever) e PC-004 (rever) às cegas (ver ElegibilidadeProdutoTest).",
+    "Resultado: REVER, suspenso, com escalonamento para District/Area; o pedido de numerário não é avaliado."
+  ],
+  "pedido": {
+    "id": "C06",
+    "dataPedido": "2026-03-31",
+    "tipoPedido": "DEVOLUCAO",
+    "loja": { "codigo": "US-ML-060", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
+    "colaborador": { "id": "C-6", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-6" },
+    "cliente": { "forneceDados": false },
+    "compraOriginal": { "canal": "DESCONHECIDO" },
+    "artigos": [
+      {
+        "id": "A-1",
+        "produto": { "sku": "PREM-501-30", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
+        "quantidade": 1,
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "AUSENTES" }
+      },
+      {
+        "id": "A-2",
+        "produto": { "sku": "PREM-511-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
+        "quantidade": 1,
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES" }
+      },
+      {
+        "id": "A-3",
+        "produto": { "sku": "PREM-512-34", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
+        "quantidade": 1,
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "sujoOuInseguro": true }
+      }
+    ],
+    "pedidoExcecao": {
+      "motivo": "Pede reembolso imediato em numerário.",
+      "resolucaoPedida": "REEMBOLSO",
+      "exigeMeioProibido": true
+    }
+  },
+  "indicadoresFraude": [
+    { "pedidoId": "C06", "descricao": "O cliente não consegue explicar onde nem quando os artigos foram comprados", "nivelRisco": "SIGNIFICATIVO" }
+  ],
+  "esperado": {
+    "elegibilidade": "REVER",
+    "aprovacao": "DISTRICT_AREA",
+    "terminal": true,
+    "regrasDisparadas": ["EX-008", "PC-008"],
+    "regrasNaoDisparadas": ["CT-003", "IN-003", "PT-002", "PT-005", "OUT-007", "OUT-001"],
+    "artigos": {
+      "A-3": { "destino": "RISCO_BIOLOGICO", "regrasDisparadas": ["PC-008"] }
+    }
+  }
+}

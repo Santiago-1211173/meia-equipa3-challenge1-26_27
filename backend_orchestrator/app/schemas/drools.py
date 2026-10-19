@@ -156,22 +156,22 @@ class DroolsHealthResponse(BaseModel):
         examples=["UP"],
     )
     service: str = Field(
-        ...,
+        default="drools-engine",
         description="Identifier of the microservice.",
         examples=["drools-engine"],
     )
     version: str = Field(
-        ...,
+        default="1.0.0",
         description="Semantic version of the Drools microservice.",
         examples=["1.0.0"],
     )
     activeKieBase: str = Field(
-        ...,
+        default="levisKBase",
         description="Name of the active Drools KieBase in memory.",
         examples=["haemorrhageKBase"],
     )
     totalRules: int = Field(
-        ...,
+        default=71,
         ge=0,
         description="Total count of business rules loaded in the KieBase.",
         examples=[13],

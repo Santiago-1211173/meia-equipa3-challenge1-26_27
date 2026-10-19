@@ -88,7 +88,7 @@ public class ExplicadorPorque {
 
     String resumo =
         emEspera.isEmpty()
-            ? texto.formatar("porque.sem_espera", dado.pergunta(), String.join(", ", ids))
+            ? texto.formatar("porque.sem_espera", dado.racional(), String.join(", ", ids))
             : texto.formatar(
                 "porque.pergunta",
                 dado.pergunta(),
