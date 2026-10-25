@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(retail_interactive, [
     perguntar/3,                  % +Template, +Contexto, -Resposta
     formatar_pergunta/2,          % +Template, -TextoPergunta
@@ -180,7 +181,9 @@ is_terminal_thread :-
     ).
 
 perguntar(Template, _Contexto, Resposta) :-
-    formatar_pergunta(Template, QuestionText),
+    % once/1: a última cláusula de formatar_pergunta/2 serve para qualquer atributo; sem
+    % ela, se a resposta não servir à regra, o recuo voltava a fazer a mesma pergunta.
+    once(formatar_pergunta(Template, QuestionText)),
     assertz(dialogue_log(asked(Template, QuestionText))),
     (   tem_mock_resposta(Template)
     ->  obter_mock_resposta(Template, Resposta),

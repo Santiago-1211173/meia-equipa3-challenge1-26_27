@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(test_retail_api, [
     run_retail_api_tests/0
 ]).

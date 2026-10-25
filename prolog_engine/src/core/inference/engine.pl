@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(inference_engine, [
     load_knowledge_base/1,      % +KBName — loads a knowledge base by name
     run_engine/1,               % -ResultDict — executes deduction and returns structured result

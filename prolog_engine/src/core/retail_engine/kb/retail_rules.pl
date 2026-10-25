@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(retail_rules, []).
 
 /** <module> Official Retail Rules Knowledge Base (Levi's Returns & Exchanges)

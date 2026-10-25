@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(vehicles_kb, []).
 
 /** <module> Academic Vehicles Knowledge Base (veiculos2.txt from Moodle)

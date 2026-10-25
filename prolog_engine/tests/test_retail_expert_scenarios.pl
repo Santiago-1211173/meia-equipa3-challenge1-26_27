@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(test_retail_expert_scenarios, [
     run_expert_scenarios_tests/0
 ]).

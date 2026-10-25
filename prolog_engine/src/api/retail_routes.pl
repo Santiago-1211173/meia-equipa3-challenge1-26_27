@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(retail_routes, [
     handle_retail_evaluate/1,
     handle_retail_interactive/1,

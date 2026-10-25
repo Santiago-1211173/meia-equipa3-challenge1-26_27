@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(test_retail_rules, [
     run_retail_rules_tests/0
 ]).

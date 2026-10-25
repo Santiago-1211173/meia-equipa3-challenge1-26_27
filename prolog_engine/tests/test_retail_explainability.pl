@@ -1,3 +1,4 @@
+:- encoding(utf8).
 :- module(test_retail_explainability, [
     run_retail_explainability_tests/0
 ]).
