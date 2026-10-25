@@ -1,5 +1,7 @@
 package com.levis.devolucoes.regras.suporte;
 
+import com.levis.devolucoes.incerteza.FabricaEvidencias;
+import com.levis.devolucoes.incerteza.ServicoIncerteza;
 import com.levis.devolucoes.model.decisao.Decisao;
 import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.decisao.IndicadorFraude;
@@ -38,6 +40,12 @@ public final class MotorTeste {
   private static final KieContainer CONTENTOR =
       KieServices.Factory.get().getKieClasspathContainer();
 
+  /** Camada de incerteza com os parâmetros fixos de teste (docs/08 §6). */
+  public static final ServicoIncerteza INCERTEZA =
+      ServicoIncerteza.comParametros("parametros-incerteza-teste.yml");
+
+  private static final FabricaEvidencias EVIDENCIAS = new FabricaEvidencias(INCERTEZA);
+
   private MotorTeste() {}
 
   public static KieBase kieBase() {
@@ -58,6 +66,7 @@ public final class MotorTeste {
 
   public static ResultadoAvaliacao avaliar(PedidoDevolucao pedido, List<IndicadorFraude> fraudes) {
     KieSession sessao = CONTENTOR.newKieSession(OrdemAgenda.SESSAO);
+    sessao.setGlobal("incerteza", INCERTEZA);
     List<String> disparos = new ArrayList<>();
     sessao.addEventListener(
         new DefaultAgendaEventListener() {
@@ -80,6 +89,7 @@ public final class MotorTeste {
         sessao.insert(decisaoArtigo);
       }
       sessao.insert(decisao);
+      EVIDENCIAS.evidencias(pedido).forEach(sessao::insert);
       for (IndicadorFraude fraude : fraudes) {
         sessao.insert(fraude);
       }

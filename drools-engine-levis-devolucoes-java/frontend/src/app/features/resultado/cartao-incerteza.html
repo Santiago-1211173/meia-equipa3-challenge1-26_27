@@ -1,0 +1,76 @@
+<article class="cartao incerteza" data-teste="cartao-incerteza">
+  <h2 i18n="@@incerteza.titulo">Avaliação da incerteza</h2>
+  @if (demonstrativo()) {
+    <p class="alerta aviso" data-teste="aviso-incerteza" i18n="@@incerteza.aviso">
+      Valores demonstrativos — não usar para decisões reais. A decisão nas zonas de revisão é sempre
+      da gestão.
+    </p>
+  }
+  <div class="tabela-rolavel">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th i18n="@@incerteza.hipotese">Hipótese</th>
+          <th i18n="@@decisao.artigo">Artigo</th>
+          <th i18n="@@incerteza.metodo">Método</th>
+          <th i18n="@@incerteza.valor">Valor</th>
+          <th i18n="@@incerteza.classificacao">Classificação</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (g of graus(); track chave(g)) {
+          <tr [attr.data-hipotese]="g.hipotese" [attr.data-artigo]="g.artigoId">
+            <td>{{ r.hipotese(g.hipotese) }}</td>
+            <td>{{ g.artigoId ?? '' }}</td>
+            <td>
+              {{ r.metodo(g.metodo) }}
+              @if (g.metodo === 'FATOR_CERTEZA') {
+                <span class="nota" i18n="@@incerteza.naoProbabilidade">(de -1 a 1; não é uma probabilidade)</span>
+              }
+            </td>
+            <td data-campo="valor" [attr.data-valor]="g.valor">{{ g.valor | number: formato(g) }}</td>
+            <td data-campo="classificacao" [attr.data-valor]="g.classificacao">
+              <span class="etiqueta">{{ r.classe(g.classificacao) }}</span>
+            </td>
+            <td>
+              <button type="button" class="ligacao" (click)="alternarComo(g)" i18n="@@como.titulo">Como?</button>
+            </td>
+          </tr>
+          <tr class="detalhe">
+            <td colspan="6">
+              <details>
+                <summary i18n="@@incerteza.contribuicoes">Contribuições</summary>
+                <ul class="contribuicoes">
+                  @for (c of g.contribuicoes; track $index) {
+                    <li [class.nao-aplicada]="!c.aplicada">
+                      <strong>{{ c.codigo }}</strong> {{ c.descricao }} — {{ c.peso | number: '1.2-2' }}
+                      @if (c.aplicada) {
+                        ({{ c.valorAntes | number: '1.2-2' }} → {{ c.valorDepois | number: '1.2-2' }})
+                      } @else {
+                        <span class="nota">(<ng-container i18n="@@incerteza.naoAplicada">não aplicada</ng-container>: {{ c.motivoNaoAplicada }})</span>
+                      }
+                    </li>
+                  }
+                </ul>
+              </details>
+            </td>
+          </tr>
+          @if (comoAberto() === chave(g)) {
+            <tr>
+              <td colspan="6">
+                <lv-como-conclusao
+                  [avaliacaoId]="avaliacaoId()"
+                  [conclusao]="'INCERTEZA.' + g.hipotese"
+                  [artigo]="g.artigoId"
+                  (fechar)="comoAberto.set(null)"
+                />
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="nota" i18n="@@incerteza.versao">Parâmetros {{ graus()[0]?.versaoParametros }}</p>
+</article>

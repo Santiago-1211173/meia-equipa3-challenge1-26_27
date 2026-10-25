@@ -2,6 +2,8 @@ package com.levis.devolucoes.model.produto;
 
 import com.levis.devolucoes.model.enums.CondicaoUso;
 import com.levis.devolucoes.model.enums.EstadoEtiquetas;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Resultado da inspeção física do artigo (IN-008). */
 public class EstadoProduto {
@@ -18,6 +20,20 @@ public class EstadoProduto {
   private boolean rfidCorreto = true;
   private boolean embalagemIntacta;
   private boolean conjuntoCompleto = true;
+
+  /**
+   * Grau de uso observado pelo colaborador, 0 (nenhum) a 4 (intenso); null se desconhecido
+   * (docs/08).
+   */
+  private Integer grauUso;
+
+  /** O cliente alega um defeito do produto (docs/08 §3.2). */
+  private boolean alegaDefeito;
+
+  /**
+   * Respostas da inspeção de defeito: ED-xx → presente (TRUE), ausente (FALSE) ou "Não sei" (null).
+   */
+  private Map<String, Boolean> inspecaoDefeito = new LinkedHashMap<>();
 
   /** HS-003: personalizado, alterado ou embainhado. */
   public boolean isModificado() {
@@ -118,5 +134,29 @@ public class EstadoProduto {
 
   public void setConjuntoCompleto(boolean conjuntoCompleto) {
     this.conjuntoCompleto = conjuntoCompleto;
+  }
+
+  public Integer getGrauUso() {
+    return grauUso;
+  }
+
+  public void setGrauUso(Integer grauUso) {
+    this.grauUso = grauUso;
+  }
+
+  public boolean isAlegaDefeito() {
+    return alegaDefeito;
+  }
+
+  public void setAlegaDefeito(boolean alegaDefeito) {
+    this.alegaDefeito = alegaDefeito;
+  }
+
+  public Map<String, Boolean> getInspecaoDefeito() {
+    return inspecaoDefeito;
+  }
+
+  public void setInspecaoDefeito(Map<String, Boolean> inspecaoDefeito) {
+    this.inspecaoDefeito = inspecaoDefeito == null ? new LinkedHashMap<>() : inspecaoDefeito;
   }
 }

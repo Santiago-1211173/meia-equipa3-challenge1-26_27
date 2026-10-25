@@ -7,6 +7,9 @@ import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.decisao.Documentacao;
 import com.levis.devolucoes.model.decisao.IndicadorFraude;
 import com.levis.devolucoes.model.decisao.RegistoRegra;
+import com.levis.devolucoes.model.incerteza.Contribuicao;
+import com.levis.devolucoes.model.incerteza.Evidencia;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import com.levis.devolucoes.model.pedido.Cliente;
 import com.levis.devolucoes.model.pedido.Colaborador;
 import com.levis.devolucoes.model.pedido.CompraOriginal;
@@ -31,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,16 +53,19 @@ class ContratoJavaBeanTest {
   private static final Set<String> CAMPOS_INTERNOS = Set.of("relogio");
 
   private static final Map<Class<?>, Function<Integer, Object>> VALORES =
-      Map.of(
-          String.class, n -> "valor-" + n,
-          boolean.class, n -> true,
-          Boolean.class, n -> Boolean.TRUE,
-          int.class, n -> n,
-          BigDecimal.class, n -> new BigDecimal(n + ".50"),
-          LocalDate.class, n -> LocalDate.of(2026, 1, 1).plusDays(n),
-          LocalDateTime.class, n -> LocalDateTime.of(2026, 1, 1, 10, 0).plusMinutes(n),
-          List.class, n -> new ArrayList<>(List.of()),
-          Set.class, n -> new HashSet<>(Set.of("sku-" + n)));
+      Map.ofEntries(
+          Map.entry(String.class, n -> "valor-" + n),
+          Map.entry(boolean.class, n -> true),
+          Map.entry(Boolean.class, n -> Boolean.TRUE),
+          Map.entry(int.class, n -> n),
+          Map.entry(Integer.class, n -> n),
+          Map.entry(double.class, n -> n + 0.25),
+          Map.entry(Map.class, n -> new LinkedHashMap<>(Map.of("ED-0" + n, Boolean.TRUE))),
+          Map.entry(BigDecimal.class, n -> new BigDecimal(n + ".50")),
+          Map.entry(LocalDate.class, n -> LocalDate.of(2026, 1, 1).plusDays(n)),
+          Map.entry(LocalDateTime.class, n -> LocalDateTime.of(2026, 1, 1, 10, 0).plusMinutes(n)),
+          Map.entry(List.class, n -> new ArrayList<>(List.of())),
+          Map.entry(Set.class, n -> new HashSet<>(Set.of("sku-" + n))));
 
   @ParameterizedTest
   @ValueSource(
@@ -79,7 +86,10 @@ class ContratoJavaBeanTest {
         DecisaoArtigo.class,
         Documentacao.class,
         RegistoRegra.class,
-        IndicadorFraude.class
+        IndicadorFraude.class,
+        Evidencia.class,
+        GrauCrenca.class,
+        Contribuicao.class
       })
   void cadaCampoEUmaPropriedadeLegivelEEscrevivel(Class<?> classe) throws Exception {
     Map<String, PropertyDescriptor> propriedades = propriedades(classe);

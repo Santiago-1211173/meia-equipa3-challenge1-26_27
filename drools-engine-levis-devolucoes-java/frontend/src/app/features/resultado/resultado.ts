@@ -9,13 +9,14 @@ import { ComoCompleto } from '../explicacoes/como-completo';
 import { ESe } from '../explicacoes/e-se';
 import { PorqueNao } from '../explicacoes/porque-nao';
 import { CartaoDecisao } from './cartao-decisao';
+import { CartaoIncerteza } from './cartao-incerteza';
 
 type Painel = 'como' | 'porque-nao' | 'e-se' | 'rasto';
 
 /** Resultado de uma avaliação gravada, com as explicações Como, Porque não e E se. */
 @Component({
   selector: 'lv-resultado',
-  imports: [CartaoDecisao, ComoCompleto, PorqueNao, ESe, RouterLink],
+  imports: [CartaoDecisao, CartaoIncerteza, ComoCompleto, PorqueNao, ESe, RouterLink],
   templateUrl: './resultado.html',
 })
 export class ResultadoPagina {

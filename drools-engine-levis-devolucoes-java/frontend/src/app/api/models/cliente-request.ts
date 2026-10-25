@@ -5,6 +5,8 @@ export interface ClienteRequest {
   agitado?: boolean;
   barreiraLinguistica?: boolean;
   contestaResultado?: boolean;
+  explicaOrigemCompra?: 'SIM' | 'NAO' | 'NAO_SEI';
   forneceDados?: boolean;
   id?: string;
+  pedeNumerario?: boolean;
 }

@@ -525,6 +525,18 @@ class LevisClient:
         return await self._request("GET", f"/api/v1/regras/{code}")
 
     # =========================================================================
+    # UNCERTAINTY LAYER
+    # =========================================================================
+
+    async def get_uncertainty_parameters(self) -> Dict[str, Any]:
+        """Retrieve the uncertainty layer parameters in force (demonstrative values).
+
+        Returns:
+            Dict containing ParametrosIncertezaResponse.
+        """
+        return await self._request("GET", "/api/v1/incerteza/parametros")
+
+    # =========================================================================
     # DEV COLLABORATORS & HEALTH
     # =========================================================================
 

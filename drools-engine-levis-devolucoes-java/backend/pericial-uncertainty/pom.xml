@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.levis.devolucoes</groupId>
+    <artifactId>levis-devolucoes</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>pericial-uncertainty</artifactId>
+  <name>pericial-uncertainty</name>
+  <description>
+    Camada de incerteza (docs/08): fatores de certeza, razões de verosimilhança e lógica fuzzy, com
+    parâmetros demonstrativos lidos de ficheiro. Depende só do pericial-model (sem Spring nem Drools).
+  </description>
+
+  <properties>
+    <jacoco.cobertura.minima>0.90</jacoco.cobertura.minima>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.levis.devolucoes</groupId>
+      <artifactId>pericial-model</artifactId>
+    </dependency>
+    <!-- Motor fuzzy (LGPL-3.0), fora do Maven Central: backend/repo-local (ADR 0012) -->
+    <dependency>
+      <groupId>net.sourceforge.jfuzzylogic</groupId>
+      <artifactId>jfuzzylogic-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Publica os parâmetros de teste para os módulos das regras e do serviço -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>parametros-incerteza-teste.yml</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

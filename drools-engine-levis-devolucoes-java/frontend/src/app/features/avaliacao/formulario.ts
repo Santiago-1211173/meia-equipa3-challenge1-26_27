@@ -5,10 +5,12 @@ import {
   ESTADO_CONTA,
   ESTADO_ETIQUETAS,
   FUNCAO,
+  GRAU_USO,
   MARCA,
   MEIO_PAGAMENTO,
   MERCADO,
   NIVEL_RISCO,
+  RESPOSTA,
   Rotulos,
   TIPO_COMPROVATIVO,
   TIPO_LOJA,
@@ -32,6 +34,8 @@ export type TipoCampo =
   /** Boolean da API: vazio quer dizer "não indicado" (o sistema completa ou usa o valor por omissão) */
   | 'booleano-opcional'
   | 'opcoes'
+  /** inteiro escolhido numa escala de opções (ex.: grau de uso de 0 a 4) */
+  | 'escala'
   /** lista de textos (ex.: SKUs), escrita separada por vírgulas */
   | 'lista';
 
@@ -42,6 +46,8 @@ export interface Campo {
   readonly tipo: TipoCampo;
   readonly opcoes?: Rotulos;
   readonly obrigatorio?: boolean;
+  /** Só aparece quando este campo (relativo ao item, nos grupos repetíveis) é verdadeiro */
+  readonly visivelSe?: string;
 }
 
 export interface Repeticao {
@@ -130,6 +136,32 @@ function camposProduto(): Campo[] {
       rotulo: $localize`:@@campo.produto.precoAtual:Preço atual`,
       tipo: 'decimal',
     },
+    {
+      caminho: 'produto.defeitoConhecido',
+      rotulo: $localize`:@@campo.produto.defeitoConhecido:Defeito conhecido para o SKU (catálogo)`,
+      tipo: 'booleano-opcional',
+    },
+  ];
+}
+
+/** Perguntas da inspeção do defeito (docs/08 §3.3), só quando o cliente alega defeito. */
+function perguntasDeInspecao(): Campo[] {
+  const pergunta = (codigo: string, rotulo: string): Campo => ({
+    caminho: `estado.inspecaoDefeito.${codigo}`,
+    rotulo,
+    tipo: 'opcoes',
+    opcoes: RESPOSTA,
+    visivelSe: 'estado.alegaDefeito',
+  });
+  return [
+    pergunta('ED-01', $localize`:@@campo.inspecao.ED-01:Dano numa costura ou ponto de união`),
+    pergunta('ED-02', $localize`:@@campo.inspecao.ED-02:Dano localizado num único ponto`),
+    pergunta('ED-05', $localize`:@@campo.inspecao.ED-05:Desgaste generalizado do tecido`),
+    pergunta('ED-06', $localize`:@@campo.inspecao.ED-06:Sinais de lavagem repetida`),
+    pergunta(
+      'ED-07',
+      $localize`:@@campo.inspecao.ED-07:Dano compatível com uso indevido (corte, queimadura, rasgão)`,
+    ),
   ];
 }
 
@@ -470,6 +502,18 @@ export const PASSOS: readonly Passo[] = [
             tipo: 'booleano-opcional',
           },
           {
+            caminho: 'estado.grauUso',
+            rotulo: $localize`:@@campo.estado.grauUso:Grau de uso`,
+            tipo: 'escala',
+            opcoes: GRAU_USO,
+          },
+          {
+            caminho: 'estado.alegaDefeito',
+            rotulo: $localize`:@@campo.estado.alegaDefeito:O cliente alega defeito`,
+            tipo: 'booleano',
+          },
+          ...perguntasDeInspecao(),
+          {
             caminho: 'revendivel',
             rotulo: $localize`:@@campo.artigos.revendivel:Pode ser revendido`,
             tipo: 'booleano-opcional',
@@ -534,6 +578,17 @@ export const PASSOS: readonly Passo[] = [
           {
             caminho: 'cliente.barreiraLinguistica',
             rotulo: $localize`:@@campo.cliente.barreiraLinguistica:Barreira linguística`,
+            tipo: 'booleano',
+          },
+          {
+            caminho: 'cliente.explicaOrigemCompra',
+            rotulo: $localize`:@@campo.cliente.explicaOrigemCompra:Explica onde e quando comprou`,
+            tipo: 'opcoes',
+            opcoes: RESPOSTA,
+          },
+          {
+            caminho: 'cliente.pedeNumerario',
+            rotulo: $localize`:@@campo.cliente.pedeNumerario:Pede o reembolso em numerário`,
             tipo: 'booleano',
           },
         ],

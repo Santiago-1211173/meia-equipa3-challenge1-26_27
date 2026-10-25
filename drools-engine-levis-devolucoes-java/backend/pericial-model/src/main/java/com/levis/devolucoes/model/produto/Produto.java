@@ -18,6 +18,9 @@ public class Produto {
   private BigDecimal precoAtual;
   private boolean emSaldo;
 
+  /** Defeito de fabrico conhecido para o SKU, segundo o catálogo (docs/08, ED-04). */
+  private boolean defeitoConhecido;
+
   /** PC-007: o produto é bodywear. */
   public boolean isBodywear() {
     return categoria == CategoriaProduto.BODYWEAR;
@@ -101,5 +104,13 @@ public class Produto {
 
   public void setEmSaldo(boolean emSaldo) {
     this.emSaldo = emSaldo;
+  }
+
+  public boolean isDefeitoConhecido() {
+    return defeitoConhecido;
+  }
+
+  public void setDefeitoConhecido(boolean defeitoConhecido) {
+    this.defeitoConhecido = defeitoConhecido;
   }
 }

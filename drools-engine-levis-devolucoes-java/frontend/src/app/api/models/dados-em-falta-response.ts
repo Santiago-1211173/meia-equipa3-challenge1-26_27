@@ -9,5 +9,15 @@ import { DadoEmFaltaDto } from '../models/dado-em-falta-dto';
 export interface DadosEmFaltaResponse {
   completo?: boolean;
   dados?: Array<DadoEmFaltaDto>;
+
+  /**
+   * Regra de paragem que terminou a inferência, ou nula
+   */
+  paragem?: string;
   resumo?: string;
+
+  /**
+   * Uma paragem obrigatória terminou a inferência: não é preciso mais nada
+   */
+  terminal?: boolean;
 }

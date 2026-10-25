@@ -42,6 +42,10 @@ public class AvaliacaoEntity {
   @Column(name = "versao_base_conhecimento", nullable = false)
   private String versaoBaseConhecimento;
 
+  /** Versão do ficheiro de parâmetros de incerteza (docs/08); nula antes da camada de incerteza. */
+  @Column(name = "versao_parametros_incerteza")
+  private String versaoParametrosIncerteza;
+
   private String elegibilidade;
 
   @Column(name = "tipo_verificacao")
@@ -148,6 +152,14 @@ public class AvaliacaoEntity {
 
   public void setVersaoBaseConhecimento(String versaoBaseConhecimento) {
     this.versaoBaseConhecimento = versaoBaseConhecimento;
+  }
+
+  public String getVersaoParametrosIncerteza() {
+    return versaoParametrosIncerteza;
+  }
+
+  public void setVersaoParametrosIncerteza(String versaoParametrosIncerteza) {
+    this.versaoParametrosIncerteza = versaoParametrosIncerteza;
   }
 
   public String getElegibilidade() {

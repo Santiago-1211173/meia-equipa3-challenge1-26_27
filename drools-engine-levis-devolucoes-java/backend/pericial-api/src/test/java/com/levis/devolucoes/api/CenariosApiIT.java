@@ -1,12 +1,16 @@
 package com.levis.devolucoes.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.levis.devolucoes.api.seguranca.EmissorTokens;
 import com.levis.devolucoes.dto.decisao.DecisaoResponse;
+import com.levis.devolucoes.dto.enums.ClassificacaoIncerteza;
 import com.levis.devolucoes.dto.enums.Funcao;
+import com.levis.devolucoes.dto.enums.Hipotese;
+import com.levis.devolucoes.dto.incerteza.GrauCrencaDto;
 import com.levis.devolucoes.service.CenariosDto;
 import com.levis.devolucoes.service.CenariosDto.CenarioDto;
 import com.levis.devolucoes.service.VerificadorCenario;
@@ -99,6 +103,41 @@ class CenariosApiIT {
         .usingRecursiveComparison()
         .withComparatorForType(BigDecimal::compareTo, BigDecimal.class)
         .isEqualTo(decisao);
+  }
+
+  @Test
+  void incertezaDoCenario6ComExplicacoesEParametros() throws IOException {
+    DecisaoResponse decisao = avaliar(CenariosDto.ler(6));
+    String base = "/api/v1/avaliacoes/" + decisao.avaliacaoId() + "/explicacoes";
+
+    GrauCrencaDto risco =
+        decisao.incerteza().stream()
+            .filter(g -> g.hipotese() == Hipotese.FRAUDE)
+            .findFirst()
+            .orElseThrow();
+    assertThat(risco.valor()).isCloseTo(0.8354, within(0.00005));
+    assertThat(risco.classificacao()).isEqualTo(ClassificacaoIncerteza.RISCO_ALTO);
+    assertThat(risco.demonstrativo()).isTrue();
+    assertThat(risco.contribuicoes()).hasSize(5);
+
+    JsonNode como = obter(base + "/como?conclusao=INCERTEZA.FRAUDE");
+    assertThat(como.get("regra").asText()).isEqualTo("IU-10");
+    assertThat(como.get("resumo").asText()).contains("0,84").contains("Valores demonstrativos");
+    JsonNode porqueNao = obter(base + "/porque-nao?conclusao=INCERTEZA.FRAUDE:RISCO_MEDIO");
+    assertThat(porqueNao.get("obtida").asBoolean()).isFalse();
+    assertThat(porqueNao.get("valorObtido").asText()).isEqualTo("RISCO_ALTO");
+
+    ResponseEntity<String> semArtigo =
+        pedir(
+            HttpMethod.GET,
+            base + "/como?conclusao=INCERTEZA.REVENDIBILIDADE",
+            null,
+            Exemplos.bearer(emissor, Funcao.STYLIST));
+    assertThat(semArtigo.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+    JsonNode parametros = obter("/api/v1/incerteza/parametros");
+    assertThat(parametros.get("demonstrativo").asBoolean()).isTrue();
+    assertThat(parametros.get("fatoresCerteza").get("EF-01").asDouble()).isEqualTo(0.30);
   }
 
   @Test

@@ -51,6 +51,13 @@
           <context context-type="linenumber">16,18</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="app.avisoDemonstrativo" datatype="html">
+        <source> Valores demonstrativos — não usar para decisões reais. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">23,27</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="titulo.entrar" datatype="html">
         <source>Entrar</source>
         <context-group purpose="location">
@@ -296,6 +303,10 @@
           <context context-type="linenumber">25,26</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/explicacoes/e-se.html</context>
           <context context-type="linenumber">5,6</context>
         </context-group>
@@ -304,14 +315,14 @@
         <source>necessário para decidir</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.util" datatype="html">
         <source>útil para completar a decisão</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
-          <context context-type="linenumber">50,51</context>
+          <context context-type="linenumber">59,60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="emFalta.titulo" datatype="html">
@@ -382,756 +393,826 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">86,89</context>
+          <context context-type="linenumber">89,92</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.sku" datatype="html">
         <source>SKU</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">82</context>
+          <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.marca" datatype="html">
         <source>Marca</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">88</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.categoria" datatype="html">
         <source>Categoria</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">94</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.skuReconhecidoPOS" datatype="html">
         <source>SKU reconhecido pelo POS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.vendidoNaLoja" datatype="html">
         <source>Vendido nesta loja (sortido)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.emSaldo" datatype="html">
         <source>Em saldo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">110</context>
+          <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.grossista" datatype="html">
         <source>Produto de grossista</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.produtoFranquia" datatype="html">
         <source>Produto de franquia</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">120</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.pvpOriginal" datatype="html">
         <source>PVP original</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.precoAtual" datatype="html">
         <source>Preço atual</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">130</context>
+          <context context-type="linenumber">136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.produto.defeitoConhecido" datatype="html">
+        <source>Defeito conhecido para o SKU (catálogo)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-01" datatype="html">
+        <source>Dano numa costura ou ponto de união</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">157</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-02" datatype="html">
+        <source>Dano localizado num único ponto</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-05" datatype="html">
+        <source>Desgaste generalizado do tecido</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-06" datatype="html">
+        <source>Sinais de lavagem repetida</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">160</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-07" datatype="html">
+        <source>Dano compatível com uso indevido (corte, queimadura, rasgão)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.pedido" datatype="html">
         <source>Pedido e loja</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.pedido" datatype="html">
         <source>Pedido do cliente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">143</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.tipoPedido" datatype="html">
         <source>O que pede o cliente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">148</context>
+          <context context-type="linenumber">180</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.dataPedido" datatype="html">
         <source>Data do pedido</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">154</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.id" datatype="html">
         <source>Referência do pedido</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.loja" datatype="html">
         <source>Loja</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">194</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.codigo" datatype="html">
         <source>Código da loja</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.nome" datatype="html">
         <source>Nome da loja</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">173</context>
+          <context context-type="linenumber">205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.mercado" datatype="html">
         <source>Mercado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">178</context>
+          <context context-type="linenumber">210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.tipoLoja" datatype="html">
         <source>Tipo de loja</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.lojaBackPocket" datatype="html">
         <source>Loja com BackPocket</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">190</context>
+          <context context-type="linenumber">222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.coberturaLojaUnica" datatype="html">
         <source>Cobertura de loja única</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">195</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.skusSortido" datatype="html">
         <source>SKUs do sortido (separados por vírgulas)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">200</context>
+          <context context-type="linenumber">232</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.compra" datatype="html">
         <source>Compra e pagamento</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">241</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.compra" datatype="html">
         <source>Compra original</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">213</context>
+          <context context-type="linenumber">245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.canal" datatype="html">
         <source>Canal de compra</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">250</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.idTransacao" datatype="html">
         <source>Transação ou encomenda</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">224</context>
+          <context context-type="linenumber">256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.dataCompra" datatype="html">
         <source>Data da compra</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">229</context>
+          <context context-type="linenumber">261</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.dataEnvio" datatype="html">
         <source>Data de envio (online)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">234</context>
+          <context context-type="linenumber">266</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.quantidadeComprada" datatype="html">
         <source>Quantidade comprada</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">239</context>
+          <context context-type="linenumber">271</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.idStylistVenda" datatype="html">
         <source>Stylist da venda</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">244</context>
+          <context context-type="linenumber">276</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.promocaoEscaloes" datatype="html">
         <source>Promoção por escalões</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">249</context>
+          <context context-type="linenumber">281</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.ajustePrecoAplicado" datatype="html">
         <source>Já teve ajuste de preço</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">254</context>
+          <context context-type="linenumber">286</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.compraOferta" datatype="html">
         <source>Compra para oferta</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">259</context>
+          <context context-type="linenumber">291</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.pagamento" datatype="html">
         <source>Pagamento original</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">266</context>
+          <context context-type="linenumber">298</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.meio" datatype="html">
         <source>Meio de pagamento</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">272</context>
+          <context context-type="linenumber">304</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.valorPago" datatype="html">
         <source>Valor pago</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">278</context>
+          <context context-type="linenumber">310</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.estadoConta" datatype="html">
         <source>Estado da conta</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">283</context>
+          <context context-type="linenumber">315</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.cartaoFisicoPresente" datatype="html">
         <source>Cartão físico presente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">289</context>
+          <context context-type="linenumber">321</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.acessoAplicacaoPagamento" datatype="html">
         <source>Acede à aplicação de pagamento</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">294</context>
+          <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.reembolsoOriginalRecusado" datatype="html">
         <source>Reembolso ao meio original recusado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">299</context>
+          <context context-type="linenumber">331</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.online" datatype="html">
         <source>Compra online</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">306</context>
+          <context context-type="linenumber">338</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.encomendaEncontrada" datatype="html">
         <source>Encomenda encontrada</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">311</context>
+          <context context-type="linenumber">343</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.portalOnlineDisponivel" datatype="html">
         <source>Portal de devoluções disponível</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">316</context>
+          <context context-type="linenumber">348</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.politicaPermiteAsCegasOnline" datatype="html">
         <source>A política permite a devolução às cegas</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">321</context>
+          <context context-type="linenumber">353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.comprovativo" datatype="html">
         <source>Comprovativo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">330</context>
+          <context context-type="linenumber">362</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.comprovativo" datatype="html">
         <source>Comprovativo de compra (vazio se não houver)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">334</context>
+          <context context-type="linenumber">366</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.tipo" datatype="html">
         <source>Tipo de comprovativo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">340</context>
+          <context context-type="linenumber">372</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.confirmaCompra" datatype="html">
         <source>Confirma a compra</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">346</context>
+          <context context-type="linenumber">378</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.reciboOriginal" datatype="html">
         <source>Recibo original</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">351</context>
+          <context context-type="linenumber">383</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.clienteMantemRecibo" datatype="html">
         <source>O cliente fica com o recibo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">356</context>
+          <context context-type="linenumber">388</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.incluiOutrosArtigos" datatype="html">
         <source>Inclui outros artigos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">361</context>
+          <context context-type="linenumber">393</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.artigos" datatype="html">
         <source>Artigos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">370</context>
+          <context context-type="linenumber">402</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos" datatype="html">
         <source>Artigos devolvidos</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">374</context>
+          <context context-type="linenumber">406</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos.item" datatype="html">
         <source>Artigo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">378</context>
+          <context context-type="linenumber">410</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos.adicionar" datatype="html">
         <source>Adicionar artigo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">379</context>
+          <context context-type="linenumber">411</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.id" datatype="html">
         <source>Identificação do artigo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">385</context>
+          <context context-type="linenumber">417</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.quantidade" datatype="html">
         <source>Quantidade</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">392</context>
+          <context context-type="linenumber">424</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.precoPago" datatype="html">
         <source>Preço pago</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">397</context>
+          <context context-type="linenumber">429</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.valorCalculadoPos" datatype="html">
         <source>Valor calculado pelo POS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">402</context>
+          <context context-type="linenumber">434</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.entreCanais" datatype="html">
         <source>Devolução entre canais</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">407</context>
+          <context context-type="linenumber">439</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.condicaoUso" datatype="html">
         <source>Condição de uso</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">412</context>
+          <context context-type="linenumber">444</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.etiquetas" datatype="html">
         <source>Etiquetas</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">418</context>
+          <context context-type="linenumber">450</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.personalizado" datatype="html">
         <source>Personalizado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">424</context>
+          <context context-type="linenumber">456</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.alterado" datatype="html">
         <source>Alterado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">429</context>
+          <context context-type="linenumber">461</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.embainhado" datatype="html">
         <source>Embainhado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">434</context>
+          <context context-type="linenumber">466</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.defeitoFabricoConfirmado" datatype="html">
         <source>Defeito de fabrico confirmado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">439</context>
+          <context context-type="linenumber">471</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.danificado" datatype="html">
         <source>Danificado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">444</context>
+          <context context-type="linenumber">476</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.sujoOuInseguro" datatype="html">
         <source>Sujo ou inseguro (risco biológico)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">449</context>
+          <context context-type="linenumber">481</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.embalagemIntacta" datatype="html">
         <source>Embalagem intacta</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">454</context>
+          <context context-type="linenumber">486</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.conjuntoCompleto" datatype="html">
         <source>Conjunto completo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">459</context>
+          <context context-type="linenumber">491</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.etiquetaPrecoCorreta" datatype="html">
         <source>Etiqueta de preço correta</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">464</context>
+          <context context-type="linenumber">496</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.rfidCorreto" datatype="html">
         <source>RFID correto</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">469</context>
+          <context context-type="linenumber">501</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.estado.grauUso" datatype="html">
+        <source>Grau de uso</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">506</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.estado.alegaDefeito" datatype="html">
+        <source>O cliente alega defeito</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">512</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.revendivel" datatype="html">
         <source>Pode ser revendido</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">474</context>
+          <context context-type="linenumber">518</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca" datatype="html">
         <source>Artigos que o cliente leva (troca)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">481</context>
+          <context context-type="linenumber">525</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca.item" datatype="html">
         <source>Artigo de troca</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">485</context>
+          <context context-type="linenumber">529</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca.adicionar" datatype="html">
         <source>Adicionar artigo de troca</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">486</context>
+          <context context-type="linenumber">530</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigosTroca.precoVenda" datatype="html">
         <source>Preço de venda</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">493</context>
+          <context context-type="linenumber">537</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigosTroca.apenasMudaTamanho" datatype="html">
         <source>Só muda de tamanho</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">498</context>
+          <context context-type="linenumber">542</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.cliente" datatype="html">
         <source>Cliente e exceções</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">507</context>
+          <context context-type="linenumber">551</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.cliente" datatype="html">
         <source>Cliente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">511</context>
+          <context context-type="linenumber">555</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.id" datatype="html">
         <source>Identificação do cliente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">516</context>
+          <context context-type="linenumber">560</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.forneceDados" datatype="html">
         <source>Fornece os seus dados</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">521</context>
+          <context context-type="linenumber">565</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.contestaResultado" datatype="html">
         <source>Contesta o resultado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">526</context>
+          <context context-type="linenumber">570</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.agitado" datatype="html">
         <source>Está agitado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">531</context>
+          <context context-type="linenumber">575</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.barreiraLinguistica" datatype="html">
         <source>Barreira linguística</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">536</context>
+          <context context-type="linenumber">580</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.cliente.explicaOrigemCompra" datatype="html">
+        <source>Explica onde e quando comprou</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">585</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.cliente.pedeNumerario" datatype="html">
+        <source>Pede o reembolso em numerário</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">591</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.excecao" datatype="html">
         <source>Pedido de exceção (vazio se não houver)</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">543</context>
+          <context context-type="linenumber">598</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.motivo" datatype="html">
         <source>Motivo</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">549</context>
+          <context context-type="linenumber">604</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.resolucaoPedida" datatype="html">
         <source>Resolução pedida</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">554</context>
+          <context context-type="linenumber">609</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.exigeMeioProibido" datatype="html">
         <source>Exige um meio de reembolso proibido</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">560</context>
+          <context context-type="linenumber">615</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.exigeSkuIncorreto" datatype="html">
         <source>Exige um SKU incorreto</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">565</context>
+          <context context-type="linenumber">620</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.envolveProdutoExcluido" datatype="html">
         <source>Envolve um produto excluído</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">570</context>
+          <context context-type="linenumber">625</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.contornaProcessoObrigatorio" datatype="html">
         <source>Contorna um processo obrigatório</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">575</context>
+          <context context-type="linenumber">630</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.concluivelNoSistema" datatype="html">
         <source>Pode ser concluída no sistema</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">580</context>
+          <context context-type="linenumber">635</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.preocupacaoCliente" datatype="html">
         <source>Preocupação do cliente</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">585</context>
+          <context context-type="linenumber">640</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.aprovada" datatype="html">
         <source>Aprovada pela gestão</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">590</context>
+          <context context-type="linenumber">645</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.aprovador" datatype="html">
         <source>Quem aprovou ou recusou a exceção</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">597</context>
+          <context context-type="linenumber">652</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.id" datatype="html">
         <source>Identificação</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">604</context>
+          <context context-type="linenumber">659</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.nome" datatype="html">
         <source>Nome</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">609</context>
+          <context context-type="linenumber">664</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.funcao" datatype="html">
         <source>Função</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">614</context>
+          <context context-type="linenumber">669</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.aprovadoPeloDM" datatype="html">
         <source>Aprovado pelo District Manager</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">620</context>
+          <context context-type="linenumber">675</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.idCredencialPOS" datatype="html">
         <source>Credencial de POS</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">625</context>
+          <context context-type="linenumber">680</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude" datatype="html">
         <source>Indícios de fraude</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">632</context>
+          <context context-type="linenumber">687</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude.item" datatype="html">
         <source>Indício</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">691</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude.adicionar" datatype="html">
         <source>Registar indício</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">692</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.indicadoresFraude.descricao" datatype="html">
         <source>Descrição</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">643</context>
+          <context context-type="linenumber">698</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.indicadoresFraude.nivelRisco" datatype="html">
         <source>Nível de risco</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">649</context>
+          <context context-type="linenumber">704</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.porque.titulo" datatype="html">
@@ -1214,7 +1295,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">66,67</context>
+          <context context-type="linenumber">69,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="como.titulo" datatype="html">
@@ -1254,6 +1335,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/cartao-decisao.html</context>
           <context context-type="linenumber">136,137</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">37,38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="como.definidaPor" datatype="html">
@@ -1560,7 +1645,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">55,56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="rasto.modulo" datatype="html">
@@ -1571,7 +1656,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">53,54</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="regras.descricao" datatype="html">
@@ -1649,8 +1734,12 @@
           <context context-type="linenumber">69,70</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">54,55</context>
+          <context context-type="linenumber">57,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="saida.OUT-007" datatype="html">
@@ -1710,6 +1799,76 @@
           <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="incerteza.titulo" datatype="html">
+        <source>Avaliação da incerteza</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">2,3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.aviso" datatype="html">
+        <source> Valores demonstrativos — não usar para decisões reais. A decisão nas zonas de revisão é sempre da gestão. </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">5,9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.hipotese" datatype="html">
+        <source>Hipótese</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.metodo" datatype="html">
+        <source>Método</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.valor" datatype="html">
+        <source>Valor</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.classificacao" datatype="html">
+        <source>Classificação</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">17,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.naoProbabilidade" datatype="html">
+        <source>(de -1 a 1; não é uma probabilidade)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">29,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.contribuicoes" datatype="html">
+        <source>Contribuições</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.naoAplicada" datatype="html">
+        <source>não aplicada</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.versao" datatype="html">
+        <source>Parâmetros <x id="INTERPOLATION" equiv-text="{{ graus()[0]?.versaoParametros }}"/></source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">75,77</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="resultado.titulo" datatype="html">
         <source>Decisão</source>
         <context-group purpose="location">
@@ -1735,42 +1894,42 @@
         <source>Resultado</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">58,59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="rasto.mensagem" datatype="html">
         <source>Mensagem</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">56,58</context>
+          <context context-type="linenumber">59,61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.como" datatype="html">
         <source>Como?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">35</context>
+          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.porqueNao" datatype="html">
         <source>Porque não?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">36</context>
+          <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.eSe" datatype="html">
         <source>E se?</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">37</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.rasto" datatype="html">
         <source>Regras disparadas</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="enum.TipoPedido.DEVOLUCAO" datatype="html">
@@ -2324,6 +2483,195 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
           <context context-type="linenumber">177</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.0" datatype="html">
+        <source>Nenhum</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.1" datatype="html">
+        <source>Ligeiro</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.2" datatype="html">
+        <source>Moderado</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.3" datatype="html">
+        <source>Evidente</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.4" datatype="html">
+        <source>Intenso</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.SIM" datatype="html">
+        <source>Sim</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.NAO" datatype="html">
+        <source>Não</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">212</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.NAO_SEI" datatype="html">
+        <source>Não sei</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">213</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.FRAUDE" datatype="html">
+        <source>Risco de fraude</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.DEFEITO_FABRICO" datatype="html">
+        <source>Defeito de fabrico</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.REVENDIBILIDADE" datatype="html">
+        <source>Revendibilidade</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.RECOMENDACAO_CREDITO" datatype="html">
+        <source>Recomendação de crédito de loja</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">220</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.FATOR_CERTEZA" datatype="html">
+        <source>Fator de certeza</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.BAYES" datatype="html">
+        <source>Probabilidade bayesiana</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">225</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.FUZZY" datatype="html">
+        <source>Lógica fuzzy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_ALTO" datatype="html">
+        <source>Risco alto</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_MEDIO" datatype="html">
+        <source>Risco médio</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_BAIXO" datatype="html">
+        <source>Risco baixo</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">232</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.PROPOR_PC006" datatype="html">
+        <source>Propor PC-006 (defeito provável)</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVER_DEFEITO" datatype="html">
+        <source>Inspeção adicional</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">234</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.DESGASTE" datatype="html">
+        <source>Desgaste</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">235</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVENDIVEL" datatype="html">
+        <source>Revendível</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVENDIBILIDADE_INDETERMINADA" datatype="html">
+        <source>Indeterminada</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">237</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.NAO_REVENDIVEL" datatype="html">
+        <source>Não revendível</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">238</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_RECOMENDADO" datatype="html">
+        <source>Crédito recomendado</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">239</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_A_CRITERIO" datatype="html">
+        <source>Crédito a critério da gestão</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_NAO_RECOMENDADO" datatype="html">
+        <source>Crédito não recomendado</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">241</context>
         </context-group>
       </trans-unit>
     </body>

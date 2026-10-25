@@ -590,3 +590,28 @@ label > span.obrigatorio {
   color: var(--texto-suave);
   font-size: 0.85rem;
 }
+
+/* Camada de incerteza (docs/08 §7.3) */
+.faixa-demonstrativo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 6px var(--espaco);
+  text-align: center;
+  font-weight: 600;
+  background: var(--rever-fundo);
+  color: var(--rever-texto);
+  border-bottom: 1px solid var(--rever-borda);
+}
+.incerteza .detalhe td {
+  border-bottom: none;
+  padding-top: 0;
+}
+.contribuicoes {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}
+.contribuicoes .nao-aplicada {
+  color: var(--texto-suave);
+}

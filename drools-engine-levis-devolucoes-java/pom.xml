@@ -12,6 +12,7 @@
 
   <modules>
     <module>backend/pericial-model</module>
+    <module>backend/pericial-uncertainty</module>
     <module>backend/pericial-rules</module>
     <module>backend/pericial-explanation</module>
     <module>backend/pericial-dto</module>
@@ -21,7 +22,7 @@
   </modules>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -48,6 +49,20 @@
     <!-- Limite de cobertura por módulo (sobreposto nos módulos que o exigem) -->
     <jacoco.cobertura.minima>0.00</jacoco.cobertura.minima>
   </properties>
+
+  <!-- Artefactos que não estão no Maven Central (gerados por backend/repo-local/preparar-*.sh) -->
+  <repositories>
+    <repository>
+      <id>repo-local-projeto</id>
+      <url>file://${maven.multiModuleProjectDirectory}/backend/repo-local</url>
+      <releases>
+        <checksumPolicy>fail</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
@@ -99,6 +114,24 @@
         <artifactId>pericial-service</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
+      </dependency>
+
+      <dependency>
+        <groupId>com.levis.devolucoes</groupId>
+        <artifactId>pericial-uncertainty</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.levis.devolucoes</groupId>
+        <artifactId>pericial-uncertainty</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+      </dependency>
+      <!-- jFuzzyLogic 3.3 (LGPL-3.0): só as classes do jFuzzyLogic, em backend/repo-local (ADR 0012) -->
+      <dependency>
+        <groupId>net.sourceforge.jfuzzylogic</groupId>
+        <artifactId>jfuzzylogic-core</artifactId>
+        <version>3.3-sem-dependencias</version>
       </dependency>
 
       <!-- BOM externos: o Drools antes do Spring Boot, para fixar as versões do motor -->
@@ -212,7 +245,7 @@
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>[21,)</version>
+                  <version>[25,)</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
                   <version>[3.6,)</version>

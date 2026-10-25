@@ -24,6 +24,11 @@
       <groupId>com.levis.devolucoes</groupId>
       <artifactId>pericial-model</artifactId>
     </dependency>
+    <!-- Camada de incerteza (docs/08): global das regras e evidências do pedido -->
+    <dependency>
+      <groupId>com.levis.devolucoes</groupId>
+      <artifactId>pericial-uncertainty</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-api</artifactId>
@@ -40,6 +45,12 @@
     <dependency>
       <groupId>com.levis.devolucoes</groupId>
       <artifactId>pericial-rules</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.levis.devolucoes</groupId>
+      <artifactId>pericial-uncertainty</artifactId>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

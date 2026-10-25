@@ -57,6 +57,7 @@ public class AuditoriaService {
             ? null
             : resultado.pedido().getColaborador().getId());
     entidade.setVersaoBaseConhecimento(decisao.versaoBaseConhecimento());
+    entidade.setVersaoParametrosIncerteza(resultado.decisao().getVersaoParametrosIncerteza());
     entidade.setElegibilidade(nome(decisao.elegibilidade()));
     entidade.setTipoVerificacao(nome(decisao.tipoVerificacao()));
     entidade.setTipoTransacao(nome(decisao.tipoTransacao()));

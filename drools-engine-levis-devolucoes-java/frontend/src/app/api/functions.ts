@@ -17,6 +17,8 @@ export type { ListarRegras$Params as ListarRegras$Params } from './fn/regras/lis
 export { listarRegras as listarRegras } from './fn/regras/listar-regras';
 export type { DetalheRegra$Params as DetalheRegra$Params } from './fn/regras/detalhe-regra';
 export { detalheRegra as detalheRegra } from './fn/regras/detalhe-regra';
+export type { ParametrosIncerteza$Params as ParametrosIncerteza$Params } from './fn/incerteza/parametros-incerteza';
+export { parametrosIncerteza as parametrosIncerteza } from './fn/incerteza/parametros-incerteza';
 export type { PorqueNao$Params as PorqueNao$Params } from './fn/explicacoes/porque-nao';
 export { porqueNao as porqueNao } from './fn/explicacoes/porque-nao';
 export type { Como$Params as Como$Params } from './fn/explicacoes/como';

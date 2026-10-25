@@ -376,6 +376,15 @@ def mock_levis_client() -> AsyncMock:
     mock.list_dev_collaborators.return_value = [
         {"id": "C-1", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-1"}
     ]
+    mock.get_uncertainty_parameters.return_value = {
+        "versao": "0.1-demonstrativo",
+        "demonstrativo": True,
+        "fatoresCerteza": {"EF-01": 0.3, "EF-06": -0.6},
+        "razoesVerosimilhanca": {"ED-01": 4.0, "ED-07": 0.1},
+        "priorDefeito": 0.05,
+        "limiares": {"fraude.medio": 0.3, "fraude.alto": 0.6},
+        "ficheirosFcl": {"revendibilidade": "fcl/revendibilidade.fcl"},
+    }
     return mock
 
 

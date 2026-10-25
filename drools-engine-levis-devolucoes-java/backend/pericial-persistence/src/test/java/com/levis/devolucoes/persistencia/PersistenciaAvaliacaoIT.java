@@ -53,6 +53,7 @@ class PersistenciaAvaliacaoIT {
     avaliacao.setLojaCodigo(loja);
     avaliacao.setColaboradorId("C-1");
     avaliacao.setVersaoBaseConhecimento("com.levis.devolucoes:pericial-rules:0.1.0-SNAPSHOT");
+    avaliacao.setVersaoParametrosIncerteza("0.1.0-demo");
     avaliacao.setElegibilidade("REVER");
     avaliacao.setTipoTransacao("TROCA");
     avaliacao.setValorDevolucao(new BigDecimal("69.50"));
@@ -86,7 +87,7 @@ class PersistenciaAvaliacaoIT {
     Integer versoes =
         jdbc.queryForObject(
             "select count(*) from flyway_schema_history where success", Integer.class);
-    assertThat(versoes).isEqualTo(1);
+    assertThat(versoes).as("V1 e V2 (versão dos parâmetros de incerteza)").isEqualTo(2);
   }
 
   @Test
@@ -97,6 +98,7 @@ class PersistenciaAvaliacaoIT {
     AvaliacaoEntity lida = avaliacoes.findComRegistosById(gravada.getId()).orElseThrow();
 
     assertThat(lida.getVersaoBaseConhecimento()).endsWith("pericial-rules:0.1.0-SNAPSHOT");
+    assertThat(lida.getVersaoParametrosIncerteza()).isEqualTo("0.1.0-demo");
     assertThat(lida.getValorDevolucao()).isEqualByComparingTo("69.50");
     assertThat(lida.getPedidoJson()).contains("\"tipoPedido\"");
     assertThat(lida.getRegistos())

@@ -66,7 +66,11 @@ class ExplicadoresTest {
 
       assertThat(explicacao.passos())
           .extracting(p -> p.codigoRegra())
-          .containsExactly("CT-003", "CH-001", "HS-003", "OUT-007", "OUT-001");
+          // EVIDENCIA e INCERTEZA correm antes do M3 (docs/08 §5.3); o Bayes não corre por causa do
+          // HS-003
+          .containsExactly(
+              "CT-003", "CH-001", "IU-02", "IU-06", "IU-07", "IU-10", "HS-003", "OUT-007",
+              "OUT-001");
       assertThat(explicacao.paragem()).isEqualTo("HS-003");
     }
 

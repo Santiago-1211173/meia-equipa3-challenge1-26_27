@@ -1,0 +1,189 @@
+package com.levis.devolucoes.regras;
+
+// INCERTEZA — Graus de crença e os seus efeitos (docs/08 §5.4), entre EVIDENCIA e M3.
+// O cálculo e a classificação ficam no ServicoIncerteza (global incerteza), com os parâmetros
+// demonstrativos do ficheiro de parâmetros; aqui decide-se quando calcular e que efeito aplicar.
+// A camada de incerteza nunca transforma um RECUSAR num PERMITIR (docs/08 §1.2): só calcula dados
+// derivados, recomenda nas zonas REVER ou torna o resultado mais cauteloso. O defeito de fabrico
+// (IU-20 a IU-23) corre no M3, depois das paragens HS (ADR 0012); a IU-40 no M5 e a IU-50 no M8.
+
+import com.levis.devolucoes.model.decisao.Decisao;
+import com.levis.devolucoes.model.decisao.DecisaoArtigo;
+import com.levis.devolucoes.model.decisao.IndicadorFraude;
+import com.levis.devolucoes.model.enums.CategoriaProduto;
+import com.levis.devolucoes.model.enums.ClassificacaoIncerteza;
+import com.levis.devolucoes.model.enums.Hipotese;
+import com.levis.devolucoes.model.enums.Modulo;
+import com.levis.devolucoes.model.enums.NivelAprovacao;
+import com.levis.devolucoes.model.enums.NivelRisco;
+import com.levis.devolucoes.model.incerteza.Evidencia;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
+import com.levis.devolucoes.model.pedido.PedidoDevolucao;
+import com.levis.devolucoes.model.produto.ArtigoDevolvido;
+import java.util.List;
+
+global com.levis.devolucoes.incerteza.ServicoIncerteza incerteza;
+
+// ---------------------------------------------------------------------------------------------
+// Risco de fraude: fatores de certeza (docs/08 §2)
+// ---------------------------------------------------------------------------------------------
+
+rule "IU-10 Calcular o risco de fraude"
+    @id("IU-10")
+    @modulo("INCERTEZA")
+    @descricao("Combina as evidências de fraude com fatores de certeza (MYCIN). Sem evidências, o risco é 0. Pesos e limiares demonstrativos (docs/08 §2).")
+    @condicoes("pedidoNaoSuspenso")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 100
+when
+    $d   : Decisao( terminal == false )
+    $p   : PedidoDevolucao( id == $d.pedidoId )
+    not GrauCrenca( pedidoId == $p.id, hipotese == Hipotese.FRAUDE )
+    $evs : List( ) from collect( Evidencia( pedidoId == $p.id, hipotese == Hipotese.FRAUDE ) )
+then
+    GrauCrenca grau = incerteza.riscoFraude( $p.getId(), (List<Evidencia>) $evs );
+    insert( grau );
+    modify( $d ) {
+        acrescentarGrau( grau ),
+        registar( "IU-10", Modulo.INCERTEZA, "Calculado o " + incerteza.resumo( grau ) + "." )
+    }
+end
+
+rule "IU-11 Risco de fraude alto: registar o indício"
+    @id("IU-11")
+    @modulo("INCERTEZA")
+    @descricao("Risco de fraude alto: regista um indício de fraude significativo, com as contribuições; a EX-008 suspende a transação e envolve a gestão. Limiar demonstrativo (docs/08 §2.3).")
+    @condicoes("riscoFraudeAlto,semIndicioFraudeRelevante")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 90
+when
+    $d : Decisao( terminal == false )
+    $g : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.FRAUDE,
+                     classificacao == ClassificacaoIncerteza.RISCO_ALTO )
+    not IndicadorFraude( pedidoId == $d.pedidoId,
+                         nivelRisco == NivelRisco.SIGNIFICATIVO || nivelRisco == NivelRisco.CONFIRMADO )
+then
+    insert( incerteza.indicadorFraude( $g ) );
+    // O auto-focus da EX-008 não interrompe o grupo em curso: dar-lhe já o foco, para que a suspensão
+    // aconteça antes de qualquer outra regra (ADR 0012).
+    drools.setFocus( "TRANSVERSAL" );
+    modify( $d ) {
+        registar( "IU-11", Modulo.INCERTEZA,
+                  "Risco de fraude alto: registado um indício significativo; a EX-008 suspende a transação e envolve a gestão." )
+    }
+end
+
+rule "IU-12 Risco de fraude médio: exigir a aprovação da gestão"
+    @id("IU-12")
+    @modulo("INCERTEZA")
+    @descricao("Risco de fraude médio: exige a aprovação da gestão; se o resultado final for PERMITIR, passa a REVER (IU-50). Nunca altera um RECUSAR. Limiares demonstrativos (docs/08 §2.3) [a validar: A-34].")
+    @condicoes("riscoFraudeMedio")
+    @conclusoes("OUT-005=RESPONSAVEL_SENIOR")
+    agenda-group "INCERTEZA"
+    salience 90
+when
+    $d : Decisao( terminal == false, disparou( "IU-12" ) == false )
+    $g : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.FRAUDE,
+                     classificacao == ClassificacaoIncerteza.RISCO_MEDIO )
+then
+    modify( $d ) {
+        exigirAprovacao( NivelAprovacao.RESPONSAVEL_SENIOR ),
+        registar( "IU-12", Modulo.INCERTEZA,
+                  "Risco de fraude médio: a gestão tem de aprovar a transação; um resultado PERMITIR passa a REVER." )
+    }
+end
+
+// ---------------------------------------------------------------------------------------------
+// Revendibilidade (IN-010): lógica fuzzy (docs/08 §4.1). Só recomenda (ADR 0012, decisão 1):
+// apenas NAO_REVENDIVEL fixa revendivel = FALSE, por ser mais cauteloso.
+// ---------------------------------------------------------------------------------------------
+
+rule "IU-30 Calcular a revendibilidade"
+    @id("IU-30")
+    @modulo("INCERTEZA")
+    @descricao("Calcula o grau de revendibilidade por lógica fuzzy a partir do grau de uso e das etiquetas, quando a gestão ainda não decidiu o IN-010 (não se aplica a bodywear). Funções e regras demonstrativas (docs/08 §4.1).")
+    @condicoes("grauUsoConhecido,naoBodywear,revendivelPorAvaliar")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 80
+when
+    $d  : Decisao( terminal == false )
+    $p  : PedidoDevolucao( id == $d.pedidoId )
+    $a  : ArtigoDevolvido( revendivel == null, produto != null,
+                           produto.categoria != CategoriaProduto.BODYWEAR,
+                           estado != null, estado.grauUso != null, estado.etiquetas != null )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false )
+    not GrauCrenca( pedidoId == $p.id, artigoId == $a.id, hipotese == Hipotese.REVENDIBILIDADE )
+then
+    GrauCrenca grau = incerteza.revendibilidade( $p.getId(), $a.getId(), $a.getEstado().getGrauUso(),
+                                                 $a.getEstado().getEtiquetas() );
+    insert( grau );
+    modify( $d ) { acrescentarGrau( grau ) }
+    modify( $da ) { registar( "IU-30", Modulo.INCERTEZA, "Calculado o " + incerteza.resumo( grau ) + "." ) }
+end
+
+rule "IU-31 Revendível: recomendar à gestão"
+    @id("IU-31")
+    @modulo("INCERTEZA")
+    @descricao("Grau de revendibilidade alto: recomenda à gestão que o artigo pode ser revendido; a decisão do IN-010 continua a ser da gestão [a validar: A-32].")
+    @condicoes("revendibilidadeAlta")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 70
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.REVENDIBILIDADE,
+                      classificacao == ClassificacaoIncerteza.REVENDIVEL )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $g.artigoId, terminal == false,
+                         disparou( "IU-31" ) == false )
+then
+    modify( $da ) {
+        registar( "IU-31", Modulo.INCERTEZA,
+                  "Recomendação: o artigo parece revendível. A gestão confirma se pode ser verificado, reetiquetado e revendido (IN-010)." )
+    }
+end
+
+rule "IU-32 Revendibilidade indeterminada: a gestão decide"
+    @id("IU-32")
+    @modulo("INCERTEZA")
+    @descricao("Grau de revendibilidade intermédio: o IN-010 fica por decidir pela gestão (EX-001) [a validar: A-32].")
+    @condicoes("revendibilidadeIndeterminada")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 70
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.REVENDIBILIDADE,
+                      classificacao == ClassificacaoIncerteza.REVENDIBILIDADE_INDETERMINADA )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $g.artigoId, terminal == false,
+                         disparou( "IU-32" ) == false )
+then
+    modify( $da ) {
+        registar( "IU-32", Modulo.INCERTEZA,
+                  "Revendibilidade indeterminada: a gestão decide se o artigo pode ser revendido (EX-001)." )
+    }
+end
+
+rule "IU-33 Não revendível: o artigo não pode ser revendido"
+    @id("IU-33")
+    @modulo("INCERTEZA")
+    @descricao("Grau de revendibilidade baixo: o artigo não pode ser revendido (IN-010 = não), o que é mais cauteloso. Nunca sobrepõe uma decisão da gestão [a validar: A-32].")
+    @condicoes("revendibilidadeBaixa,revendivelPorAvaliar")
+    @conclusoes("")
+    agenda-group "INCERTEZA"
+    salience 70
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.REVENDIBILIDADE,
+                      classificacao == ClassificacaoIncerteza.NAO_REVENDIVEL )
+    $a  : ArtigoDevolvido( id == $g.artigoId, revendivel == null )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false )
+then
+    modify( $a ) { setRevendivel( false ) }
+    modify( $da ) {
+        registar( "IU-33", Modulo.INCERTEZA,
+                  "Grau de revendibilidade baixo: o artigo não pode ser verificado, reetiquetado e revendido (IN-010 = não)." )
+    }
+end

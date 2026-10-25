@@ -18,6 +18,11 @@
   }
   <a class="idioma" [href]="'/' + outroIdioma.codigo + '/'" [attr.hreflang]="outroIdioma.codigo">{{ outroIdioma.nome }}</a>
 </header>
+@if (autenticacao.autenticado() && incerteza.demonstrativo()) {
+  <p class="faixa-demonstrativo" role="note" data-teste="aviso-demonstrativo" i18n="@@app.avisoDemonstrativo">
+    Valores demonstrativos — não usar para decisões reais.
+  </p>
+}
 <main id="conteudo">
   <router-outlet />
 </main>

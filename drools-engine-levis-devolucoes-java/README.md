@@ -6,6 +6,8 @@ devoluções, trocas e ajustes de preço, e para explicar cada decisão (Como, P
 ## Documentação
 
 - `docs/01` a `docs/06`: base de conhecimento, regras IF/THEN, fluxograma, modelo, estrutura e cenários de teste.
+- `docs/08-incerteza.md`: camada de tratamento da incerteza (fatores de certeza, Bayes, fuzzy), com valores
+  demonstrativos.
 - `docs/07-plano.md`: plano de implementação por fases, estado e fecho (Definição de concluído).
 - `docs/adr/`: decisões de arquitetura e ambiguidades por validar (`0003-ambiguidades.md`).
 
@@ -17,6 +19,12 @@ devoluções, trocas e ajustes de preço, e para explicar cada decisão (Como, P
 - Não se inventam regras de negócio. Onde a base de conhecimento é omissa ou ambígua, implementa-se o comportamento
   documentado, marcado "a validar" e registado em `docs/adr/0003-ambiguidades.md`.
 - As decisões de arquitetura ficam em `docs/adr/`.
+
+### Incerteza (docs/08)
+- Os parâmetros de incerteza são demonstrativos; nunca se escrevem em código Java ou DRL, só no ficheiro de
+  parâmetros (`parametros-incerteza.yml` e ficheiros FCL).
+- A camada de incerteza nunca transforma RECUSAR em PERMITIR: só calcula dados derivados, recomenda nas zonas REVER
+  ou torna o resultado mais cauteloso.
 
 ### Código
 - Código, mensagens e documentação em português de Portugal, sem acentos nos identificadores Java/TS. Os termos
@@ -47,7 +55,7 @@ devoluções, trocas e ajustes de preço, e para explicar cada decisão (Como, P
 
 ## Requisitos
 
-- JDK 21 ou superior (o código é compilado com `release 21`).
+- JDK 25 LTS ou superior (o código é compilado com `release 25`).
 - Maven 3.9 ou superior.
 - Node 24 LTS (frontend; o Angular 22 exige pelo menos 22.22.3) e Docker (ambiente local e testes de integração
   com Testcontainers).

@@ -58,7 +58,13 @@ function folhas(
   prefixo = '',
   resultado = new Map<string, Json>(),
 ): Map<string, Json> {
-  if (valor !== null && typeof valor === 'object' && !Array.isArray(valor)) {
+  const mapa = permitidos.has(prefixo.replace(/\[\d+\]/g, ''));
+  if (mapa && valor !== null && typeof valor === 'object' && !Array.isArray(valor)) {
+    // Mapa da API (ex.: respostas de inspeção): uma entrada por chave, como Sim / Não / Não sei
+    for (const [chave, v] of Object.entries(valor)) {
+      resultado.set(`${prefixo}.${chave}`, v === null ? 'NAO_SEI' : v ? 'SIM' : 'NAO');
+    }
+  } else if (valor !== null && typeof valor === 'object' && !Array.isArray(valor)) {
     for (const [nome, v] of Object.entries(valor)) {
       folhas(v, permitidos, prefixo ? `${prefixo}.${nome}` : nome, resultado);
     }
@@ -112,6 +118,13 @@ export async function entrarComo(page: Page, colaborador: Colaborador): Promise<
  */
 export async function preencherPedido(page: Page, pedido: Record<string, Json>): Promise<void> {
   const valores = folhas(pedido, caminhosDaApi());
+  // Os cenários guardam as respostas do colaborador como no modelo (true/false); no formulário são
+  // a escolha Sim / Não (docs/08 §7.1)
+  for (const [caminho, valor] of valores) {
+    if (caminho.endsWith('explicaOrigemCompra') && typeof valor === 'boolean') {
+      valores.set(caminho, valor ? 'SIM' : 'NAO');
+    }
+  }
   const passos = await page.locator('[data-passo]').all();
   for (const passo of passos) {
     await passo.click();

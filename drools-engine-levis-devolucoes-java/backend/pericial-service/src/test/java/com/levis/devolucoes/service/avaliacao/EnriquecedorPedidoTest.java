@@ -24,7 +24,7 @@ class EnriquecedorPedidoTest {
       new EnriquecedorPedido(integracoes, integracoes, integracoes, integracoes);
 
   private static ProdutoRequest so(String sku) {
-    return new ProdutoRequest(sku, null, null, null, null, null, null, null, null, null);
+    return new ProdutoRequest(sku, null, null, null, null, null, null, null, null, null, null);
   }
 
   private static PedidoAvaliacaoRequest pedido(
@@ -90,6 +90,7 @@ class EnriquecedorPedidoTest {
             false,
             Marca.OUTRA,
             CategoriaProduto.VESTUARIO,
+            null,
             null,
             null,
             null,

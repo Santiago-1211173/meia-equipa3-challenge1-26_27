@@ -1,9 +1,28 @@
 "use client";
 
 import React from "react";
-import { useWizard } from "./WizardContext";
+import {
+  useWizard,
+  exigeDecisaoDeRevenda,
+  podeAlegarDefeito,
+  revendaRespondida,
+  usaCamadaIncerteza,
+} from "./WizardContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import SlickSlider from "@/components/ui/SlickSlider";
+import SegmentedChoice from "@/components/ui/SegmentedChoice";
+import { GRAUS_DE_USO, PERGUNTAS_INSPECAO, RESPOSTAS } from "@/config/uncertaintyLabels";
+import type { Resposta } from "@/types/returns";
+
+/** Etiqueta que identifica as perguntas que alimentam a camada de incerteza do Drools. */
+function UncertaintyChip({ isEn }: { isEn: boolean }) {
+  return (
+    <span className="font-sans inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/80 select-none shrink-0">
+      <span className="material-symbols-outlined text-[13px]">psychology</span>
+      {isEn ? "Drools · Uncertainty" : "Drools · Incerteza"}
+    </span>
+  );
+}
 
 interface PhysicalConditionItem {
   id: "NOVO_ETIQUETAS" | "NOVO_ETIQUETAS_SOLTAS" | "NOVO_SEM_ETIQUETAS" | "USADO" | "LAVADO" | "MANCHADO";
@@ -126,15 +145,27 @@ export default function Step3ProductEligibility() {
     state.brandAllowed !== null &&
     state.alteredOrHemmed !== null;
 
-  const isResellApplicable =
-    state.physicalCondition === "NOVO_ETIQUETAS_SOLTAS" ||
-    state.physicalCondition === "NOVO_SEM_ETIQUETAS";
+  const isResellApplicable = exigeDecisaoDeRevenda(state);
+
+  // Camada de incerteza (só no Drools)
+  const comIncerteza = usaCamadaIncerteza(state);
+  const mostraAlegacaoDefeito = podeAlegarDefeito(state);
+  const mostraInspecao = mostraAlegacaoDefeito && state.defectClaimed === true;
+  // A revendibilidade fuzzy não se aplica a bodywear (IU-30)
+  const podeEstimarRevenda = comIncerteza && state.intimateUnderwear !== true;
+  const isResaleAnswered = revendaRespondida(state);
+  const respostasInspecao = PERGUNTAS_INSPECAO.filter((p) => state.defectInspection[p.codigo]).length;
+  const inspectionSectionNumber = isResellApplicable ? "04" : "03";
 
   const handleSelectCondition = (condId: PhysicalConditionItem["id"]) => {
     setField("physicalCondition", condId);
     if (condId !== "NOVO_ETIQUETAS_SOLTAS" && condId !== "NOVO_SEM_ETIQUETAS") {
       setField("readyToResell", null);
     }
+  };
+
+  const handleInspectionAnswer = (codigo: string, resposta: Resposta) => {
+    setField("defectInspection", { ...state.defectInspection, [codigo]: resposta });
   };
 
   return (
@@ -363,7 +394,9 @@ export default function Step3ProductEligibility() {
             </div>
             <SlickSlider
               options={[
-                { label: isEn ? "No defect" : "Sem defeito", value: false, tone: "success", icon: "check" },
+                comIncerteza
+                  ? { label: isEn ? "Not confirmed" : "Não confirmado", value: false, tone: "success", icon: "check" }
+                  : { label: isEn ? "No defect" : "Sem defeito", value: false, tone: "success", icon: "check" },
                 { label: isEn ? "Confirmed defect" : "Defeito confirmado", value: true, tone: "warning", icon: "report_problem" },
               ]}
               value={state.manufacturingDefect}
@@ -372,6 +405,50 @@ export default function Step3ProductEligibility() {
               width="w-full sm:w-[264px]"
             />
           </div>
+
+          {/* Card: Defeito alegado pelo cliente (camada de incerteza, IU-20) */}
+          {mostraAlegacaoDefeito && (
+            <div
+              className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 sm:col-span-2 bg-white animate-in fade-in duration-200 ${state.defectClaimed
+                  ? "border-2 border-indigo-500"
+                  : "border border-slate-200 hover:border-slate-300"
+                }`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${state.defectClaimed
+                      ? "bg-indigo-50 text-indigo-700 border border-indigo-200/60"
+                      : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[22px]">record_voice_over</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-sans font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug">
+                      {isEn ? "Does the customer claim a manufacturing defect?" : "O cliente alega defeito de fabrico?"}
+                    </h4>
+                    <UncertaintyChip isEn={isEn} />
+                  </div>
+                  <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    {isEn
+                      ? "The engine estimates the probability of a defect from a short inspection; management confirms it"
+                      : "O motor estima a probabilidade de defeito a partir de uma inspeção rápida; a gestão confirma"}
+                  </p>
+                </div>
+              </div>
+              <SlickSlider
+                options={[
+                  { label: isEn ? "No" : "Não", value: false, tone: "success", icon: "check" },
+                  { label: isEn ? "Claims defect" : "Alega defeito", value: true, tone: "info", icon: "record_voice_over" },
+                ]}
+                value={state.defectClaimed}
+                onChange={(val) => setField("defectClaimed", val)}
+                ariaLabel={isEn ? "Customer claims a manufacturing defect" : "O cliente alega defeito de fabrico"}
+                width="w-full sm:w-[232px]"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -487,10 +564,12 @@ export default function Step3ProductEligibility() {
             <h3 className="font-sans text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               {isEn ? "Resale Eligibility" : "Possibilidade de Revenda"}
             </h3>
-            {state.readyToResell !== null ? (
+            {isResaleAnswered ? (
               <span className="font-sans inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 select-none">
                 <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                {isEn ? "Selected" : "Definido"}
+                {state.resaleUndecided
+                  ? (isEn ? "Estimated by the engine" : "Estimada pelo motor")
+                  : (isEn ? "Selected" : "Definido")}
               </span>
             ) : (
               <span className="font-sans inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 select-none">
@@ -502,7 +581,7 @@ export default function Step3ProductEligibility() {
 
           {/* Card da pergunta de revenda */}
           <div
-            className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 bg-white ${state.readyToResell === false
+            className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 bg-white ${state.resaleUndecided ? "opacity-60" : ""} ${state.readyToResell === false
                 ? "border-2 border-amber-500"
                 : state.readyToResell === true
                   ? "border-2 border-emerald-600"
@@ -539,6 +618,174 @@ export default function Step3ProductEligibility() {
               ariaLabel={isEn ? "Can item be verified, retagged, and resold" : "O artigo pode ser verificado, reetiquetado e revendido"}
               width="w-full sm:w-[192px]"
             />
+          </div>
+
+          {/* Card: sem decisão, a revendibilidade é estimada pela camada de incerteza (IU-30) */}
+          {podeEstimarRevenda && (
+            <div
+              className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 bg-white ${state.resaleUndecided
+                  ? "border-2 border-indigo-500"
+                  : "border border-slate-200 hover:border-slate-300"
+                }`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${state.resaleUndecided
+                      ? "bg-indigo-50 text-indigo-700 border border-indigo-200/60"
+                      : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[22px]">help_center</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-sans font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug">
+                      {isEn ? "Can't decide yet?" : "Ainda não consegue decidir?"}
+                    </h4>
+                    <UncertaintyChip isEn={isEn} />
+                  </div>
+                  <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    {isEn
+                      ? "The engine estimates resaleability from the wear level and recommends it to management"
+                      : "O motor estima a revendibilidade pelo grau de uso e recomenda à gestão, que decide"}
+                  </p>
+                </div>
+              </div>
+              <SlickSlider
+                options={[
+                  { label: isEn ? "I decide" : "Decido eu", value: false, tone: "success", icon: "check" },
+                  { label: isEn ? "Estimate" : "Estimar", value: true, tone: "info", icon: "psychology" },
+                ]}
+                value={state.resaleUndecided}
+                onChange={(val) => setField("resaleUndecided", val)}
+                ariaLabel={isEn ? "Estimate resaleability with the uncertainty layer" : "Estimar a revendibilidade pela camada de incerteza"}
+                width="w-full sm:w-[216px]"
+              />
+            </div>
+          )}
+
+          {/* Card: grau de uso observado (entrada da lógica fuzzy da revendibilidade) */}
+          {podeEstimarRevenda && state.resaleUndecided && (
+            <div
+              className={`rounded-xl p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-all duration-200 bg-white animate-in fade-in duration-200 ${state.wearLevel !== null
+                  ? "border-2 border-emerald-600"
+                  : "border border-slate-200 hover:border-slate-300"
+                }`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${state.wearLevel !== null
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                      : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[22px]">speed</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-sans font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug">
+                      {isEn ? "Observed wear level" : "Grau de uso observado"}
+                    </h4>
+                    {state.wearLevel === null && (
+                      <span className="font-sans inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 select-none shrink-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        {isEn ? "Required" : "Obrigatório"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    {isEn ? "From 0 (no wear) to 4 (heavy wear)" : "De 0 (nenhum) a 4 (intenso)"}
+                  </p>
+                </div>
+              </div>
+              <SegmentedChoice
+                options={GRAUS_DE_USO.map((g) => ({
+                  label: `${g.value} · ${isEn ? g.en : g.pt}`,
+                  value: g.value,
+                  tone: g.value <= 1 ? "success" : g.value === 2 ? "warning" : "danger",
+                }))}
+                value={state.wearLevel}
+                onChange={(val) => setField("wearLevel", val)}
+                ariaLabel={isEn ? "Observed wear level" : "Grau de uso observado"}
+                width="w-full lg:w-auto"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Inspeção do defeito alegado (entradas do cálculo bayesiano, docs/08 §3.3) */}
+      {mostraInspecao && (
+        <div className="w-full flex flex-col gap-3 animate-in fade-in duration-200">
+          {/* Typographic Section Header */}
+          <div className="flex items-center gap-2 px-1 flex-wrap">
+            <span className="font-mono tabular-nums text-xs font-bold text-slate-400 select-none">
+              {inspectionSectionNumber}
+            </span>
+            <span className="text-slate-300">/</span>
+            <h3 className="font-sans text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              {isEn ? "Claimed Defect Inspection" : "Inspeção do Defeito Alegado"}
+            </h3>
+            <span className="font-sans inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200/80 select-none tabular-nums">
+              {isEn
+                ? `Optional · ${respostasInspecao}/${PERGUNTAS_INSPECAO.length} answered`
+                : `Opcional · ${respostasInspecao}/${PERGUNTAS_INSPECAO.length} respondidas`}
+            </span>
+          </div>
+          <p className="font-sans text-xs text-slate-500 px-1 -mt-1 leading-relaxed">
+            {isEn
+              ? "Each answer adjusts the estimated probability of a manufacturing defect. Answer \"Not sure\" when you cannot tell."
+              : "Cada resposta ajusta a probabilidade estimada de defeito de fabrico. Responda \"Não sei\" quando não for possível avaliar."}
+          </p>
+
+          <div className="flex flex-col gap-2.5">
+            {PERGUNTAS_INSPECAO.map((pergunta) => {
+              const resposta = state.defectInspection[pergunta.codigo] ?? null;
+              return (
+                <div
+                  key={pergunta.codigo}
+                  className={`rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all duration-200 bg-white ${resposta
+                      ? "border border-slate-300"
+                      : "border border-slate-200 hover:border-slate-300"
+                    }`}
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${resposta
+                          ? "bg-indigo-50 text-indigo-700 border border-indigo-200/60"
+                          : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                        }`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{pergunta.icon}</span>
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono tabular-nums text-[10px] font-bold text-slate-400 select-none">
+                          {pergunta.codigo}
+                        </span>
+                        <h4 className="font-sans font-bold text-slate-900 text-sm tracking-tight leading-snug">
+                          {isEn ? pergunta.en : pergunta.pt}
+                        </h4>
+                      </div>
+                      <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                        {isEn ? pergunta.hintEn : pergunta.hintPt}
+                      </p>
+                    </div>
+                  </div>
+                  <SegmentedChoice<Resposta>
+                    options={RESPOSTAS.map((r) => ({
+                      label: isEn ? r.en : r.pt,
+                      value: r.value,
+                      tone: r.value === "NAO_SEI" ? "neutral" : "info",
+                    }))}
+                    value={resposta}
+                    onChange={(val) => handleInspectionAnswer(pergunta.codigo, val)}
+                    ariaLabel={isEn ? pergunta.en : pergunta.pt}
+                    width="w-full sm:w-[252px]"
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

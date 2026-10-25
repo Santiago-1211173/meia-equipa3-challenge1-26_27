@@ -14,7 +14,7 @@ export interface PorqueNao$Params {
   id: string;
 
 /**
- * Conclusão no formato OUT-00n:VALOR
+ * Conclusão no formato OUT-00n:VALOR ou INCERTEZA.<HIPOTESE>:<CLASSIFICACAO>
  */
   conclusao?: string;
 

@@ -15,6 +15,12 @@ test('sem sessão, volta ao ecrã de entrada e depois à página pedida', async 
 test('"O que falta?" e "Porquê?" enquanto se preenche o pedido', async ({ page }) => {
   await entrarComo(page, cenario(5).colaborador);
 
+  // Com o formulário vazio o SKU não está indicado como reconhecido pelo POS: o HS-001 termina a
+  // inferência e o "O que falta?" já não pede dados (ADR 0004). Com o SKU reconhecido, o pedido continua.
+  await page.locator('[data-passo="artigos"]').click();
+  await page.locator('[data-caminho="artigos[0].produto.skuReconhecidoPOS"]').selectOption('true');
+  await page.locator('[data-passo="pedido"]').click();
+
   await expect(page.getByTestId('em-falta-resumo')).toBeVisible();
   await expect(page.locator('lv-em-falta')).toContainText('IN-001');
 

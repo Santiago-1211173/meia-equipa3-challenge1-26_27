@@ -8,14 +8,14 @@
     "Canal de compra desconhecido.",
     "O cliente defensivo não fornece dados pessoais (PT-006).",
     "O par com mancha visível é registado como usado e sujo (sujoOuInseguro).",
-    "O colaborador regista a incapacidade de explicar onde e quando os artigos foram comprados como indício de fraude de nível significativo (A-27).",
+    "O colaborador responde que o cliente não explica onde nem quando comprou (EF-04) e que pede numerário (EF-05); os graus de uso são 0, 1 e 2, com a mancha como uso moderado. O risco de fraude (fatores de certeza, valores demonstrativos do docs/08) é 0,8354 e a IU-11 regista o indício significativo (A-27, ADR 0012).",
     "O pedido de reembolso em numerário numa devolução às cegas é registado como exceção que exige um meio proibido."
   ],
   "justificacao": [
-    "Transversal: indício de fraude significativo (A-27) → EX-008 suspende a transação e escala para District/Area e Global Safety and Security; nenhum módulo seguinte é avaliado.",
+    "Incerteza (docs/08, valores demonstrativos): EF-01 sem comprovativo, EF-02 sem etiquetas, EF-03 estados 0 e 2, EF-04 não explica a origem e EF-05 pede numerário às cegas → risco de fraude 0,8354 (RISCO_ALTO); a IU-11 regista o indício significativo (A-27) e a EX-008 suspende a transação e escala para District/Area e Global Safety and Security. Os módulos M0 a M2 já foram avaliados; nenhum módulo a partir do M3 é avaliado. O nervosismo do cliente não entra no cálculo.",
     "Transversal: o par com mancha é sujo/inseguro → PC-008 isolamento por risco biológico, mesmo com a transação suspensa (A-28).",
     "Sem a suspensão, os resultados por artigo seriam PC-003 (rever), PC-004 (rever) e PC-004 (rever) às cegas (ver ElegibilidadeProdutoTest).",
-    "Resultado: REVER, suspenso, com escalonamento para District/Area; o pedido de numerário não é avaliado."
+    "Resultado: REVER, suspenso, com escalonamento para District/Area; o pedido de numerário só conta como evidência de fraude (EF-05)."
   ],
   "pedido": {
     "id": "C06",
@@ -23,26 +23,26 @@
     "tipoPedido": "DEVOLUCAO",
     "loja": { "codigo": "US-ML-060", "nome": "Mainline EUA", "mercado": "EUA", "tipoLoja": "MAINLINE" },
     "colaborador": { "id": "C-6", "nome": "Key Holder", "funcao": "KEY_HOLDER", "idCredencialPOS": "POS-C-6" },
-    "cliente": { "forneceDados": false },
+    "cliente": { "forneceDados": false, "explicaOrigemCompra": false, "pedeNumerario": true },
     "compraOriginal": { "canal": "DESCONHECIDO" },
     "artigos": [
       {
         "id": "A-1",
         "produto": { "sku": "PREM-501-30", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
         "quantidade": 1,
-        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "AUSENTES" }
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "AUSENTES", "grauUso": 0 }
       },
       {
         "id": "A-2",
         "produto": { "sku": "PREM-511-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
         "quantidade": 1,
-        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES" }
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "grauUso": 1 }
       },
       {
         "id": "A-3",
         "produto": { "sku": "PREM-512-34", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 148.00, "precoAtual": 148.00 },
         "quantidade": 1,
-        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "sujoOuInseguro": true }
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "sujoOuInseguro": true, "grauUso": 2 }
       }
     ],
     "pedidoExcecao": {
@@ -51,15 +51,13 @@
       "exigeMeioProibido": true
     }
   },
-  "indicadoresFraude": [
-    { "pedidoId": "C06", "descricao": "O cliente não consegue explicar onde nem quando os artigos foram comprados", "nivelRisco": "SIGNIFICATIVO" }
-  ],
+  "indicadoresFraude": [],
   "esperado": {
     "elegibilidade": "REVER",
     "aprovacao": "DISTRICT_AREA",
     "terminal": true,
-    "regrasDisparadas": ["EX-008", "PC-008"],
-    "regrasNaoDisparadas": ["CT-003", "IN-003", "PT-002", "PT-005", "OUT-007", "OUT-001"],
+    "regrasDisparadas": ["IU-10", "IU-11", "EX-008", "PC-008"],
+    "regrasNaoDisparadas": ["PT-002", "PT-005", "OUT-007", "OUT-001"],
     "artigos": {
       "A-3": { "destino": "RISCO_BIOLOGICO", "regrasDisparadas": ["PC-008"] }
     }

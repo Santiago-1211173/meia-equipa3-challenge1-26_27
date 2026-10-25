@@ -4,6 +4,7 @@ import com.levis.devolucoes.explicacao.catalogo.CatalogoRegras;
 import com.levis.devolucoes.explicacao.como.ExplicadorComo;
 import com.levis.devolucoes.explicacao.esenao.ClonadorFactos;
 import com.levis.devolucoes.explicacao.esenao.SimuladorCenario;
+import com.levis.devolucoes.explicacao.incerteza.ExplicadorIncerteza;
 import com.levis.devolucoes.explicacao.motor.ExecutorSessao;
 import com.levis.devolucoes.explicacao.porque.DependenciasDados;
 import com.levis.devolucoes.explicacao.porque.ExplicadorPorque;
@@ -59,6 +60,11 @@ public class Explicadores {
 
   public ExplicadorPorque porque(Locale locale) {
     return new ExplicadorPorque(catalogo, avaliador, dependencias, texto(locale));
+  }
+
+  /** Explicações dos graus da camada de incerteza (docs/08 §7.2). */
+  public ExplicadorIncerteza incerteza(Locale locale) {
+    return new ExplicadorIncerteza(executor.incerteza(), texto(locale));
   }
 
   public SimuladorCenario simulador(Locale locale) {

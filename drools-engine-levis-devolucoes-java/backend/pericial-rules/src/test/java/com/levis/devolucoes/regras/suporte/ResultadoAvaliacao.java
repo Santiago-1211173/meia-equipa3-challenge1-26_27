@@ -3,8 +3,12 @@ package com.levis.devolucoes.regras.suporte;
 import com.levis.devolucoes.model.decisao.Decisao;
 import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.decisao.RegistoRegra;
+import com.levis.devolucoes.model.enums.Hipotese;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -42,5 +46,12 @@ public record ResultadoAvaliacao(
         .filter(r -> r.getCodigoRegra().equals(regra))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Regra sem registo: " + regra));
+  }
+
+  /** Grau de crença calculado para a hipótese (no artigo indicado, ou do pedido se for nulo). */
+  public Optional<GrauCrenca> grau(Hipotese hipotese, String artigoId) {
+    return decisao.getGrausCrenca().stream()
+        .filter(g -> g.getHipotese() == hipotese && Objects.equals(g.getArtigoId(), artigoId))
+        .findFirst();
   }
 }

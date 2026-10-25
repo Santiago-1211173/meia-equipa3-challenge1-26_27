@@ -12,7 +12,21 @@ public final class OrdemAgenda {
 
   /** Grupos pela ordem em que são avaliados. */
   public static final List<String> GRUPOS =
-      List.of(TRANSVERSAL, "M0", "M1", "M2", "M3", "M4", "M5", "ONLINE", "M6", "M7", "M8", "M9");
+      List.of(
+          TRANSVERSAL,
+          "M0",
+          "M1",
+          "M2",
+          "EVIDENCIA",
+          "INCERTEZA",
+          "M3",
+          "M4",
+          "M5",
+          "ONLINE",
+          "M6",
+          "M7",
+          "M8",
+          "M9");
 
   /** Nome da sessão stateful usada numa avaliação. */
   public static final String SESSAO = "sessaoPericial";

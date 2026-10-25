@@ -72,6 +72,7 @@ export function vazio(valor: unknown): boolean {
  * devolução às cegas; sem pedido de exceção não há exceção), do mais interior para o exterior.
  */
 export function paraEnvio(pedido: PedidoEmCurso): PedidoAvaliacaoRequest {
+  pedido = semRespostasVazias(pedido);
   const opcionais = GRUPOS.filter((g) => g.opcional)
     .map((g) => g.opcional as string)
     .sort((a, b) => b.split('.').length - a.split('.').length);
@@ -85,11 +86,32 @@ export function paraEnvio(pedido: PedidoEmCurso): PedidoAvaliacaoRequest {
   return resultado;
 }
 
+/**
+ * Respostas de inspeção do defeito (docs/08): só as respondidas, e só quando o cliente alega
+ * defeito; a API não aceita respostas vazias.
+ */
+function semRespostasVazias(pedido: PedidoEmCurso): PedidoEmCurso {
+  const artigos = (pedido.artigos ?? []).map((artigo) => {
+    const estado = artigo.estado;
+    if (!estado?.inspecaoDefeito) {
+      return artigo;
+    }
+    const respostas = estado.alegaDefeito
+      ? Object.fromEntries(
+          Object.entries(estado.inspecaoDefeito).filter(([, resposta]) => resposta !== null),
+        )
+      : {};
+    return { ...artigo, estado: { ...estado, inspecaoDefeito: respostas } };
+  });
+  return { ...pedido, artigos };
+}
+
 /** Converte o texto escrito num controlo no valor do campo. */
 export function valorDoControlo(campo: Campo, texto: string): unknown {
   const t = texto.trim();
   switch (campo.tipo) {
     case 'inteiro':
+    case 'escala':
       return t === '' ? null : Number.parseInt(t, 10);
     case 'decimal':
       return t === '' ? null : Number(t.replace(',', '.'));

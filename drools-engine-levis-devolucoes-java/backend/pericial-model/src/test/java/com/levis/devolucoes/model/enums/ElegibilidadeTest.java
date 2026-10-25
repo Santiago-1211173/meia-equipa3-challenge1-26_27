@@ -17,12 +17,14 @@ class ElegibilidadeTest {
   }
 
   @Test
-  void modulosPelaOrdemDoFluxograma() {
+  void modulosPelaOrdemDoFluxogramaComAIncertezaAntesDoM3() {
     assertThat(Modulo.values())
         .containsExactly(
             Modulo.M0,
             Modulo.M1,
             Modulo.M2,
+            Modulo.EVIDENCIA,
+            Modulo.INCERTEZA,
             Modulo.M3,
             Modulo.M4,
             Modulo.M5,

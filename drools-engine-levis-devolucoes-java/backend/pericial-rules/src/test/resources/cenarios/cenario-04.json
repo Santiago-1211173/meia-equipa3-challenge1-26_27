@@ -2,7 +2,7 @@
   "id": 4,
   "titulo": "As calças com bainha e defeito",
   "estado": "a validar",
-  "aValidar": [],
+  "aValidar": ["A-33"],
   "pressupostos": [
     "Colaborador Key Holder (docs/06 não indica quem processa).",
     "Pagamento original com cartão de crédito (docs/06 não indica).",
@@ -36,7 +36,7 @@
         "produto": { "sku": "511-SLIM-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 89.50, "precoAtual": 89.50 },
         "quantidade": 1,
         "precoPago": 89.50,
-        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "embainhado": true, "defeitoFabricoConfirmado": true, "danificado": true }
+        "estado": { "condicaoUso": "USADO", "etiquetas": "AUSENTES", "embainhado": true, "defeitoFabricoConfirmado": true, "danificado": true, "alegaDefeito": true }
       }
     ]
   },

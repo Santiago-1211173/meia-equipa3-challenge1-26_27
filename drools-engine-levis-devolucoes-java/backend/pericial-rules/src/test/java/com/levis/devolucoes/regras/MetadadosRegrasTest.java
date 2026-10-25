@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,24 +22,54 @@ import org.kie.api.definition.rule.Rule;
 
 /**
  * Convenções do projeto (README) para cada regra: nome começado pelo ID, metadados {@code @id @modulo
- * @descricao @condicoes}, ID existente na base de conhecimento (docs/01) e {@code @modulo} igual ao
- * agenda-group.
+ * @descricao @condicoes}, ID existente na base de conhecimento (docs/01) ou na tabela das regras de
+ * incerteza (docs/08 §5.4) e {@code @modulo} igual ao agenda-group.
  */
 class MetadadosRegrasTest {
 
   private static final Path BASE_CONHECIMENTO = Path.of("../../docs/01-base-conhecimento.md");
+  private static final Path INCERTEZA = Path.of("../../docs/08-incerteza.md");
   private static final Pattern ID_NA_BASE = Pattern.compile("\\*\\*([A-Z]{2,3}-\\d{3})\\*\\*");
+  private static final Pattern ID_INCERTEZA = Pattern.compile("IU-(\\d{2})(?: a IU-(\\d{2}))?");
   private static final Set<String> MODULOS_VALIDOS =
       Arrays.stream(Modulo.values()).map(Enum::name).collect(Collectors.toSet());
 
   private static Set<String> idsDaBase;
+  private static Set<String> idsDaIncerteza;
   private static List<Rule> regras;
 
   @BeforeAll
   static void carregar() throws IOException {
     Matcher matcher = ID_NA_BASE.matcher(Files.readString(BASE_CONHECIMENTO));
     idsDaBase = matcher.results().map(m -> m.group(1)).collect(Collectors.toSet());
+    idsDaIncerteza = idsDaIncerteza();
     regras = MotorTeste.regras();
+  }
+
+  /** IDs da tabela das regras IU do docs/08 §5.4, com os intervalos ("IU-01 a IU-03"). */
+  private static Set<String> idsDaIncerteza() throws IOException {
+    Set<String> ids = new TreeSet<>();
+    for (String linha : Files.readAllLines(INCERTEZA)) {
+      if (!linha.startsWith("| IU-")) {
+        continue;
+      }
+      Matcher m = ID_INCERTEZA.matcher(linha.split("\\|")[1]);
+      while (m.find()) {
+        int inicio = Integer.parseInt(m.group(1));
+        int fim = m.group(2) == null ? inicio : Integer.parseInt(m.group(2));
+        for (int n = inicio; n <= fim; n++) {
+          ids.add(String.format("IU-%02d", n));
+        }
+      }
+    }
+    return ids;
+  }
+
+  @Test
+  void osIdsDaIncertezaSaoOsDaTabelaDoDocs08() {
+    assertThat(idsDaIncerteza)
+        .contains("IU-01", "IU-02", "IU-03", "IU-05", "IU-07", "IU-22", "IU-40", "IU-50")
+        .doesNotContain("IU-04", "IU-13", "IU-41");
   }
 
   @Test
@@ -82,7 +113,9 @@ class MetadadosRegrasTest {
   void oIdExisteNaBaseDeConhecimentoEIniciaONome() {
     for (Rule regra : regras) {
       String id = String.valueOf(regra.getMetaData().get("id"));
-      assertThat(idsDaBase).as("ID de \"%s\" em docs/01", regra.getName()).contains(id);
+      assertThat(idsDaBase.contains(id) || idsDaIncerteza.contains(id))
+          .as("ID de \"%s\" em docs/01 ou docs/08", regra.getName())
+          .isTrue();
       assertThat(regra.getName()).startsWith(id + " ");
     }
   }

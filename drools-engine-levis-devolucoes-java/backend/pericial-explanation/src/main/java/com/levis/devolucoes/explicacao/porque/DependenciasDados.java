@@ -155,6 +155,11 @@ public final class DependenciasDados {
         "processadorLeadCashierOuElevatedStylist");
     le(CLIENTE, "clienteContesta", "clienteAgitado", "clienteNaoForneceDadosOuBarreiraLinguistica");
     le(FRAUDE, "indicioFraudeRelevante", "baixoRisco", "pedidoNaoSuspenso");
+    // Camada de incerteza (docs/08): respostas que alimentam as evidências EF e ED
+    le(FRAUDE, "pedeNumerario", "semIndicioFraudeRelevante");
+    le(COMPROVATIVO, "semComprovativoQueConfirme");
+    le(ESTADO, "todosOsArtigosSemEtiquetas", "alegaDefeito", "grauUsoConhecido");
+    le(MOMENTO, "dataCompraConhecida");
     le(
         EXCECAO,
         "pedidoExcecao",

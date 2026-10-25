@@ -40,6 +40,7 @@ export const ENGINE_PROXY: Record<EngineId, EngineProxyConfig> = {
       { method: "POST", pattern: "porque" },
       { method: "GET", pattern: "regras" },
       { method: "GET", pattern: "regras/*" },
+      { method: "GET", pattern: "incerteza/parametros" },
       { method: "GET", pattern: "cenarios-exemplo" },
       { method: "GET", pattern: "cenarios-exemplo/*" },
       { method: "GET", pattern: "health" },

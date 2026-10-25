@@ -58,6 +58,14 @@
           <context context-type="linenumber">16,18</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="app.avisoDemonstrativo" datatype="html">
+        <source> Valores demonstrativos — não usar para decisões reais. </source>
+        <target state="translated">Demonstration values — do not use for real decisions.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/app.html</context>
+          <context context-type="linenumber">23,27</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="titulo.entrar" datatype="html">
         <source>Entrar</source>
         <target state="translated">Sign in</target>
@@ -334,6 +342,10 @@
           <context context-type="linenumber">25,26</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
+          <context context-type="linenumber">34,35</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/explicacoes/e-se.html</context>
           <context context-type="linenumber">5,6</context>
         </context-group>
@@ -343,7 +355,7 @@
         <target state="translated">needed to decide</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
-          <context context-type="linenumber">50</context>
+          <context context-type="linenumber">59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.util" datatype="html">
@@ -351,7 +363,7 @@
         <target state="translated">useful to complete the decision</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/campo.html</context>
-          <context context-type="linenumber">50,51</context>
+          <context context-type="linenumber">59,60</context>
         </context-group>
       </trans-unit>
       <trans-unit id="emFalta.titulo" datatype="html">
@@ -427,7 +439,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">86,89</context>
+          <context context-type="linenumber">89,92</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.sku" datatype="html">
@@ -435,7 +447,7 @@
         <target state="translated">SKU</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">82</context>
+          <context context-type="linenumber">88</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.marca" datatype="html">
@@ -443,7 +455,7 @@
         <target state="translated">Brand</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">88</context>
+          <context context-type="linenumber">94</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.categoria" datatype="html">
@@ -451,7 +463,7 @@
         <target state="translated">Category</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">94</context>
+          <context context-type="linenumber">100</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.skuReconhecidoPOS" datatype="html">
@@ -459,7 +471,7 @@
         <target state="translated">SKU recognised by the POS</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">100</context>
+          <context context-type="linenumber">106</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.vendidoNaLoja" datatype="html">
@@ -467,7 +479,7 @@
         <target state="translated">Sold in this store (assortment)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">105</context>
+          <context context-type="linenumber">111</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.emSaldo" datatype="html">
@@ -475,7 +487,7 @@
         <target state="translated">On clearance</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">110</context>
+          <context context-type="linenumber">116</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.grossista" datatype="html">
@@ -483,7 +495,7 @@
         <target state="translated">Wholesale product</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">115</context>
+          <context context-type="linenumber">121</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.produtoFranquia" datatype="html">
@@ -491,7 +503,7 @@
         <target state="translated">Franchise product</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">120</context>
+          <context context-type="linenumber">126</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.pvpOriginal" datatype="html">
@@ -499,7 +511,7 @@
         <target state="translated">Original retail price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">125</context>
+          <context context-type="linenumber">131</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.produto.precoAtual" datatype="html">
@@ -507,7 +519,55 @@
         <target state="translated">Current price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">130</context>
+          <context context-type="linenumber">136</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.produto.defeitoConhecido" datatype="html">
+        <source>Defeito conhecido para o SKU (catálogo)</source>
+        <target state="translated">Known defect for the SKU (catalogue)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-01" datatype="html">
+        <source>Dano numa costura ou ponto de união</source>
+        <target state="translated">Damage at a seam or joint</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">157</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-02" datatype="html">
+        <source>Dano localizado num único ponto</source>
+        <target state="translated">Damage localised at a single point</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">158</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-05" datatype="html">
+        <source>Desgaste generalizado do tecido</source>
+        <target state="translated">Widespread fabric wear</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">159</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-06" datatype="html">
+        <source>Sinais de lavagem repetida</source>
+        <target state="translated">Signs of repeated washing</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">160</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.inspecao.ED-07" datatype="html">
+        <source>Dano compatível com uso indevido (corte, queimadura, rasgão)</source>
+        <target state="translated">Damage consistent with misuse (cut, burn, tear)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">163</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.pedido" datatype="html">
@@ -515,7 +575,7 @@
         <target state="translated">Request and store</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">139</context>
+          <context context-type="linenumber">171</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.pedido" datatype="html">
@@ -523,7 +583,7 @@
         <target state="translated">Customer request</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">143</context>
+          <context context-type="linenumber">175</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.tipoPedido" datatype="html">
@@ -531,7 +591,7 @@
         <target state="translated">What the customer asks for</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">148</context>
+          <context context-type="linenumber">180</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.dataPedido" datatype="html">
@@ -539,7 +599,7 @@
         <target state="translated">Request date</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">154</context>
+          <context context-type="linenumber">186</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.id" datatype="html">
@@ -547,7 +607,7 @@
         <target state="translated">Request reference</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">157</context>
+          <context context-type="linenumber">189</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.loja" datatype="html">
@@ -555,7 +615,7 @@
         <target state="translated">Store</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">162</context>
+          <context context-type="linenumber">194</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.codigo" datatype="html">
@@ -563,7 +623,7 @@
         <target state="translated">Store code</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">167</context>
+          <context context-type="linenumber">199</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.nome" datatype="html">
@@ -571,7 +631,7 @@
         <target state="translated">Store name</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">173</context>
+          <context context-type="linenumber">205</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.mercado" datatype="html">
@@ -579,7 +639,7 @@
         <target state="translated">Market</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">178</context>
+          <context context-type="linenumber">210</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.tipoLoja" datatype="html">
@@ -587,7 +647,7 @@
         <target state="translated">Store type</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">184</context>
+          <context context-type="linenumber">216</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.lojaBackPocket" datatype="html">
@@ -595,7 +655,7 @@
         <target state="translated">Store with BackPocket</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">190</context>
+          <context context-type="linenumber">222</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.coberturaLojaUnica" datatype="html">
@@ -603,7 +663,7 @@
         <target state="translated">Single-store coverage</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">195</context>
+          <context context-type="linenumber">227</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.loja.skusSortido" datatype="html">
@@ -611,7 +671,7 @@
         <target state="translated">Assortment SKUs (comma separated)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">200</context>
+          <context context-type="linenumber">232</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.compra" datatype="html">
@@ -619,7 +679,7 @@
         <target state="translated">Purchase and payment</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">209</context>
+          <context context-type="linenumber">241</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.compra" datatype="html">
@@ -627,7 +687,7 @@
         <target state="translated">Original purchase</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">213</context>
+          <context context-type="linenumber">245</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.canal" datatype="html">
@@ -635,7 +695,7 @@
         <target state="translated">Purchase channel</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">218</context>
+          <context context-type="linenumber">250</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.idTransacao" datatype="html">
@@ -643,7 +703,7 @@
         <target state="translated">Transaction or order</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">224</context>
+          <context context-type="linenumber">256</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.dataCompra" datatype="html">
@@ -651,7 +711,7 @@
         <target state="translated">Purchase date</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">229</context>
+          <context context-type="linenumber">261</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.dataEnvio" datatype="html">
@@ -659,7 +719,7 @@
         <target state="translated">Ship date (online)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">234</context>
+          <context context-type="linenumber">266</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.quantidadeComprada" datatype="html">
@@ -667,7 +727,7 @@
         <target state="translated">Quantity purchased</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">239</context>
+          <context context-type="linenumber">271</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.idStylistVenda" datatype="html">
@@ -675,7 +735,7 @@
         <target state="translated">Selling Stylist</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">244</context>
+          <context context-type="linenumber">276</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.promocaoEscaloes" datatype="html">
@@ -683,7 +743,7 @@
         <target state="translated">Tiered promotion</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">249</context>
+          <context context-type="linenumber">281</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.ajustePrecoAplicado" datatype="html">
@@ -691,7 +751,7 @@
         <target state="translated">Already price adjusted</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">254</context>
+          <context context-type="linenumber">286</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.compraOferta" datatype="html">
@@ -699,7 +759,7 @@
         <target state="translated">Bought as a gift</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">259</context>
+          <context context-type="linenumber">291</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.pagamento" datatype="html">
@@ -707,7 +767,7 @@
         <target state="translated">Original payment</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">266</context>
+          <context context-type="linenumber">298</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.meio" datatype="html">
@@ -715,7 +775,7 @@
         <target state="translated">Payment method</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">272</context>
+          <context context-type="linenumber">304</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.valorPago" datatype="html">
@@ -723,7 +783,7 @@
         <target state="translated">Amount paid</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">278</context>
+          <context context-type="linenumber">310</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.estadoConta" datatype="html">
@@ -731,7 +791,7 @@
         <target state="translated">Account status</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">283</context>
+          <context context-type="linenumber">315</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.cartaoFisicoPresente" datatype="html">
@@ -739,7 +799,7 @@
         <target state="translated">Physical card present</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">289</context>
+          <context context-type="linenumber">321</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.acessoAplicacaoPagamento" datatype="html">
@@ -747,7 +807,7 @@
         <target state="translated">Can access the payment app</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">294</context>
+          <context context-type="linenumber">326</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.pagamento.reembolsoOriginalRecusado" datatype="html">
@@ -755,7 +815,7 @@
         <target state="translated">Refund to the original method declined</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">299</context>
+          <context context-type="linenumber">331</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.online" datatype="html">
@@ -763,7 +823,7 @@
         <target state="translated">Online purchase</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">306</context>
+          <context context-type="linenumber">338</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.compraOriginal.encomendaEncontrada" datatype="html">
@@ -771,7 +831,7 @@
         <target state="translated">Order found</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">311</context>
+          <context context-type="linenumber">343</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.portalOnlineDisponivel" datatype="html">
@@ -779,7 +839,7 @@
         <target state="translated">Returns portal available</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">316</context>
+          <context context-type="linenumber">348</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.politicaPermiteAsCegasOnline" datatype="html">
@@ -787,7 +847,7 @@
         <target state="translated">Policy allows a blind return</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">321</context>
+          <context context-type="linenumber">353</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.comprovativo" datatype="html">
@@ -795,7 +855,7 @@
         <target state="translated">Proof of purchase</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">330</context>
+          <context context-type="linenumber">362</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.comprovativo" datatype="html">
@@ -803,7 +863,7 @@
         <target state="translated">Proof of purchase (leave empty if none)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">334</context>
+          <context context-type="linenumber">366</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.tipo" datatype="html">
@@ -811,7 +871,7 @@
         <target state="translated">Type of proof</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">340</context>
+          <context context-type="linenumber">372</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.confirmaCompra" datatype="html">
@@ -819,7 +879,7 @@
         <target state="translated">Confirms the purchase</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">346</context>
+          <context context-type="linenumber">378</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.reciboOriginal" datatype="html">
@@ -827,7 +887,7 @@
         <target state="translated">Original receipt</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">351</context>
+          <context context-type="linenumber">383</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.clienteMantemRecibo" datatype="html">
@@ -835,7 +895,7 @@
         <target state="translated">Customer keeps the receipt</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">356</context>
+          <context context-type="linenumber">388</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.comprovativo.incluiOutrosArtigos" datatype="html">
@@ -843,7 +903,7 @@
         <target state="translated">Includes other items</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">361</context>
+          <context context-type="linenumber">393</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.artigos" datatype="html">
@@ -851,7 +911,7 @@
         <target state="translated">Items</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">370</context>
+          <context context-type="linenumber">402</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos" datatype="html">
@@ -859,7 +919,7 @@
         <target state="translated">Returned items</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">374</context>
+          <context context-type="linenumber">406</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos.item" datatype="html">
@@ -867,7 +927,7 @@
         <target state="translated">Item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">378</context>
+          <context context-type="linenumber">410</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigos.adicionar" datatype="html">
@@ -875,7 +935,7 @@
         <target state="translated">Add item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">379</context>
+          <context context-type="linenumber">411</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.id" datatype="html">
@@ -883,7 +943,7 @@
         <target state="translated">Item ID</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">385</context>
+          <context context-type="linenumber">417</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.quantidade" datatype="html">
@@ -891,7 +951,7 @@
         <target state="translated">Quantity</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">392</context>
+          <context context-type="linenumber">424</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.precoPago" datatype="html">
@@ -899,7 +959,7 @@
         <target state="translated">Price paid</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">397</context>
+          <context context-type="linenumber">429</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.valorCalculadoPos" datatype="html">
@@ -907,7 +967,7 @@
         <target state="translated">Amount calculated by the POS</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">402</context>
+          <context context-type="linenumber">434</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.entreCanais" datatype="html">
@@ -915,7 +975,7 @@
         <target state="translated">Cross-channel return</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">407</context>
+          <context context-type="linenumber">439</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.condicaoUso" datatype="html">
@@ -923,7 +983,7 @@
         <target state="translated">Condition</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">412</context>
+          <context context-type="linenumber">444</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.etiquetas" datatype="html">
@@ -931,7 +991,7 @@
         <target state="translated">Tags</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">418</context>
+          <context context-type="linenumber">450</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.personalizado" datatype="html">
@@ -939,7 +999,7 @@
         <target state="translated">Personalised</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">424</context>
+          <context context-type="linenumber">456</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.alterado" datatype="html">
@@ -947,7 +1007,7 @@
         <target state="translated">Altered</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">429</context>
+          <context context-type="linenumber">461</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.embainhado" datatype="html">
@@ -955,7 +1015,7 @@
         <target state="translated">Hemmed</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">434</context>
+          <context context-type="linenumber">466</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.defeitoFabricoConfirmado" datatype="html">
@@ -963,7 +1023,7 @@
         <target state="translated">Confirmed manufacturing defect</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">439</context>
+          <context context-type="linenumber">471</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.danificado" datatype="html">
@@ -971,7 +1031,7 @@
         <target state="translated">Damaged</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">444</context>
+          <context context-type="linenumber">476</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.sujoOuInseguro" datatype="html">
@@ -979,7 +1039,7 @@
         <target state="translated">Soiled or unsafe (biohazard)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">449</context>
+          <context context-type="linenumber">481</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.embalagemIntacta" datatype="html">
@@ -987,7 +1047,7 @@
         <target state="translated">Packaging intact</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">454</context>
+          <context context-type="linenumber">486</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.conjuntoCompleto" datatype="html">
@@ -995,7 +1055,7 @@
         <target state="translated">Complete set</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">459</context>
+          <context context-type="linenumber">491</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.etiquetaPrecoCorreta" datatype="html">
@@ -1003,7 +1063,7 @@
         <target state="translated">Correct price tag</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">464</context>
+          <context context-type="linenumber">496</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.estado.rfidCorreto" datatype="html">
@@ -1011,7 +1071,23 @@
         <target state="translated">Correct RFID</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">469</context>
+          <context context-type="linenumber">501</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.estado.grauUso" datatype="html">
+        <source>Grau de uso</source>
+        <target state="translated">Degree of use</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">506</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.estado.alegaDefeito" datatype="html">
+        <source>O cliente alega defeito</source>
+        <target state="translated">The customer claims a defect</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">512</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigos.revendivel" datatype="html">
@@ -1019,7 +1095,7 @@
         <target state="translated">Can be resold</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">474</context>
+          <context context-type="linenumber">518</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca" datatype="html">
@@ -1027,7 +1103,7 @@
         <target state="translated">Items the customer takes (exchange)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">481</context>
+          <context context-type="linenumber">525</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca.item" datatype="html">
@@ -1035,7 +1111,7 @@
         <target state="translated">Exchange item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">485</context>
+          <context context-type="linenumber">529</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.artigosTroca.adicionar" datatype="html">
@@ -1043,7 +1119,7 @@
         <target state="translated">Add exchange item</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">486</context>
+          <context context-type="linenumber">530</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigosTroca.precoVenda" datatype="html">
@@ -1051,7 +1127,7 @@
         <target state="translated">Selling price</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">493</context>
+          <context context-type="linenumber">537</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.artigosTroca.apenasMudaTamanho" datatype="html">
@@ -1059,7 +1135,7 @@
         <target state="translated">Size change only</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">498</context>
+          <context context-type="linenumber">542</context>
         </context-group>
       </trans-unit>
       <trans-unit id="passo.cliente" datatype="html">
@@ -1067,7 +1143,7 @@
         <target state="translated">Customer and exceptions</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">507</context>
+          <context context-type="linenumber">551</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.cliente" datatype="html">
@@ -1075,7 +1151,7 @@
         <target state="translated">Customer</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">511</context>
+          <context context-type="linenumber">555</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.id" datatype="html">
@@ -1083,7 +1159,7 @@
         <target state="translated">Customer ID</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">516</context>
+          <context context-type="linenumber">560</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.forneceDados" datatype="html">
@@ -1091,7 +1167,7 @@
         <target state="translated">Provides their details</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">521</context>
+          <context context-type="linenumber">565</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.contestaResultado" datatype="html">
@@ -1099,7 +1175,7 @@
         <target state="translated">Disputes the outcome</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">526</context>
+          <context context-type="linenumber">570</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.agitado" datatype="html">
@@ -1107,7 +1183,7 @@
         <target state="translated">Is agitated</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">531</context>
+          <context context-type="linenumber">575</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.cliente.barreiraLinguistica" datatype="html">
@@ -1115,7 +1191,23 @@
         <target state="translated">Language barrier</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">536</context>
+          <context context-type="linenumber">580</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.cliente.explicaOrigemCompra" datatype="html">
+        <source>Explica onde e quando comprou</source>
+        <target state="translated">Explains where and when it was bought</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">585</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="campo.cliente.pedeNumerario" datatype="html">
+        <source>Pede o reembolso em numerário</source>
+        <target state="translated">Asks for a cash refund</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
+          <context context-type="linenumber">591</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.excecao" datatype="html">
@@ -1123,7 +1215,7 @@
         <target state="translated">Exception request (leave empty if none)</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">543</context>
+          <context context-type="linenumber">598</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.motivo" datatype="html">
@@ -1131,7 +1223,7 @@
         <target state="translated">Reason</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">549</context>
+          <context context-type="linenumber">604</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.resolucaoPedida" datatype="html">
@@ -1139,7 +1231,7 @@
         <target state="translated">Requested resolution</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">554</context>
+          <context context-type="linenumber">609</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.exigeMeioProibido" datatype="html">
@@ -1147,7 +1239,7 @@
         <target state="translated">Requires a prohibited refund method</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">560</context>
+          <context context-type="linenumber">615</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.exigeSkuIncorreto" datatype="html">
@@ -1155,7 +1247,7 @@
         <target state="translated">Requires an incorrect SKU</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">565</context>
+          <context context-type="linenumber">620</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.envolveProdutoExcluido" datatype="html">
@@ -1163,7 +1255,7 @@
         <target state="translated">Involves an excluded product</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">570</context>
+          <context context-type="linenumber">625</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.contornaProcessoObrigatorio" datatype="html">
@@ -1171,7 +1263,7 @@
         <target state="translated">Bypasses a mandatory process</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">575</context>
+          <context context-type="linenumber">630</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.concluivelNoSistema" datatype="html">
@@ -1179,7 +1271,7 @@
         <target state="translated">Can be completed in the system</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">580</context>
+          <context context-type="linenumber">635</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.preocupacaoCliente" datatype="html">
@@ -1187,7 +1279,7 @@
         <target state="translated">Customer concern</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">585</context>
+          <context context-type="linenumber">640</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.pedidoExcecao.aprovada" datatype="html">
@@ -1195,7 +1287,7 @@
         <target state="translated">Approved by management</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">590</context>
+          <context context-type="linenumber">645</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.aprovador" datatype="html">
@@ -1203,7 +1295,7 @@
         <target state="translated">Who approved or declined the exception</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">597</context>
+          <context context-type="linenumber">652</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.id" datatype="html">
@@ -1211,7 +1303,7 @@
         <target state="translated">ID</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">604</context>
+          <context context-type="linenumber">659</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.nome" datatype="html">
@@ -1219,7 +1311,7 @@
         <target state="translated">Name</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">609</context>
+          <context context-type="linenumber">664</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.funcao" datatype="html">
@@ -1227,7 +1319,7 @@
         <target state="translated">Role</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">614</context>
+          <context context-type="linenumber">669</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.aprovadoPeloDM" datatype="html">
@@ -1235,7 +1327,7 @@
         <target state="translated">Approved by the District Manager</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">620</context>
+          <context context-type="linenumber">675</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.aprovador.idCredencialPOS" datatype="html">
@@ -1243,7 +1335,7 @@
         <target state="translated">POS credential</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">625</context>
+          <context context-type="linenumber">680</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude" datatype="html">
@@ -1251,7 +1343,7 @@
         <target state="translated">Fraud indicators</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">632</context>
+          <context context-type="linenumber">687</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude.item" datatype="html">
@@ -1259,7 +1351,7 @@
         <target state="translated">Indicator</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">636</context>
+          <context context-type="linenumber">691</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.fraude.adicionar" datatype="html">
@@ -1267,7 +1359,7 @@
         <target state="translated">Record indicator</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">637</context>
+          <context context-type="linenumber">692</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.indicadoresFraude.descricao" datatype="html">
@@ -1275,7 +1367,7 @@
         <target state="translated">Description</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">643</context>
+          <context context-type="linenumber">698</context>
         </context-group>
       </trans-unit>
       <trans-unit id="campo.indicadoresFraude.nivelRisco" datatype="html">
@@ -1283,7 +1375,7 @@
         <target state="translated">Risk level</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/avaliacao/formulario.ts</context>
-          <context context-type="linenumber">649</context>
+          <context context-type="linenumber">704</context>
         </context-group>
       </trans-unit>
       <trans-unit id="grupo.porque.titulo" datatype="html">
@@ -1375,7 +1467,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">66,67</context>
+          <context context-type="linenumber">69,70</context>
         </context-group>
       </trans-unit>
       <trans-unit id="como.titulo" datatype="html">
@@ -1416,6 +1508,10 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/cartao-decisao.html</context>
           <context context-type="linenumber">136,137</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">37,38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="como.definidaPor" datatype="html">
@@ -1759,7 +1855,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">52,53</context>
+          <context context-type="linenumber">55,56</context>
         </context-group>
       </trans-unit>
       <trans-unit id="rasto.modulo" datatype="html">
@@ -1771,7 +1867,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">53,54</context>
+          <context context-type="linenumber">56,57</context>
         </context-group>
       </trans-unit>
       <trans-unit id="regras.descricao" datatype="html">
@@ -1858,8 +1954,12 @@
           <context context-type="linenumber">69,70</context>
         </context-group>
         <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">14,15</context>
+        </context-group>
+        <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">54,55</context>
+          <context context-type="linenumber">57,58</context>
         </context-group>
       </trans-unit>
       <trans-unit id="saida.OUT-007" datatype="html">
@@ -1926,6 +2026,86 @@
           <context context-type="linenumber">149</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="incerteza.titulo" datatype="html">
+        <source>Avaliação da incerteza</source>
+        <target state="translated">Uncertainty assessment</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">2,3</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.aviso" datatype="html">
+        <source> Valores demonstrativos — não usar para decisões reais. A decisão nas zonas de revisão é sempre da gestão. </source>
+        <target state="translated"> Demonstration values — do not use for real decisions. Decisions in review zones always belong to management. </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">5,9</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.hipotese" datatype="html">
+        <source>Hipótese</source>
+        <target state="translated">Hypothesis</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">13,14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.metodo" datatype="html">
+        <source>Método</source>
+        <target state="translated">Method</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">15,16</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.valor" datatype="html">
+        <source>Valor</source>
+        <target state="translated">Value</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">16,17</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.classificacao" datatype="html">
+        <source>Classificação</source>
+        <target state="translated">Classification</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">17,19</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.naoProbabilidade" datatype="html">
+        <source>(de -1 a 1; não é uma probabilidade)</source>
+        <target state="translated">(from -1 to 1; not a probability)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">29,31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.contribuicoes" datatype="html">
+        <source>Contribuições</source>
+        <target state="translated">Contributions</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">43,44</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.naoAplicada" datatype="html">
+        <source>não aplicada</source>
+        <target state="translated">not applied</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">51</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="incerteza.versao" datatype="html">
+        <source>Parâmetros <x id="INTERPOLATION" equiv-text="{{ graus()[0]?.versaoParametros }}"/></source>
+        <target state="translated">Parameters <x id="INTERPOLATION" equiv-text="{{ graus()[0]?.versaoParametros }}"/></target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/features/resultado/cartao-incerteza.html</context>
+          <context context-type="linenumber">75,77</context>
+        </context-group>
+      </trans-unit>
       <trans-unit id="resultado.titulo" datatype="html">
         <source>Decisão</source>
         <target state="translated">Decision</target>
@@ -1955,7 +2135,7 @@
         <target state="translated">Result</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">55,56</context>
+          <context context-type="linenumber">58,59</context>
         </context-group>
       </trans-unit>
       <trans-unit id="rasto.mensagem" datatype="html">
@@ -1963,7 +2143,7 @@
         <target state="translated">Message</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.html</context>
-          <context context-type="linenumber">56,58</context>
+          <context context-type="linenumber">59,61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.como" datatype="html">
@@ -1971,7 +2151,7 @@
         <target state="translated">How?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">35</context>
+          <context context-type="linenumber">36</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.porqueNao" datatype="html">
@@ -1979,7 +2159,7 @@
         <target state="translated">Why not?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">36</context>
+          <context context-type="linenumber">37</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.eSe" datatype="html">
@@ -1987,7 +2167,7 @@
         <target state="translated">What if?</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">37</context>
+          <context context-type="linenumber">38</context>
         </context-group>
       </trans-unit>
       <trans-unit id="resultado.rasto" datatype="html">
@@ -1995,7 +2175,7 @@
         <target state="translated">Rules fired</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/features/resultado/resultado.ts</context>
-          <context context-type="linenumber">38</context>
+          <context context-type="linenumber">39</context>
         </context-group>
       </trans-unit>
       <trans-unit id="enum.TipoPedido.DEVOLUCAO" datatype="html">
@@ -2628,6 +2808,222 @@
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
           <context context-type="linenumber">177</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.0" datatype="html">
+        <source>Nenhum</source>
+        <target state="translated">None</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">203</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.1" datatype="html">
+        <source>Ligeiro</source>
+        <target state="translated">Slight</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.2" datatype="html">
+        <source>Moderado</source>
+        <target state="translated">Moderate</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">205</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.3" datatype="html">
+        <source>Evidente</source>
+        <target state="translated">Noticeable</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">206</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.GrauUso.4" datatype="html">
+        <source>Intenso</source>
+        <target state="translated">Heavy</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">207</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.SIM" datatype="html">
+        <source>Sim</source>
+        <target state="translated">Yes</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">211</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.NAO" datatype="html">
+        <source>Não</source>
+        <target state="translated">No</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">212</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Resposta.NAO_SEI" datatype="html">
+        <source>Não sei</source>
+        <target state="translated">Don't know</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">213</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.FRAUDE" datatype="html">
+        <source>Risco de fraude</source>
+        <target state="translated">Fraud risk</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">217</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.DEFEITO_FABRICO" datatype="html">
+        <source>Defeito de fabrico</source>
+        <target state="translated">Manufacturing defect</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">218</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.REVENDIBILIDADE" datatype="html">
+        <source>Revendibilidade</source>
+        <target state="translated">Resaleability</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">219</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.Hipotese.RECOMENDACAO_CREDITO" datatype="html">
+        <source>Recomendação de crédito de loja</source>
+        <target state="translated">Store credit recommendation</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">220</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.FATOR_CERTEZA" datatype="html">
+        <source>Fator de certeza</source>
+        <target state="translated">Certainty factor</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">224</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.BAYES" datatype="html">
+        <source>Probabilidade bayesiana</source>
+        <target state="translated">Bayesian probability</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">225</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.MetodoIncerteza.FUZZY" datatype="html">
+        <source>Lógica fuzzy</source>
+        <target state="translated">Fuzzy logic</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">226</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_ALTO" datatype="html">
+        <source>Risco alto</source>
+        <target state="translated">High risk</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">230</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_MEDIO" datatype="html">
+        <source>Risco médio</source>
+        <target state="translated">Medium risk</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">231</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.RISCO_BAIXO" datatype="html">
+        <source>Risco baixo</source>
+        <target state="translated">Low risk</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">232</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.PROPOR_PC006" datatype="html">
+        <source>Propor PC-006 (defeito provável)</source>
+        <target state="translated">Propose PC-006 (likely defect)</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">233</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVER_DEFEITO" datatype="html">
+        <source>Inspeção adicional</source>
+        <target state="translated">Further inspection</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">234</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.DESGASTE" datatype="html">
+        <source>Desgaste</source>
+        <target state="translated">Wear</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">235</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVENDIVEL" datatype="html">
+        <source>Revendível</source>
+        <target state="translated">Resaleable</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">236</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.REVENDIBILIDADE_INDETERMINADA" datatype="html">
+        <source>Indeterminada</source>
+        <target state="translated">Undetermined</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">237</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.NAO_REVENDIVEL" datatype="html">
+        <source>Não revendível</source>
+        <target state="translated">Not resaleable</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">238</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_RECOMENDADO" datatype="html">
+        <source>Crédito recomendado</source>
+        <target state="translated">Credit recommended</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">239</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_A_CRITERIO" datatype="html">
+        <source>Crédito a critério da gestão</source>
+        <target state="translated">Credit at management's discretion</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="enum.ClassificacaoIncerteza.CREDITO_NAO_RECOMENDADO" datatype="html">
+        <source>Crédito não recomendado</source>
+        <target state="translated">Credit not recommended</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/rotulos.ts</context>
+          <context context-type="linenumber">241</context>
         </context-group>
       </trans-unit>
     </body>

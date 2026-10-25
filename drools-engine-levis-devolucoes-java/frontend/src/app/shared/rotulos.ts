@@ -195,3 +195,48 @@ export function semCodigo(
   }
   return codigo && nome.startsWith(codigo) ? nome.slice(codigo.length).trim() : nome;
 }
+
+// Camada de incerteza (docs/08)
+
+/** Grau de uso observado pelo colaborador, de 0 a 4 (docs/08 §4.1). */
+export const GRAU_USO: Rotulos = {
+  '0': $localize`:@@enum.GrauUso.0:Nenhum`,
+  '1': $localize`:@@enum.GrauUso.1:Ligeiro`,
+  '2': $localize`:@@enum.GrauUso.2:Moderado`,
+  '3': $localize`:@@enum.GrauUso.3:Evidente`,
+  '4': $localize`:@@enum.GrauUso.4:Intenso`,
+};
+
+export const RESPOSTA: Rotulos = {
+  SIM: $localize`:@@enum.Resposta.SIM:Sim`,
+  NAO: $localize`:@@enum.Resposta.NAO:Não`,
+  NAO_SEI: $localize`:@@enum.Resposta.NAO_SEI:Não sei`,
+};
+
+export const HIPOTESE: Rotulos = {
+  FRAUDE: $localize`:@@enum.Hipotese.FRAUDE:Risco de fraude`,
+  DEFEITO_FABRICO: $localize`:@@enum.Hipotese.DEFEITO_FABRICO:Defeito de fabrico`,
+  REVENDIBILIDADE: $localize`:@@enum.Hipotese.REVENDIBILIDADE:Revendibilidade`,
+  RECOMENDACAO_CREDITO: $localize`:@@enum.Hipotese.RECOMENDACAO_CREDITO:Recomendação de crédito de loja`,
+};
+
+export const METODO_INCERTEZA: Rotulos = {
+  FATOR_CERTEZA: $localize`:@@enum.MetodoIncerteza.FATOR_CERTEZA:Fator de certeza`,
+  BAYES: $localize`:@@enum.MetodoIncerteza.BAYES:Probabilidade bayesiana`,
+  FUZZY: $localize`:@@enum.MetodoIncerteza.FUZZY:Lógica fuzzy`,
+};
+
+export const CLASSIFICACAO_INCERTEZA: Rotulos = {
+  RISCO_ALTO: $localize`:@@enum.ClassificacaoIncerteza.RISCO_ALTO:Risco alto`,
+  RISCO_MEDIO: $localize`:@@enum.ClassificacaoIncerteza.RISCO_MEDIO:Risco médio`,
+  RISCO_BAIXO: $localize`:@@enum.ClassificacaoIncerteza.RISCO_BAIXO:Risco baixo`,
+  PROPOR_PC006: $localize`:@@enum.ClassificacaoIncerteza.PROPOR_PC006:Propor PC-006 (defeito provável)`,
+  REVER_DEFEITO: $localize`:@@enum.ClassificacaoIncerteza.REVER_DEFEITO:Inspeção adicional`,
+  DESGASTE: $localize`:@@enum.ClassificacaoIncerteza.DESGASTE:Desgaste`,
+  REVENDIVEL: $localize`:@@enum.ClassificacaoIncerteza.REVENDIVEL:Revendível`,
+  REVENDIBILIDADE_INDETERMINADA: $localize`:@@enum.ClassificacaoIncerteza.REVENDIBILIDADE_INDETERMINADA:Indeterminada`,
+  NAO_REVENDIVEL: $localize`:@@enum.ClassificacaoIncerteza.NAO_REVENDIVEL:Não revendível`,
+  CREDITO_RECOMENDADO: $localize`:@@enum.ClassificacaoIncerteza.CREDITO_RECOMENDADO:Crédito recomendado`,
+  CREDITO_A_CRITERIO: $localize`:@@enum.ClassificacaoIncerteza.CREDITO_A_CRITERIO:Crédito a critério da gestão`,
+  CREDITO_NAO_RECOMENDADO: $localize`:@@enum.ClassificacaoIncerteza.CREDITO_NAO_RECOMENDADO:Crédito não recomendado`,
+};

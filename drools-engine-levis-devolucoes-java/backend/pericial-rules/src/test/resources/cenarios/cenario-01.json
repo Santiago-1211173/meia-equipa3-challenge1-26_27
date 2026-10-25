@@ -2,7 +2,7 @@
   "id": 1,
   "titulo": "As etiquetas soltas, troca ao 29.º dia",
   "estado": "a validar",
-  "aValidar": ["A-19", "A-22"],
+  "aValidar": ["A-19", "A-22", "A-32"],
   "pressupostos": [
     "Colaborador Key Holder (docs/06 não indica quem processa).",
     "Pagamento original com cartão de crédito (docs/06 não indica).",
@@ -42,7 +42,7 @@
         "produto": { "sku": "501-ORIG-32", "skuReconhecidoPOS": true, "marca": "LEVIS", "categoria": "VESTUARIO", "vendidoNaLoja": true, "pvpOriginal": 98.00, "precoAtual": 98.00 },
         "quantidade": 1,
         "precoPago": 69.50,
-        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "SOLTAS" },
+        "estado": { "condicaoUso": "NAO_USADO", "etiquetas": "SOLTAS", "grauUso": 0 },
         "entreCanais": true
       }
     ],

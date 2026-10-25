@@ -5,8 +5,11 @@ import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import StatusFooter from "@/components/ui/StatusFooter";
 import CaseComparisonModal from "@/components/home/CaseComparisonModal";
+import UncertaintyPanel from "@/components/returns/UncertaintyPanel";
 import { useLocale } from "@/contexts/LocaleContext";
-import type { InferenciaItem, PaginaResponse } from "@/types/inferences";
+import { api } from "@/client/api";
+import type { InferenciaDetalheResponse, InferenciaItem, PaginaResponse } from "@/types/inferences";
+import type { GrauCrencaDto } from "@/types/returns";
 import { label } from "@/config/returnsLabels";
 
 function formatRelativeDate(isoString: string, locale: "pt" | "en" = "pt"): string {
@@ -59,6 +62,22 @@ export default function DecisoesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [selectedInference, setSelectedInference] = useState<InferenciaItem | null>(null);
+  // Graus de incerteza da decisão aberta (só o Drools os calcula; vêm do detalhe do histórico)
+  const [incertezaDetalhe, setIncertezaDetalhe] = useState<{ id: string; graus: GrauCrencaDto[] } | null>(null);
+
+  const abrirDetalhe = (item: InferenciaItem) => {
+    setSelectedInference(item);
+    setIncertezaDetalhe(null);
+    if (item.motor !== "DROOLS") return;
+    api<InferenciaDetalheResponse>(`/api/avaliacoes/${encodeURIComponent(item.id)}`)
+      .then((detalhe) => {
+        const graus = (detalhe.decisaoJson?.incerteza ?? []) as GrauCrencaDto[];
+        setIncertezaDetalhe({ id: item.id, graus });
+      })
+      .catch(() => {
+        // Sem detalhe, o modal mostra só o resumo da decisão
+      });
+  };
   const [comparingPedidoId, setComparingPedidoId] = useState<string | null>(null);
   const [seeding, setSeeding] = useState<boolean>(false);
 
@@ -433,7 +452,7 @@ export default function DecisoesPage() {
               return (
                 <div
                   key={item.id}
-                  onClick={() => setSelectedInference(item)}
+                  onClick={() => abrirDetalhe(item)}
                   className={`group bg-white border border-border-card rounded-2xl p-4 sm:p-5 transition-all duration-200 hover:shadow-md hover:border-slate-300 cursor-pointer border-l-4 ${meta.accentBorder} flex flex-col gap-2.5`}
                 >
                   {/* Top Row: Case ID, Product Name, Status Badge, Deliberated Value */}
@@ -587,7 +606,7 @@ export default function DecisoesPage() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSelectedInference(item);
+                          abrirDetalhe(item);
                         }}
                         className="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
                       >
@@ -867,6 +886,16 @@ export default function DecisoesPage() {
                 </span>
               </div>
             </div>
+
+            {/* Uncertainty Assessment (Drools only) */}
+            {incertezaDetalhe?.id === selectedInference.id && incertezaDetalhe.graus.length > 0 && (
+              <div className="flex flex-col gap-2 font-sans">
+                <span className="font-label-md text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                  {isEn ? "Uncertainty Assessment" : "Avaliação da Incerteza"} ({incertezaDetalhe.graus.length})
+                </span>
+                <UncertaintyPanel graus={incertezaDetalhe.graus} compact />
+              </div>
+            )}
 
             {/* Fired Rules List */}
             <div className="flex flex-col gap-2 font-sans">

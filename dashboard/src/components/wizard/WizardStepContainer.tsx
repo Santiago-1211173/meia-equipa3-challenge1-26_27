@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useWizard, getFirstIncompleteStep, exigeEstadoDaConta } from "./WizardContext";
+import { useWizard, getFirstIncompleteStep, exigeEstadoDaConta, revendaRespondida } from "./WizardContext";
 import Step1EngineSelect from "./Step1EngineSelect";
 import Step2MarketStore from "./Step2MarketStore";
 import Step3ProductEligibility from "./Step3ProductEligibility";
@@ -205,15 +205,12 @@ export default function WizardStepContainer({ stepNumber }: WizardStepContainerP
   const isStep2Valid = Boolean(
     state.marketJurisdiction && state.storeType && state.purchaseChannel
   );
-  const isResellRequired =
-    state.physicalCondition === "NOVO_ETIQUETAS_SOLTAS" ||
-    state.physicalCondition === "NOVO_SEM_ETIQUETAS";
   const isStep3Valid = Boolean(
     state.barcodeRecognized !== null &&
     state.brandAllowed !== null &&
     state.alteredOrHemmed !== null &&
     state.physicalCondition &&
-    (!isResellRequired || state.readyToResell !== null)
+    revendaRespondida(state)
   );
   const isStep4Valid = Boolean(
     state.requestType &&
@@ -345,7 +342,11 @@ export default function WizardStepContainer({ stepNumber }: WizardStepContainerP
         if (state.brandAllowed === null) missing.push(isEn ? "Brand" : "Marca");
         if (state.alteredOrHemmed === null) missing.push(isEn ? "Alterations" : "Bainhas");
         if (!state.physicalCondition) missing.push(isEn ? "Condition" : "Estado Físico");
-        if (isResellRequired && state.readyToResell === null) missing.push(isEn ? "Resale" : "Revenda");
+        if (!revendaRespondida(state)) {
+          missing.push(
+            state.resaleUndecided ? (isEn ? "Wear level" : "Grau de uso") : (isEn ? "Resale" : "Revenda")
+          );
+        }
         return isEn
           ? `Required: select ${missing.slice(0, 2).join(", ")}${missing.length > 2 ? "..." : ""}`
           : `Obrigatório: selecionar ${missing.slice(0, 2).join(", ")}${missing.length > 2 ? "..." : ""}`;

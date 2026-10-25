@@ -1,5 +1,6 @@
 package com.levis.devolucoes.explicacao.emfalta;
 
+import com.levis.devolucoes.incerteza.FabricaEvidencias;
 import com.levis.devolucoes.model.enums.CategoriaProduto;
 import com.levis.devolucoes.model.enums.CondicaoUso;
 import com.levis.devolucoes.model.enums.EstadoEtiquetas;
@@ -156,6 +157,29 @@ public class DetetorDadosEmFalta {
               prefixo + "revendivel",
               "Possibilidade de verificar, reetiquetar e revender o artigo " + artigo.getId(),
               false));
+      if (!bodywear && estado.getGrauUso() == null) {
+        // Com o grau de uso, a camada de incerteza recomenda à gestão (docs/08 §4.1)
+        emFalta.add(
+            new DadoEmFalta(
+                "IN-008",
+                prefixo + "estado.grauUso",
+                "Grau de uso do artigo " + artigo.getId() + " (ajuda a avaliar a revenda)",
+                false));
+      }
+    }
+    if (estado.isAlegaDefeito() && !estado.isDefeitoFabricoConfirmado() && !bodywear) {
+      // Perguntas da inspeção do defeito por responder (Sim, Não ou Não sei; docs/08 §3.3)
+      FabricaEvidencias.INSPECAO_COLABORADOR.stream()
+          .sorted()
+          .filter(codigo -> !estado.getInspecaoDefeito().containsKey(codigo))
+          .forEach(
+              codigo ->
+                  emFalta.add(
+                      new DadoEmFalta(
+                          "IN-008",
+                          prefixo + "estado.inspecaoDefeito." + codigo,
+                          "Inspeção do defeito do artigo " + artigo.getId() + " (" + codigo + ")",
+                          false)));
     }
   }
 

@@ -13,6 +13,7 @@ import com.levis.devolucoes.model.decisao.IndicadorFraude;
 import com.levis.devolucoes.model.pedido.PedidoDevolucao;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,10 @@ import java.util.regex.Pattern;
  */
 public class ClonadorFactos {
 
-  private static final Pattern SEGMENTO = Pattern.compile("([A-Za-z]+)(?:\\[(\\d+)])?");
+  private static final Pattern SEGMENTO = Pattern.compile("([A-Za-z][\\w-]*)(?:\\[(\\d+)])?");
+
+  /** Campos do modelo que são mapas: as alterações podem acrescentar chaves (ex.: ED-02). */
+  private static final Set<String> MAPAS = Set.of("inspecaoDefeito");
 
   private final ObjectMapper json =
       new ObjectMapper()
@@ -78,6 +82,7 @@ public class ClonadorFactos {
   private void definir(ObjectNode raiz, String caminho, Object valor) {
     String[] partes = caminho.split("\\.");
     JsonNode atual = raiz;
+    String anterior = null;
     for (int i = 0; i < partes.length; i++) {
       Matcher m = SEGMENTO.matcher(partes[i]);
       if (!m.matches()) {
@@ -90,13 +95,14 @@ public class ClonadorFactos {
       }
       if (m.group(2) == null) {
         if (ultimo) {
-          if (!objeto.has(nome)) {
+          if (!objeto.has(nome) && (anterior == null || !MAPAS.contains(anterior))) {
             throw new IllegalArgumentException("Campo inexistente: " + caminho);
           }
           objeto.set(nome, json.valueToTree(valor));
           return;
         }
         atual = objeto.get(nome);
+        anterior = nome;
       } else {
         JsonNode lista = objeto.get(nome);
         int indice = Integer.parseInt(m.group(2));
@@ -108,6 +114,7 @@ public class ClonadorFactos {
           return;
         }
         atual = array.get(indice);
+        anterior = nome;
       }
       if (atual == null || atual.isNull()) {
         throw new IllegalArgumentException("Caminho inexistente: " + caminho);

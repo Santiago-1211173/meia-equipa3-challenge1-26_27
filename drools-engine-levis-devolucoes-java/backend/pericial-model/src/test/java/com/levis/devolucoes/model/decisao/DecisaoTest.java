@@ -212,4 +212,40 @@ class DecisaoTest {
     assertThat(decisao.getResultadosArtigos()).isEmpty();
     assertThat(decisao.isTerminal()).isFalse();
   }
+
+  @Test
+  void aAprovacaoExigidaNuncaDesce() {
+    Decisao decisao = new Decisao("P");
+    decisao.exigirAprovacao(NivelAprovacao.DISTRICT_AREA);
+    decisao.exigirAprovacao(NivelAprovacao.RESPONSAVEL_SENIOR);
+    DecisaoArtigo artigo = new DecisaoArtigo("P", "A-1");
+    artigo.exigirAprovacao(NivelAprovacao.RESPONSAVEL_SENIOR);
+    artigo.exigirAprovacao(NivelAprovacao.XSTORE_MANAGER);
+
+    assertThat(decisao.getAprovacao()).isEqualTo(NivelAprovacao.DISTRICT_AREA);
+    assertThat(artigo.getAprovacao()).isEqualTo(NivelAprovacao.RESPONSAVEL_SENIOR);
+  }
+
+  @Test
+  void guardaOsGrausDeCrencaEAVersaoDosParametros() {
+    Decisao decisao = new Decisao("P");
+    com.levis.devolucoes.model.incerteza.GrauCrenca grau =
+        new com.levis.devolucoes.model.incerteza.GrauCrenca();
+    grau.setVersaoParametros("0.1.0-demo");
+
+    decisao.acrescentarGrau(grau);
+
+    assertThat(decisao.getGrausCrenca()).containsExactly(grau);
+    assertThat(decisao.getVersaoParametrosIncerteza()).isEqualTo("0.1.0-demo");
+  }
+
+  @Test
+  void sabeComQueResultadoUmaRegraDisparou() {
+    Decisao decisao = new Decisao("P");
+    decisao.aplicar("PT-004", Modulo.M5, Elegibilidade.REVER, "rever");
+
+    assertThat(decisao.disparouCom("PT-004", Elegibilidade.REVER)).isTrue();
+    assertThat(decisao.disparouCom("PT-004", Elegibilidade.PERMITIR)).isFalse();
+    assertThat(decisao.disparouCom("PT-003", Elegibilidade.REVER)).isFalse();
+  }
 }

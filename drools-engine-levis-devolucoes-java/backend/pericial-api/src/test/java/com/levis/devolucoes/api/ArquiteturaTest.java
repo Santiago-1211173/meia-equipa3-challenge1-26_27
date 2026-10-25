@@ -27,6 +27,7 @@ class ArquiteturaTest {
   private static final String REGRAS = "com.levis.devolucoes.regras..";
   private static final String DTO = "com.levis.devolucoes.dto..";
   private static final String MODELO = "com.levis.devolucoes.model..";
+  private static final String INCERTEZA = "com.levis.devolucoes.incerteza..";
 
   /** Exclui os test-jar publicados pelos outros módulos. */
   static final class SemTestJars implements ImportOption {
@@ -50,6 +51,7 @@ class ArquiteturaTest {
               "com.levis.devolucoes.service.explicacao..",
               "com.levis.devolucoes.service.simulacao..",
               "com.levis.devolucoes.service.regra..",
+              "com.levis.devolucoes.service.incerteza..",
               "java..",
               "jakarta.validation..",
               "org.springframework..",
@@ -63,7 +65,14 @@ class ArquiteturaTest {
           .should()
           .dependOnClassesThat()
           .resideInAnyPackage(
-              MODELO, REGRAS, EXPLICACAO, PERSISTENCIA, "org.kie..", "org.drools..");
+              MODELO,
+              REGRAS,
+              EXPLICACAO,
+              INCERTEZA,
+              PERSISTENCIA,
+              "org.kie..",
+              "org.drools..",
+              "net.sourceforge.jFuzzyLogic..");
 
   @ArchTest
   static final ArchRule MODELO_SEM_SPRING_JPA_NEM_DROOLS =

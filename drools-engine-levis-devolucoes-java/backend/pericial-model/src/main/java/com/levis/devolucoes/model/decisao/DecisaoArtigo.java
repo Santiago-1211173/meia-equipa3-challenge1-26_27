@@ -86,6 +86,13 @@ public class DecisaoArtigo extends DecisaoBase {
     this.destino = destino;
   }
 
+  /** Exige pelo menos o nível de aprovação indicado; a aprovação nunca desce (docs/08 §5.3). */
+  public void exigirAprovacao(NivelAprovacao nivel) {
+    if (aprovacao == null || nivel.compareTo(aprovacao) > 0) {
+      aprovacao = nivel;
+    }
+  }
+
   public NivelAprovacao getAprovacao() {
     return aprovacao;
   }

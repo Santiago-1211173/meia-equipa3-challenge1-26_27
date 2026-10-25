@@ -1,0 +1,41 @@
+# Parâmetros inválidos para o CarregadorParametrosTest: CF de EF-01 fora de [-1, 1] e prior = 1.
+versao: "invalido"
+demonstrativo: true
+
+fatoresCerteza:
+  fraude:
+    evidencias:
+      EF-01: { cf: 2.0, descricao: "Sem comprovativo verificável" }
+      EF-02: { cf: 0.20, descricao: "Todos os artigos sem etiquetas" }
+      EF-03: { cf: 0.30, descricao: "Artigos em estados muito diferentes" }
+      EF-04: { cf: 0.40, descricao: "Não explica onde nem quando comprou" }
+      EF-05: { cf: 0.30, descricao: "Pede numerário numa devolução às cegas" }
+      EF-06: { cf: -0.60, descricao: "Comprovativo verificado" }
+    diferencaEstadosMinima: 2    # EF-03
+    limiares: { medio: 0.40, alto: 0.70 }
+
+bayes:
+  defeitoFabrico:
+    prior: 1.0
+    evidencias:
+      ED-01: { lr: 4.0,  descricao: "Dano numa costura ou ponto de união" }
+      ED-02: { lr: 2.5,  descricao: "Dano localizado num único ponto" }
+      ED-03: { lr: 2.0,  descricao: "Compra há 30 dias ou menos" }
+      ED-04: { lr: 6.0,  descricao: "Defeito conhecido para o SKU" }
+      ED-05: { lr: 0.25, descricao: "Desgaste generalizado do tecido", grupo: USO }
+      ED-06: { lr: 0.40, descricao: "Sinais de lavagem repetida", grupo: USO }
+      ED-07: { lr: 0.10, descricao: "Dano compatível com uso indevido" }
+    diasCompraRecente: 30        # ED-03
+    limiares: { rever: 0.40, proporPc006: 0.80 }
+
+fuzzy:
+  revendibilidade:
+    fcl: "fcl/revendibilidade.fcl"
+    integridadeEtiquetas: { COLOCADAS: 1.0, SOLTAS: 0.6, AUSENTES: 0.0 }
+    limiares: { indeterminada: 0.40, revendivel: 0.60 }
+  creditoPt004:
+    fcl: "fcl/credito-pt004.fcl"
+    prazoDias: 30                # prazo de PT-003; diasAposPrazo = diasDesdeCompra - prazoDias
+    limites: { diasAposPrazo: 180, valor: 500 }
+    porOmissao: { revendibilidade: 0.5, risco: 0.0 }
+    limiares: { aCriterio: 40, recomendado: 70 }

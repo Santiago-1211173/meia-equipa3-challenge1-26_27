@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, Set, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def _to_camel_case(s: str) -> str:
@@ -340,6 +340,63 @@ class CausaNaoDisparoEnum(str, Enum):
 CausaNaoDisparo = CausaNaoDisparoEnum
 
 
+class RespostaEnum(str, Enum):
+    """Resposta do colaborador a uma pergunta de inspeção ou de comportamento (docs/08 §3.3)."""
+
+    SIM = "SIM"
+    NAO = "NAO"
+    NAO_SEI = "NAO_SEI"
+
+
+Resposta = RespostaEnum
+
+
+class HipoteseEnum(str, Enum):
+    """Hipótese avaliada pela camada de incerteza (docs/08)."""
+
+    FRAUDE = "FRAUDE"
+    DEFEITO_FABRICO = "DEFEITO_FABRICO"
+    REVENDIBILIDADE = "REVENDIBILIDADE"
+    RECOMENDACAO_CREDITO = "RECOMENDACAO_CREDITO"
+
+
+Hipotese = HipoteseEnum
+
+
+class MetodoIncertezaEnum(str, Enum):
+    """Método usado no cálculo de um grau de crença."""
+
+    FATOR_CERTEZA = "FATOR_CERTEZA"
+    BAYES = "BAYES"
+    FUZZY = "FUZZY"
+
+
+MetodoIncerteza = MetodoIncertezaEnum
+
+
+class ClassificacaoIncertezaEnum(str, Enum):
+    """Classificação de um grau de crença segundo os limiares dos parâmetros."""
+
+    RISCO_ALTO = "RISCO_ALTO"
+    RISCO_MEDIO = "RISCO_MEDIO"
+    RISCO_BAIXO = "RISCO_BAIXO"
+    PROPOR_PC006 = "PROPOR_PC006"
+    REVER_DEFEITO = "REVER_DEFEITO"
+    DESGASTE = "DESGASTE"
+    REVENDIVEL = "REVENDIVEL"
+    REVENDIBILIDADE_INDETERMINADA = "REVENDIBILIDADE_INDETERMINADA"
+    NAO_REVENDIVEL = "NAO_REVENDIVEL"
+    CREDITO_RECOMENDADO = "CREDITO_RECOMENDADO"
+    CREDITO_A_CRITERIO = "CREDITO_A_CRITERIO"
+    CREDITO_NAO_RECOMENDADO = "CREDITO_NAO_RECOMENDADO"
+
+
+ClassificacaoIncerteza = ClassificacaoIncertezaEnum
+
+# Perguntas da inspeção do defeito respondidas pelo colaborador (FabricaEvidencias do Drools)
+PERGUNTAS_INSPECAO_DEFEITO = frozenset({"ED-01", "ED-02", "ED-05", "ED-06", "ED-07"})
+
+
 # ==============================================================================
 # 2. ENTIDADES DO PEDIDO (REQUESTS)
 # ==============================================================================
@@ -390,6 +447,18 @@ class ClienteRequest(LevisBaseModel):
     barreiraLinguistica: bool = Field(default=False, description="Presença de barreira linguística.")
     contestaResultado: bool = Field(default=False, description="Cliente contesta ativamente a decisão inicial.")
     agitado: bool = Field(default=False, description="Cliente apresenta comportamento alterado ou agitado.")
+    explicaOrigemCompra: Optional[RespostaEnum] = Field(
+        default=None, description="EF-04: o cliente explica onde e quando comprou (vazio = não perguntado)."
+    )
+    pedeNumerario: bool = Field(default=False, description="EF-05: o cliente pede o reembolso em numerário.")
+
+    @field_validator("explicaOrigemCompra", mode="before")
+    @classmethod
+    def _resposta_de_booleano(cls, valor: Any) -> Any:
+        # Os cenários de teste do Drools usam o booleano do modelo (true = explica)
+        if isinstance(valor, bool):
+            return RespostaEnum.SIM if valor else RespostaEnum.NAO
+        return valor
 
 
 class PagamentoRequest(LevisBaseModel):
@@ -456,6 +525,9 @@ class ProdutoRequest(LevisBaseModel):
     pvpOriginal: Optional[Union[Decimal, float]] = Field(default=None, description="Preço de venda ao público original.")
     precoAtual: Optional[Union[Decimal, float]] = Field(default=None, description="Preço de venda atual na loja.")
     emSaldo: Optional[bool] = Field(default=False, description="Produto em saldo atualmente.")
+    defeitoConhecido: Optional[bool] = Field(
+        default=None, description="ED-04: defeito conhecido para o SKU no catálogo (vazio = consultar o catálogo)."
+    )
 
 
 class EstadoProdutoRequest(LevisBaseModel):
@@ -473,6 +545,23 @@ class EstadoProdutoRequest(LevisBaseModel):
     rfidCorreto: Optional[bool] = Field(default=True, description="Etiqueta RFID corresponde ao produto.")
     embalagemIntacta: bool = Field(default=True, description="Embalagem original intacta (ex.: bodywear).")
     conjuntoCompleto: Optional[bool] = Field(default=True, description="Conjunto ou pack completo.")
+    grauUso: Optional[int] = Field(
+        default=None, ge=0, le=4, description="Grau de uso de 0 (nenhum) a 4 (intenso), para a revendibilidade."
+    )
+    alegaDefeito: bool = Field(default=False, description="O cliente alega defeito de fabrico (não confirmado).")
+    inspecaoDefeito: Optional[Dict[str, RespostaEnum]] = Field(
+        default=None, description="Respostas às perguntas da inspeção do defeito (ED-01, ED-02, ED-05, ED-06, ED-07)."
+    )
+
+    @field_validator("inspecaoDefeito")
+    @classmethod
+    def _perguntas_de_inspecao_conhecidas(
+        cls, inspecao: Optional[Dict[str, RespostaEnum]]
+    ) -> Optional[Dict[str, RespostaEnum]]:
+        desconhecidas = sorted(set(inspecao or {}) - PERGUNTAS_INSPECAO_DEFEITO)
+        if desconhecidas:
+            raise ValueError(f"Perguntas de inspeção desconhecidas: {', '.join(desconhecidas)}")
+        return inspecao
 
 
 class ArtigoRequest(LevisBaseModel):
@@ -627,6 +716,31 @@ class UncertaintyCfResponse(LevisBaseModel):
     source: Optional[str] = Field(default=None, description="Heuristic family, normally EX-001.")
 
 
+class ContribuicaoDto(LevisBaseModel):
+    """Passo de um cálculo de incerteza: uma evidência ou regra fuzzy e o seu efeito no grau."""
+
+    codigo: Optional[str] = Field(default=None, description="Código da evidência ou regra (ex.: EF-01, ED-04).")
+    descricao: Optional[str] = Field(default=None, description="Descrição da evidência.")
+    peso: float = Field(default=0.0, description="Peso aplicado (fator de certeza, razão de verosimilhança ou força).")
+    valorAntes: float = Field(default=0.0, description="Valor do grau antes desta contribuição.")
+    valorDepois: float = Field(default=0.0, description="Valor do grau depois desta contribuição.")
+    aplicada: bool = Field(default=False, description="Indica se a contribuição foi aplicada ao cálculo.")
+    motivoNaoAplicada: Optional[str] = Field(default=None, description="Motivo por que não foi aplicada.")
+
+
+class GrauCrencaDto(LevisBaseModel):
+    """Grau de crença calculado pela camada de incerteza do Drools (valores demonstrativos)."""
+
+    hipotese: Optional[HipoteseEnum] = Field(default=None, description="Hipótese avaliada.")
+    metodo: Optional[MetodoIncertezaEnum] = Field(default=None, description="Método de cálculo.")
+    artigoId: Optional[str] = Field(default=None, description="Artigo avaliado (vazio = pedido).")
+    valor: float = Field(default=0.0, description="Valor do grau (o fator de certeza vai de -1 a 1).")
+    classificacao: Optional[ClassificacaoIncertezaEnum] = Field(default=None, description="Classificação do grau.")
+    contribuicoes: List[ContribuicaoDto] = Field(default_factory=list, description="Passos do cálculo.")
+    demonstrativo: bool = Field(default=False, description="Parâmetros demonstrativos, não calibrados.")
+    versaoParametros: Optional[str] = Field(default=None, description="Versão dos parâmetros de incerteza.")
+
+
 class DecisaoResponse(LevisBaseModel):
     """Decisão final consolidada emitida pelo motor de regras Drools Levi's (OUT-001 a OUT-008)."""
 
@@ -658,6 +772,23 @@ class DecisaoResponse(LevisBaseModel):
         default=None,
         description="Advisory MYCIN certainty factor from the Prolog EX-001 advisor. Absent for Drools.",
     )
+    incerteza: List[GrauCrencaDto] = Field(
+        default_factory=list, description="Graus de crença da camada de incerteza (docs/08)."
+    )
+
+
+class ParametrosIncertezaResponse(LevisBaseModel):
+    """Parâmetros da camada de incerteza em vigor no motor Drools (valores demonstrativos)."""
+
+    versao: Optional[str] = Field(default=None, description="Versão do ficheiro de parâmetros.")
+    demonstrativo: bool = Field(default=False, description="Parâmetros demonstrativos, não calibrados.")
+    fatoresCerteza: Dict[str, float] = Field(default_factory=dict, description="Fatores de certeza das evidências de fraude.")
+    razoesVerosimilhanca: Dict[str, float] = Field(
+        default_factory=dict, description="Razões de verosimilhança das evidências de defeito."
+    )
+    priorDefeito: float = Field(default=0.0, description="Probabilidade a priori de defeito de fabrico.")
+    limiares: Dict[str, float] = Field(default_factory=dict, description="Limiares das classificações.")
+    ficheirosFcl: Dict[str, str] = Field(default_factory=dict, description="Ficheiros FCL da lógica fuzzy.")
 
 
 class AvaliacaoResumoResponse(LevisBaseModel):

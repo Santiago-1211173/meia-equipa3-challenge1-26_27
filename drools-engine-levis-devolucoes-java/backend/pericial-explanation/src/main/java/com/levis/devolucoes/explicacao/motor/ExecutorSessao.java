@@ -1,6 +1,8 @@
 package com.levis.devolucoes.explicacao.motor;
 
 import com.levis.devolucoes.explicacao.rastreio.RastreioListener;
+import com.levis.devolucoes.incerteza.FabricaEvidencias;
+import com.levis.devolucoes.incerteza.ServicoIncerteza;
 import com.levis.devolucoes.model.decisao.Decisao;
 import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.decisao.IndicadorFraude;
@@ -16,8 +18,9 @@ import org.kie.api.runtime.KieSession;
 
 /**
  * Executa a base de conhecimento sobre um pedido: insere o pedido, cada artigo com a sua
- * DecisaoArtigo, a Decisao e os indícios de fraude, dá o foco aos agenda-groups pela ordem indicada
- * e regista o rastreio. Uma sessão por pedido.
+ * DecisaoArtigo, a Decisao, os indícios de fraude e as evidências do colaborador e do catálogo
+ * (docs/08), define o global {@code incerteza}, dá o foco aos agenda-groups pela ordem indicada e
+ * regista o rastreio. Uma sessão por pedido.
  */
 public class ExecutorSessao {
 
@@ -28,19 +31,32 @@ public class ExecutorSessao {
   private final String nomeSessao;
   private final List<String> gruposPorOrdem;
   private final Clock relogio;
+  private final ServicoIncerteza incerteza;
+  private final FabricaEvidencias evidencias;
 
   /**
    * @param contentor contentor com a base de conhecimento (kjar)
    * @param nomeSessao ksession stateful do kmodule
    * @param gruposPorOrdem agenda-groups pela ordem de avaliação (o primeiro é avaliado primeiro)
    * @param relogio relógio dos instantes do rasto
+   * @param incerteza camada de incerteza (global {@code incerteza} das regras)
    */
   public ExecutorSessao(
-      KieContainer contentor, String nomeSessao, List<String> gruposPorOrdem, Clock relogio) {
+      KieContainer contentor,
+      String nomeSessao,
+      List<String> gruposPorOrdem,
+      Clock relogio,
+      ServicoIncerteza incerteza) {
     this.contentor = Objects.requireNonNull(contentor);
     this.nomeSessao = Objects.requireNonNull(nomeSessao);
     this.gruposPorOrdem = List.copyOf(gruposPorOrdem);
     this.relogio = Objects.requireNonNull(relogio);
+    this.incerteza = Objects.requireNonNull(incerteza);
+    this.evidencias = new FabricaEvidencias(incerteza);
+  }
+
+  public ServicoIncerteza incerteza() {
+    return incerteza;
   }
 
   public KieContainer contentor() {
@@ -60,6 +76,7 @@ public class ExecutorSessao {
     RastreioListener rastreio = new RastreioListener(decisao, artigos.values());
     KieSession sessao = contentor.newKieSession(nomeSessao);
     sessao.addEventListener(rastreio);
+    sessao.setGlobal("incerteza", incerteza);
     try {
       sessao.insert(pedido);
       for (ArtigoDevolvido artigo : pedido.getArtigos()) {
@@ -70,6 +87,7 @@ public class ExecutorSessao {
       for (IndicadorFraude fraude : fraudes) {
         sessao.insert(fraude);
       }
+      evidencias.evidencias(pedido).forEach(sessao::insert);
       for (String grupo : gruposPorOrdem.reversed()) {
         sessao.getAgenda().getAgendaGroup(grupo).setFocus();
       }

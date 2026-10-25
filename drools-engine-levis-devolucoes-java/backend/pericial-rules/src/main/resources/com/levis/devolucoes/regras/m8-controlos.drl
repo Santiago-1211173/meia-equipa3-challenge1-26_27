@@ -5,13 +5,17 @@ package com.levis.devolucoes.regras;
 // Ordem: CT-001, CT-002, CT-004, CT-005, CT-006, EX-007 e, por fim, CT-007 (retenção).
 
 import com.levis.devolucoes.model.decisao.Decisao;
+import com.levis.devolucoes.model.decisao.DecisaoArtigo;
+import com.levis.devolucoes.model.enums.ClassificacaoIncerteza;
 import com.levis.devolucoes.model.enums.Elegibilidade;
 import com.levis.devolucoes.model.enums.Funcao;
+import com.levis.devolucoes.model.enums.Hipotese;
 import com.levis.devolucoes.model.enums.Modulo;
 import com.levis.devolucoes.model.enums.NivelAprovacao;
 import com.levis.devolucoes.model.enums.TipoComprovativo;
 import com.levis.devolucoes.model.enums.TipoTransacao;
 import com.levis.devolucoes.model.enums.TipoVerificacao;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import com.levis.devolucoes.model.pedido.PedidoDevolucao;
 
 rule "CT-001 Devolução verificada processada por pessoal autorizado"
@@ -174,5 +178,33 @@ then
         registar( "CT-007", Modulo.M8,
                   "Conservar o exemplar da loja e as assinaturas até " + $p.getDataPedido().plusDays( 90 ) + " (90 dias)"
                   + ( $p.isCompraOnline() ? "; arquivar a cópia da devolução online com os suportes diários." : "." ) )
+    }
+end
+
+// ---------------------------------------------------------------------------------------------
+// A incerteza torna o resultado mais cauteloso (docs/08 §5.3): no fim do M8, para que regras
+// anteriores (ex.: PT-003) não voltem a escrever PERMITIR. Atua sobre cada artigo; a agregação
+// OUT-001 (M9) propaga o resultado ao pedido (ADR 0012). Nunca altera RECUSAR nem ENCAMINHAR.
+// O defeito de fabrico provável ou possível já deixa o artigo em REVER no M3 (IU-21, IU-22).
+// ---------------------------------------------------------------------------------------------
+
+rule "IU-50 Risco de fraude médio: o artigo fica em revisão"
+    @id("IU-50")
+    @modulo("M8")
+    @descricao("Com risco de fraude médio, um artigo permitido (ou ainda sem resultado) passa a REVER e a gestão decide. Nunca altera RECUSAR nem ENCAMINHAR (docs/08 §1.2).")
+    @condicoes("artigoPermitidoOuPorDecidir,riscoFraudeMedio")
+    @conclusoes("OUT-001=REVER")
+    agenda-group "M8"
+    salience -100
+when
+    $d  : Decisao( terminal == false )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, terminal == false, disparou( "IU-50" ) == false,
+                         elegibilidade == null || elegibilidade == Elegibilidade.PERMITIR )
+    exists GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.FRAUDE,
+                       classificacao == ClassificacaoIncerteza.RISCO_MEDIO )
+then
+    modify( $da ) {
+        aplicar( "IU-50", Modulo.M8, Elegibilidade.REVER,
+                 "Risco de fraude médio: o artigo fica em revisão e a gestão decide." )
     }
 end

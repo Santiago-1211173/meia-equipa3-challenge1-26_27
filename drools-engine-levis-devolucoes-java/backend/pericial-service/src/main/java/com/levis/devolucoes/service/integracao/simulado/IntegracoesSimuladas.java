@@ -31,8 +31,12 @@ public class IntegracoesSimuladas
         produto("501-ORIG-32", Marca.LEVIS, CategoriaProduto.VESTUARIO, "98.00", "98.00"));
     registarProduto(
         produto("501-ORIG-34", Marca.LEVIS, CategoriaProduto.VESTUARIO, "98.00", "98.00"));
+    // Defeito de fabrico conhecido para o SKU (ED-04, docs/08): dado demonstrativo do catálogo
+    // simulado
     registarProduto(
-        produto("TRUCKER-AZUL-M", Marca.LEVIS, CategoriaProduto.VESTUARIO, "128.00", "128.00"));
+        comDefeitoConhecido(
+            produto(
+                "TRUCKER-AZUL-M", Marca.LEVIS, CategoriaProduto.VESTUARIO, "128.00", "128.00")));
     registarProduto(
         produto("BW-BOXER-3PK-M", Marca.LEVIS, CategoriaProduto.BODYWEAR, "29.99", "29.99"));
     registarProduto(
@@ -45,6 +49,7 @@ public class IntegracoesSimuladas
             false,
             new BigDecimal("69.50"),
             new BigDecimal("69.50"),
+            false,
             false));
     encomendas.put("LCOM-0202", true);
   }
@@ -60,7 +65,22 @@ public class IntegracoesSimuladas
         false,
         new BigDecimal(pvp),
         new BigDecimal(atual),
+        false,
         false);
+  }
+
+  private static ProdutoCatalogo comDefeitoConhecido(ProdutoCatalogo p) {
+    return new ProdutoCatalogo(
+        p.sku(),
+        p.marca(),
+        p.categoria(),
+        p.grossista(),
+        p.vendidoNaLoja(),
+        p.produtoFranquia(),
+        p.pvpOriginal(),
+        p.precoAtual(),
+        p.emSaldo(),
+        true);
   }
 
   // Configuração (dev e testes)

@@ -20,5 +20,6 @@ public interface CatalogoProdutoGateway {
       boolean produtoFranquia,
       BigDecimal pvpOriginal,
       BigDecimal precoAtual,
-      boolean emSaldo) {}
+      boolean emSaldo,
+      boolean defeitoConhecido) {}
 }

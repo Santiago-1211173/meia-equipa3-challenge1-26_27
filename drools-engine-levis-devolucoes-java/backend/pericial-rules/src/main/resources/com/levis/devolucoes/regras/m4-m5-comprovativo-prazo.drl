@@ -10,6 +10,7 @@ import com.levis.devolucoes.model.decisao.IndicadorFraude;
 import com.levis.devolucoes.model.enums.BaseValor;
 import com.levis.devolucoes.model.enums.CanalCompra;
 import com.levis.devolucoes.model.enums.Elegibilidade;
+import com.levis.devolucoes.model.enums.Hipotese;
 import com.levis.devolucoes.model.enums.MeioReembolso;
 import com.levis.devolucoes.model.enums.Modulo;
 import com.levis.devolucoes.model.enums.NivelAprovacao;
@@ -17,8 +18,11 @@ import com.levis.devolucoes.model.enums.NivelRisco;
 import com.levis.devolucoes.model.enums.TipoPedido;
 import com.levis.devolucoes.model.enums.TipoTransacao;
 import com.levis.devolucoes.model.enums.TipoVerificacao;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import com.levis.devolucoes.model.pedido.PedidoDevolucao;
 import com.levis.devolucoes.model.produto.ArtigoDevolvido;
+
+global com.levis.devolucoes.incerteza.ServicoIncerteza incerteza;
 
 // ---------------------------------------------------------------------------------------------
 // M4 — Comprovativo
@@ -308,5 +312,31 @@ then
         aplicar( "PT-007", Modulo.M5, Elegibilidade.REVER,
                  "Ajuste de preço de uma compra " + $p.getCompraOriginal().getCanal() + ": a política só prevê o ajuste "
                  + "de 14 dias para compras em loja. Rever com a gestão." )
+    }
+end
+
+// ---------------------------------------------------------------------------------------------
+// Recomendação de crédito de loja depois de PT-004 (docs/08 §4.2): lógica fuzzy, só recomendação.
+// ---------------------------------------------------------------------------------------------
+
+rule "IU-40 Recomendar crédito de loja depois de PT-004"
+    @id("IU-40")
+    @modulo("M5")
+    @descricao("Depois de a PT-004 deixar a devolução em REVER: recomenda à gestão (forte, a critério ou não recomendado) o crédito de loja, pelos dias após o prazo, a revendibilidade, o risco de fraude e o valor. É só uma recomendação: não altera a decisão. Valores demonstrativos (docs/08 §4.2).")
+    @condicoes("pt004EmRevisao")
+    @conclusoes("")
+    agenda-group "M5"
+    salience 90
+when
+    $d : Decisao( terminal == false, disparouCom( "PT-004", Elegibilidade.REVER ) == true )
+    $p : PedidoDevolucao( id == $d.pedidoId )
+    not GrauCrenca( pedidoId == $p.id, hipotese == Hipotese.RECOMENDACAO_CREDITO )
+then
+    GrauCrenca grau = incerteza.recomendacaoCreditoPedido( $p, $d.getGrausCrenca() );
+    insert( grau );
+    modify( $d ) {
+        acrescentarGrau( grau ),
+        registar( "IU-40", Modulo.M5,
+                  "Recomendação para a gestão, sem alterar a decisão: " + incerteza.resumo( grau ) + "." )
     }
 end

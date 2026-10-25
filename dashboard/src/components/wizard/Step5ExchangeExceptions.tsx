@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
-import { useWizard } from "./WizardContext";
+import { useWizard, usaCamadaIncerteza } from "./WizardContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import SlickSlider from "@/components/ui/SlickSlider";
+import SegmentedChoice from "@/components/ui/SegmentedChoice";
+import { RESPOSTAS } from "@/config/uncertaintyLabels";
+import type { Resposta } from "@/types/returns";
 
 interface ExchangeModalityItem {
   id: "MESMO_MODELO" | "OUTRO_ARTIGO";
@@ -131,6 +134,7 @@ export default function Step5ExchangeExceptions() {
   const customerSituations = isEn ? CUSTOMER_SITUATIONS_EN : CUSTOMER_SITUATIONS_PT;
 
   const isExchange = state.requestType === "TROCA";
+  const comIncerteza = usaCamadaIncerteza(state);
 
   const getExchangeBadgeText = () => {
     switch (state.exchangeOption) {
@@ -458,6 +462,119 @@ export default function Step5ExchangeExceptions() {
           </div>
         </div>
       </div>
+
+      {/* 4. Sinais de risco no balcão: evidências do risco de fraude da camada de incerteza (só Drools) */}
+      {comIncerteza && (
+        <div className="w-full flex flex-col gap-3">
+          {/* Typographic Section Header */}
+          <div className="flex items-center gap-2 px-1 flex-wrap">
+            <span className="font-mono tabular-nums text-xs font-bold text-slate-400 select-none">
+              {isExchange ? "04" : "03"}
+            </span>
+            <span className="text-slate-300">/</span>
+            <h3 className="font-sans text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              {isEn ? "Risk Signals at the Counter" : "Sinais de Risco no Balcão"}
+            </h3>
+            <span className="font-sans inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200/80 select-none">
+              {isEn ? "Optional" : "Opcional"}
+            </span>
+            <span className="font-sans inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/80 select-none">
+              <span className="material-symbols-outlined text-[13px]">psychology</span>
+              {isEn ? "Drools · Uncertainty" : "Drools · Incerteza"}
+            </span>
+          </div>
+          <p className="font-sans text-xs text-slate-500 px-1 -mt-1 leading-relaxed">
+            {isEn
+              ? "Combined with the proof of purchase and the tags, these answers feed the estimated fraud risk. A risk signal never refuses a return by itself: it asks for management review."
+              : "Junto com o comprovativo e as etiquetas, estas respostas alimentam o risco de fraude estimado. Um sinal de risco nunca recusa a devolução por si: pede a revisão da gestão."}
+          </p>
+
+          <div className="grid grid-cols-1 gap-3.5">
+            {/* Card: o cliente explica a origem da compra (EF-04) */}
+            <div
+              className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 bg-white ${state.purchaseOriginExplained === "NAO"
+                  ? "border-2 border-amber-500"
+                  : state.purchaseOriginExplained
+                    ? "border border-slate-300"
+                    : "border border-slate-200 hover:border-slate-300"
+                }`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${state.purchaseOriginExplained === "NAO"
+                      ? "bg-amber-50 text-amber-700 border border-amber-200/60"
+                      : state.purchaseOriginExplained === "SIM"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                        : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[22px]">travel_explore</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <h4 className="font-sans font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug">
+                    {isEn ? "Does the customer explain where and when they bought it?" : "O cliente explica onde e quando comprou?"}
+                  </h4>
+                  <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    {isEn ? "Store, approximate date or channel of the purchase" : "Loja, data aproximada ou canal da compra"}
+                  </p>
+                </div>
+              </div>
+              <SegmentedChoice<Resposta>
+                options={RESPOSTAS.map((r) => ({
+                  label: isEn ? r.en : r.pt,
+                  value: r.value,
+                  tone: r.value === "SIM" ? "success" : r.value === "NAO" ? "warning" : "neutral",
+                }))}
+                value={state.purchaseOriginExplained}
+                onChange={(val) => setField("purchaseOriginExplained", val)}
+                ariaLabel={isEn ? "Customer explains where and when they bought it" : "O cliente explica onde e quando comprou"}
+                width="w-full sm:w-[252px]"
+              />
+            </div>
+
+            {/* Card: o cliente pede numerário (EF-05) */}
+            <div
+              className={`rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-200 bg-white ${state.asksForCash
+                  ? "border-2 border-amber-500"
+                  : "border border-slate-200 hover:border-slate-300"
+                }`}
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${state.asksForCash
+                      ? "bg-amber-50 text-amber-700 border border-amber-200/60"
+                      : state.asksForCash === false
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                        : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                    }`}
+                >
+                  <span className="material-symbols-outlined text-[22px]">payments</span>
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <h4 className="font-sans font-bold text-slate-900 text-sm sm:text-base tracking-tight leading-snug">
+                    {isEn ? "Does the customer ask for a cash refund?" : "O cliente pede o reembolso em numerário?"}
+                  </h4>
+                  <p className="font-sans text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    {isEn
+                      ? "Only counts as a risk signal when the purchase cannot be verified"
+                      : "Só conta como sinal de risco quando a compra não pode ser verificada"}
+                  </p>
+                </div>
+              </div>
+              <SlickSlider
+                options={[
+                  { label: isEn ? "No" : "Não", value: false, tone: "success", icon: "check" },
+                  { label: isEn ? "Asks for cash" : "Pede numerário", value: true, tone: "warning", icon: "payments" },
+                ]}
+                value={state.asksForCash}
+                onChange={(val) => setField("asksForCash", val)}
+                ariaLabel={isEn ? "Customer asks for a cash refund" : "O cliente pede o reembolso em numerário"}
+                width="w-full sm:w-[232px]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

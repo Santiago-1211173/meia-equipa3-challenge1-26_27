@@ -7,6 +7,7 @@ import com.levis.devolucoes.dto.enums.NivelAprovacao;
 import com.levis.devolucoes.dto.enums.ProcessoObrigatorio;
 import com.levis.devolucoes.dto.enums.TipoTransacao;
 import com.levis.devolucoes.dto.enums.TipoVerificacao;
+import com.levis.devolucoes.dto.incerteza.GrauCrencaDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.UUID;
  * @param avaliacaoId identificador da avaliação gravada (nulo numa simulação)
  * @param versaoBaseConhecimento versão do kjar usada (auditoria)
  * @param regrasAValidar regras disparadas com ambiguidades por validar pela operação (ADR 0003)
+ * @param incerteza graus da camada de incerteza (docs/08), com valores demonstrativos
  */
 @Schema(
     description =
@@ -42,4 +44,6 @@ public record DecisaoResponse(
     @Schema(description = "Resultado por artigo, com o destino (OUT-007)")
         List<ResultadoArtigoResponse> artigos,
     List<RegistoRegraResponse> regras,
-    List<String> regrasAValidar) {}
+    List<String> regrasAValidar,
+    @Schema(description = "Avaliação da incerteza (docs/08); valores demonstrativos")
+        List<GrauCrencaDto> incerteza) {}

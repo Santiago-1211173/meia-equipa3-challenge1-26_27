@@ -108,7 +108,10 @@ public class EnriquecedorPedido {
             ? p.pvpOriginal()
             : c.map(ProdutoCatalogo::pvpOriginal).orElse(null),
         p.precoAtual() != null ? p.precoAtual() : c.map(ProdutoCatalogo::precoAtual).orElse(null),
-        p.emSaldo() != null ? p.emSaldo() : c.map(ProdutoCatalogo::emSaldo).orElse(null));
+        p.emSaldo() != null ? p.emSaldo() : c.map(ProdutoCatalogo::emSaldo).orElse(null),
+        p.defeitoConhecido() != null
+            ? p.defeitoConhecido()
+            : c.map(ProdutoCatalogo::defeitoConhecido).orElse(null));
   }
 
   private CompraRequest compra(CompraRequest c) {

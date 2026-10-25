@@ -6,6 +6,7 @@ import com.levis.devolucoes.explicacao.motor.ResultadoExecucao;
 import com.levis.devolucoes.explicacao.porquenao.AvaliadorCondicoes;
 import com.levis.devolucoes.explicacao.porquenao.RegistoPredicados;
 import com.levis.devolucoes.explicacao.texto.GeradorTexto;
+import com.levis.devolucoes.incerteza.ServicoIncerteza;
 import com.levis.devolucoes.model.decisao.IndicadorFraude;
 import com.levis.devolucoes.model.pedido.PedidoDevolucao;
 import com.levis.devolucoes.regras.OrdemAgenda;
@@ -28,7 +29,8 @@ public final class SuporteExplicacoes {
           CONTENTOR,
           OrdemAgenda.SESSAO,
           OrdemAgenda.GRUPOS,
-          Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneOffset.UTC));
+          Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneOffset.UTC),
+          ServicoIncerteza.comParametros("parametros-incerteza-teste.yml"));
 
   public static final CatalogoRegras CATALOGO = CatalogoRegras.de(CONTENTOR.getKieBase("pericial"));
 

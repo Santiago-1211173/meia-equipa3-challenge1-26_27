@@ -125,3 +125,9 @@ tmp/
 get-docker.sh
 benchmark_results/
 validacao_pericial/
+
+# Assistente de desenvolvimento (instruções e definições locais)
+# ---------------------------------------------------------------
+CLAUDE.md
+CLAUDE.local.md
+.claude/

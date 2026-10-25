@@ -34,7 +34,7 @@ class PedidoMapperTest {
             null,
             null,
             null,
-            new ClienteRequest(null, null, false, false, false),
+            new ClienteRequest(null, null, false, false, false, null, false),
             new CompraRequest(
                 "T-1",
                 CanalCompra.MAINLINE,
@@ -57,12 +57,13 @@ class PedidoMapperTest {
             List.of(
                 new ArtigoRequest(
                     "A-1",
-                    new ProdutoRequest("501", null, null, null, null, null, null, null, null, null),
+                    new ProdutoRequest(
+                        "501", null, null, null, null, null, null, null, null, null, null),
                     null,
                     null,
                     new EstadoProdutoRequest(
                         null, null, false, false, false, false, false, false, null, null, false,
-                        null),
+                        null, null, false, null),
                     false,
                     null,
                     null)),

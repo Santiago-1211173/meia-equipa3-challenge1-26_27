@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 /**
  * Produto (IN-007). Só o SKU é obrigatório: os campos vazios são consultados no POS e no catálogo e
  * nunca sobrepõem o que o colaborador indicou.
+ *
+ * @param defeitoConhecido defeito de fabrico conhecido para o SKU (ED-04, docs/08); consultado no
+ *     catálogo se vazio
  */
 public record ProdutoRequest(
     @NotBlank String sku,
@@ -20,4 +23,5 @@ public record ProdutoRequest(
     Boolean produtoFranquia,
     @PositiveOrZero BigDecimal pvpOriginal,
     @PositiveOrZero BigDecimal precoAtual,
-    Boolean emSaldo) {}
+    Boolean emSaldo,
+    Boolean defeitoConhecido) {}

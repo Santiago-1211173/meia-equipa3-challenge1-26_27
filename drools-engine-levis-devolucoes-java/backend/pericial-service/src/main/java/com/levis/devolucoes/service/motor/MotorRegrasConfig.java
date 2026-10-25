@@ -7,6 +7,7 @@ import com.levis.devolucoes.explicacao.motor.ExecutorSessao;
 import com.levis.devolucoes.explicacao.porque.DependenciasDados;
 import com.levis.devolucoes.explicacao.porquenao.AvaliadorCondicoes;
 import com.levis.devolucoes.explicacao.porquenao.RegistoPredicados;
+import com.levis.devolucoes.incerteza.ServicoIncerteza;
 import com.levis.devolucoes.regras.OrdemAgenda;
 import java.time.Clock;
 import org.kie.api.KieServices;
@@ -33,9 +34,21 @@ public class MotorRegrasConfig {
     return KieServices.Factory.get().getKieClasspathContainer();
   }
 
+  /**
+   * Camada de incerteza com o ficheiro de parâmetros demonstrativos; falha no arranque se for
+   * inválido.
+   */
   @Bean
-  public ExecutorSessao executorSessao(KieContainer kieContainer, Clock relogio) {
-    return new ExecutorSessao(kieContainer, OrdemAgenda.SESSAO, OrdemAgenda.GRUPOS, relogio);
+  @ConditionalOnMissingBean
+  public ServicoIncerteza servicoIncerteza() {
+    return ServicoIncerteza.padrao();
+  }
+
+  @Bean
+  public ExecutorSessao executorSessao(
+      KieContainer kieContainer, Clock relogio, ServicoIncerteza servicoIncerteza) {
+    return new ExecutorSessao(
+        kieContainer, OrdemAgenda.SESSAO, OrdemAgenda.GRUPOS, relogio, servicoIncerteza);
   }
 
   @Bean

@@ -281,7 +281,9 @@ class ServicoPericialIT {
 
   @Test
   void catalogoDaBaseDeConhecimento() {
-    assertThat(catalogo.listar()).hasSize(76);
+    assertThat(catalogo.listar())
+        .as("76 regras da base de conhecimento e 19 da camada de incerteza")
+        .hasSize(95);
     assertThat(catalogo.detalhe("PC-002").variantes()).hasSize(3);
     assertThatThrownBy(() -> catalogo.detalhe("XX-1"))
         .isInstanceOf(RecursoNaoEncontradoException.class);

@@ -3,6 +3,7 @@
 
 export interface ProdutoRequest {
   categoria?: 'VESTUARIO' | 'ACESSORIO' | 'BODYWEAR';
+  defeitoConhecido?: boolean;
   emSaldo?: boolean;
   grossista?: boolean;
   marca?: 'LEVIS' | 'DOCKERS' | 'LS_SIGNATURE' | 'BEYOND_YOGA' | 'OUTRA';

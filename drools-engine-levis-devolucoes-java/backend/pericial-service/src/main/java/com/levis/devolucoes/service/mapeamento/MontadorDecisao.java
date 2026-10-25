@@ -76,7 +76,8 @@ public class MontadorDecisao {
         mapper.documentacao(d.getDocumentacao()),
         artigos,
         regras,
-        aValidar);
+        aValidar,
+        mapper.graus(d.getGrausCrenca()));
   }
 
   private static <E extends Enum<E>> E porNome(Class<E> tipo, Enum<?> valor) {

@@ -47,7 +47,10 @@ public class ExplicacaoController {
                       oneOf = {ExplicacaoComoResponse.class, ExplicacaoConclusaoResponse.class})))
   public Object como(
       @PathVariable UUID id,
-      @Parameter(description = "Campo de saída, ex.: OUT-001") @RequestParam(required = false)
+      @Parameter(
+              description =
+                  "Campo de saída (ex.: OUT-001) ou grau da camada de incerteza (ex.: INCERTEZA.FRAUDE)")
+          @RequestParam(required = false)
           String conclusao,
       @Parameter(description = "Artigo, para as conclusões por artigo")
           @RequestParam(required = false)
@@ -79,7 +82,10 @@ public class ExplicacaoController {
                       })))
   public Object porqueNao(
       @PathVariable UUID id,
-      @Parameter(description = "Conclusão no formato OUT-00n:VALOR") @RequestParam(required = false)
+      @Parameter(
+              description =
+                  "Conclusão no formato OUT-00n:VALOR ou INCERTEZA.<HIPOTESE>:<CLASSIFICACAO>")
+          @RequestParam(required = false)
           String conclusao,
       @Parameter(description = "ID da regra, ex.: PT-003") @RequestParam(required = false)
           String regra,

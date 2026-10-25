@@ -69,6 +69,12 @@ public abstract class DecisaoBase {
     return registos.stream().anyMatch(r -> r.getCodigoRegra().equals(regra));
   }
 
+  /** Indica se a regra indicada já disparou sobre esta decisão com o resultado indicado. */
+  public boolean disparouCom(String regra, Elegibilidade resultado) {
+    return registos.stream()
+        .anyMatch(r -> r.getCodigoRegra().equals(regra) && r.getResultado() == resultado);
+  }
+
   /** Relógio usado nos instantes do rasto; permite testes determinísticos. */
   public void usarRelogio(Clock relogio) {
     this.relogio = relogio;

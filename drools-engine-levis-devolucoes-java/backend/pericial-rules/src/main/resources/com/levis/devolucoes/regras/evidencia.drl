@@ -1,0 +1,140 @@
+package com.levis.devolucoes.regras;
+
+// EVIDENCIA — Evidências derivadas dos factos para a camada de incerteza (docs/08 §5.4).
+// Corre entre M2 e INCERTEZA. As evidências do colaborador e do catálogo (EF-04, ED-01, ED-02,
+// ED-04 a ED-07) são inseridas antes da avaliação, pela FabricaEvidencias. Os pesos (CF e LR) vêm do
+// ficheiro de parâmetros demonstrativos, através do global incerteza: nunca são escritos aqui.
+// O comportamento do cliente (agitado, contesta, barreira linguística) nunca é evidência.
+
+import com.levis.devolucoes.model.decisao.Decisao;
+import com.levis.devolucoes.model.decisao.DecisaoArtigo;
+import com.levis.devolucoes.model.enums.EstadoEtiquetas;
+import com.levis.devolucoes.model.enums.FonteEvidencia;
+import com.levis.devolucoes.model.enums.Modulo;
+import com.levis.devolucoes.model.enums.TipoPedido;
+import com.levis.devolucoes.model.incerteza.Evidencia;
+import com.levis.devolucoes.model.pedido.PedidoDevolucao;
+import com.levis.devolucoes.model.produto.ArtigoDevolvido;
+
+global com.levis.devolucoes.incerteza.ServicoIncerteza incerteza;
+
+rule "IU-01 Sem comprovativo verificável (EF-01)"
+    @id("IU-01")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência de fraude EF-01: não há comprovativo ou o comprovativo não confirma a compra. Peso demonstrativo (docs/08 §2.2).")
+    @condicoes("semComprovativoQueConfirme")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d : Decisao( terminal == false )
+    $p : PedidoDevolucao( id == $d.pedidoId, comprovativo == null || comprovativo.confirmaCompra == false )
+    not Evidencia( pedidoId == $p.id, codigo == "EF-01" )
+then
+    insert( incerteza.evidenciaFraude( "EF-01", $p.getId(), Boolean.TRUE, FonteEvidencia.SISTEMA ) );
+    modify( $d ) { registar( "IU-01", Modulo.EVIDENCIA, "Evidência EF-01: sem comprovativo verificável." ) }
+end
+
+rule "IU-02 Todos os artigos sem etiquetas (EF-02)"
+    @id("IU-02")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência de fraude EF-02: todos os artigos devolvidos estão sem etiquetas. Peso demonstrativo (docs/08 §2.2).")
+    @condicoes("todosOsArtigosSemEtiquetas")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d : Decisao( terminal == false )
+    $p : PedidoDevolucao( id == $d.pedidoId )
+    exists ArtigoDevolvido( )
+    not ArtigoDevolvido( estado == null || estado.etiquetas != EstadoEtiquetas.AUSENTES )
+    not Evidencia( pedidoId == $p.id, codigo == "EF-02" )
+then
+    insert( incerteza.evidenciaFraude( "EF-02", $p.getId(), Boolean.TRUE, FonteEvidencia.SISTEMA ) );
+    modify( $d ) { registar( "IU-02", Modulo.EVIDENCIA, "Evidência EF-02: todos os artigos sem etiquetas." ) }
+end
+
+rule "IU-03 Artigos em estados muito diferentes (EF-03)"
+    @id("IU-03")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência de fraude EF-03: dois ou mais artigos com graus de uso muito diferentes. Diferença mínima e peso demonstrativos (docs/08 §2.2).")
+    @condicoes("estadosMuitoDiferentes")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d : Decisao( terminal == false )
+    $p : PedidoDevolucao( id == $d.pedidoId )
+    not Evidencia( pedidoId == $p.id, codigo == "EF-03" )
+    accumulate( ArtigoDevolvido( estado != null, estado.grauUso != null, $g : estado.grauUso );
+                $maior : max( $g ), $menor : min( $g ), $n : count( $g ) )
+    eval( $n.intValue() >= 2
+          && $maior.intValue() - $menor.intValue() >= incerteza.diferencaEstadosMinima() )
+then
+    insert( incerteza.evidenciaFraude( "EF-03", $p.getId(), Boolean.TRUE, FonteEvidencia.SISTEMA ) );
+    modify( $d ) {
+        registar( "IU-03", Modulo.EVIDENCIA,
+                  "Evidência EF-03: artigos em estados muito diferentes (grau de uso entre " + $menor + " e " + $maior + ")." )
+    }
+end
+
+rule "IU-05 Pede numerário numa devolução às cegas (EF-05)"
+    @id("IU-05")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência de fraude EF-05: o cliente pede numerário e a compra não pode ser verificada (o critério da PT-002). Peso demonstrativo (docs/08 §2.2).")
+    @condicoes("pedeNumerario,compraNaoOnline,naoEAjustePreco,semComprovativoValido")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d : Decisao( terminal == false )
+    $p : PedidoDevolucao( id == $d.pedidoId, cliente != null, cliente.pedeNumerario == true,
+                          compraOnline == false, tipoPedido != TipoPedido.AJUSTE_PRECO,
+                          comprovativo == null || comprovativo.valido == false || comprovativo.confirmaCompra == false )
+    not Evidencia( pedidoId == $p.id, codigo == "EF-05" )
+then
+    insert( incerteza.evidenciaFraude( "EF-05", $p.getId(), Boolean.TRUE, FonteEvidencia.SISTEMA ) );
+    modify( $d ) { registar( "IU-05", Modulo.EVIDENCIA, "Evidência EF-05: pede numerário numa devolução às cegas." ) }
+end
+
+rule "IU-06 Comprovativo verificado (EF-06)"
+    @id("IU-06")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência contra a fraude EF-06: comprovativo válido que confirma a compra (o critério da PT-001). Peso demonstrativo (docs/08 §2.2).")
+    @condicoes("comprovativoValido,comprovativoConfirmaCompra")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d : Decisao( terminal == false )
+    $p : PedidoDevolucao( id == $d.pedidoId, comprovativo != null, comprovativo.valido == true,
+                          comprovativo.confirmaCompra == true )
+    not Evidencia( pedidoId == $p.id, codigo == "EF-06" )
+then
+    insert( incerteza.evidenciaFraude( "EF-06", $p.getId(), Boolean.TRUE, FonteEvidencia.SISTEMA ) );
+    modify( $d ) { registar( "IU-06", Modulo.EVIDENCIA, "Evidência EF-06: comprovativo verificado." ) }
+end
+
+rule "IU-07 Compra recente num artigo com alegação de defeito (ED-03)"
+    @id("IU-07")
+    @modulo("EVIDENCIA")
+    @descricao("Evidência de defeito ED-03: a compra foi há poucos dias (presente) ou não (ausente), para um artigo em que o cliente alega defeito. Dias e LR demonstrativos (docs/08 §3.3).")
+    @condicoes("alegaDefeito,dataCompraConhecida")
+    @conclusoes("")
+    agenda-group "EVIDENCIA"
+    salience 100
+when
+    $d  : Decisao( terminal == false )
+    $p  : PedidoDevolucao( id == $d.pedidoId, diasDesdeCompra != null )
+    $a  : ArtigoDevolvido( estado != null, estado.alegaDefeito == true )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false )
+    not Evidencia( pedidoId == $p.id, artigoId == $a.id, codigo == "ED-03" )
+then
+    boolean recente = $p.getDiasDesdeCompra() <= incerteza.diasCompraRecente();
+    insert( incerteza.evidenciaDefeito( "ED-03", $p.getId(), $a.getId(), recente, FonteEvidencia.SISTEMA ) );
+    modify( $da ) {
+        registar( "IU-07", Modulo.EVIDENCIA,
+                  "Evidência ED-03: compra há " + $p.getDiasDesdeCompra() + " dias ("
+                  + ( recente ? "recente" : "não recente" ) + ")." )
+    }
+end

@@ -17,6 +17,9 @@
       <span i18n="@@resultado.avaliacao">avaliação</span>&ngsp;<code>{{ d.avaliacaoId }}</code>
     </p>
     <lv-cartao-decisao [decisao]="d" />
+    @if (d.incerteza?.length) {
+      <lv-cartao-incerteza [avaliacaoId]="d.avaliacaoId!" [graus]="d.incerteza!" />
+    }
 
     <div class="separadores" role="tablist">
       @for (p of paineis; track p.id) {

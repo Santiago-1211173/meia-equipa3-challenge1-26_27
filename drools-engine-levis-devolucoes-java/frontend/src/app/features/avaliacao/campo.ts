@@ -11,6 +11,7 @@ import { textoDoControlo, valorDoControlo } from './pedido';
   host: {
     class: 'campo',
     '[class.em-falta]': 'emFalta() !== undefined',
+    '[hidden]': '!visivel()',
     '[class.largo]': "campo().tipo === 'texto-longo' || campo().tipo === 'lista'",
   },
 })
@@ -27,6 +28,19 @@ export class CampoFormulario {
   protected readonly valor = computed(() => obter(this.store.pedido(), this.caminho()));
   protected readonly texto = computed(() => textoDoControlo(this.campo(), this.valor()));
   protected readonly emFalta = computed(() => this.store.emFaltaPorCaminho().get(this.caminho()));
+  /** Campos condicionais (ex.: perguntas de inspeção só com alegação de defeito) */
+  protected readonly visivel = computed(() => {
+    const condicao = this.campo().visivelSe;
+    if (!condicao) {
+      return true;
+    }
+    const caminho = caminhoCompleto(
+      this.grupo(),
+      { ...this.campo(), caminho: condicao },
+      this.indice(),
+    );
+    return obter(this.store.pedido(), caminho) === true;
+  });
   protected readonly opcoes = computed(() => Object.entries(this.campo().opcoes ?? {}));
   protected readonly id = computed(() => `campo-${this.caminho().replace(/[^\w]/g, '-')}`);
 

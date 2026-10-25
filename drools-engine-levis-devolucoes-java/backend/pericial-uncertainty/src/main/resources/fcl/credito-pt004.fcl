@@ -1,0 +1,61 @@
+// Recomendação de crédito de loja depois de PT-004, docs/08 §4.2. Valores DEMONSTRATIVOS.
+
+FUNCTION_BLOCK creditoPt004
+
+VAR_INPUT
+    diasAposPrazo : REAL;
+    revendibilidade : REAL;
+    risco : REAL;
+    valor : REAL;
+END_VAR
+
+VAR_OUTPUT
+    recomendacao : REAL;
+END_VAR
+
+FUZZIFY diasAposPrazo
+    TERM pouco    := (0, 1) (7, 1) (21, 0);
+    TERM moderado := (14, 0) (35, 1) (60, 0);
+    TERM muito    := (45, 0) (90, 1) (180, 1);
+END_FUZZIFY
+
+FUZZIFY revendibilidade
+    TERM baixa := (0, 1) (0.3, 1) (0.5, 0);
+    TERM media := (0.3, 0) (0.55, 1) (0.8, 0);
+    TERM alta  := (0.6, 0) (0.8, 1) (1, 1);
+END_FUZZIFY
+
+FUZZIFY risco
+    TERM baixo := (0, 1) (0.2, 1) (0.4, 0);
+    TERM medio := (0.3, 0) (0.5, 1) (0.7, 0);
+    TERM alto  := (0.6, 0) (0.75, 1) (1, 1);
+END_FUZZIFY
+
+FUZZIFY valor
+    TERM baixo := (0, 1) (50, 1) (150, 0);
+    TERM alto  := (100, 0) (250, 1) (500, 1);
+END_FUZZIFY
+
+DEFUZZIFY recomendacao
+    TERM fraca    := (0, 1) (20, 1) (40, 0);
+    TERM moderada := (30, 0) (50, 1) (70, 0);
+    TERM forte    := (60, 0) (80, 1) (100, 1);
+    METHOD : COG;
+    DEFAULT := 50;
+END_DEFUZZIFY
+
+RULEBLOCK regras
+    AND : MIN;
+    ACT : MIN;
+    ACCU : MAX;
+    RULE CR1 : IF diasAposPrazo IS pouco AND revendibilidade IS alta AND risco IS baixo THEN recomendacao IS forte;
+    RULE CR2 : IF diasAposPrazo IS moderado AND revendibilidade IS alta AND risco IS baixo THEN recomendacao IS moderada;
+    RULE CR3 : IF diasAposPrazo IS pouco AND revendibilidade IS media AND risco IS baixo THEN recomendacao IS moderada;
+    RULE CR4 : IF risco IS medio AND revendibilidade IS alta THEN recomendacao IS moderada;
+    RULE CR5 : IF diasAposPrazo IS muito THEN recomendacao IS fraca;
+    RULE CR6 : IF risco IS alto THEN recomendacao IS fraca;
+    RULE CR7 : IF revendibilidade IS baixa THEN recomendacao IS fraca;
+    RULE CR8 : IF valor IS alto AND diasAposPrazo IS moderado THEN recomendacao IS fraca;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

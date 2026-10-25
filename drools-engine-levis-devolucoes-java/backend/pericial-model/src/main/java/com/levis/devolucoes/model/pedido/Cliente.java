@@ -9,6 +9,12 @@ public class Cliente {
   private boolean contestaResultado;
   private boolean agitado;
 
+  /** O cliente explica onde e quando comprou; null se o colaborador não sabe (docs/08, EF-04). */
+  private Boolean explicaOrigemCompra;
+
+  /** O cliente pede o reembolso em numerário (docs/08, EF-05). */
+  private boolean pedeNumerario;
+
   public String getId() {
     return id;
   }
@@ -47,5 +53,21 @@ public class Cliente {
 
   public void setAgitado(boolean agitado) {
     this.agitado = agitado;
+  }
+
+  public Boolean getExplicaOrigemCompra() {
+    return explicaOrigemCompra;
+  }
+
+  public void setExplicaOrigemCompra(Boolean explicaOrigemCompra) {
+    this.explicaOrigemCompra = explicaOrigemCompra;
+  }
+
+  public boolean isPedeNumerario() {
+    return pedeNumerario;
+  }
+
+  public void setPedeNumerario(boolean pedeNumerario) {
+    this.pedeNumerario = pedeNumerario;
   }
 }

@@ -59,6 +59,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -71,16 +81,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -127,6 +127,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -139,16 +149,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -206,6 +206,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -218,16 +228,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -285,6 +285,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -297,16 +307,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -355,6 +355,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -367,16 +377,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -414,6 +414,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -426,16 +436,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -484,6 +484,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -504,8 +514,58 @@
               }
             }
           },
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegraDetalheDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/incerteza/parametros" : {
+      "get" : {
+        "tags" : [ "Incerteza" ],
+        "summary" : "Parâmetros da camada de incerteza",
+        "description" : "Versão, indicação de valores demonstrativos e valores em vigor (só leitura). Enquanto demonstrativo for verdadeiro, os resultados não servem para decisões reais.",
+        "operationId" : "parametrosIncerteza",
+        "responses" : {
+          "422" : {
+            "description" : "Unprocessable Entity",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "409" : {
             "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Not Found",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -519,7 +579,7 @@
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/RegraDetalheDto"
+                  "$ref" : "#/components/schemas/ParametrosIncertezaResponse"
                 }
               }
             }
@@ -552,6 +612,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -564,16 +634,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -612,7 +672,7 @@
         }, {
           "name" : "conclusao",
           "in" : "query",
-          "description" : "Conclusão no formato OUT-00n:VALOR",
+          "description" : "Conclusão no formato OUT-00n:VALOR ou INCERTEZA.<HIPOTESE>:<CLASSIFICACAO>",
           "required" : false,
           "schema" : {
             "type" : "string"
@@ -645,6 +705,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -657,16 +727,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -709,7 +769,7 @@
         }, {
           "name" : "conclusao",
           "in" : "query",
-          "description" : "Campo de saída, ex.: OUT-001",
+          "description" : "Campo de saída (ex.: OUT-001) ou grau da camada de incerteza (ex.: INCERTEZA.FRAUDE)",
           "required" : false,
           "schema" : {
             "type" : "string"
@@ -734,6 +794,16 @@
               }
             }
           },
+          "409" : {
+            "description" : "Conflict",
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Not Found",
             "content" : {
@@ -746,16 +816,6 @@
           },
           "400" : {
             "description" : "Bad Request",
-            "content" : {
-              "application/problem+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ProblemDetail"
-                }
-              }
-            }
-          },
-          "409" : {
-            "description" : "Conflict",
             "content" : {
               "application/problem+json" : {
                 "schema" : {
@@ -874,6 +934,13 @@
             "type" : "boolean"
           },
           "agitado" : {
+            "type" : "boolean"
+          },
+          "explicaOrigemCompra" : {
+            "type" : "string",
+            "enum" : [ "SIM", "NAO", "NAO_SEI" ]
+          },
+          "pedeNumerario" : {
             "type" : "boolean"
           }
         }
@@ -1004,6 +1071,22 @@
           },
           "conjuntoCompleto" : {
             "type" : "boolean"
+          },
+          "grauUso" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 4,
+            "minimum" : 0
+          },
+          "alegaDefeito" : {
+            "type" : "boolean"
+          },
+          "inspecaoDefeito" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "enum" : [ "SIM", "NAO", "NAO_SEI" ]
+            }
           }
         }
       },
@@ -1215,9 +1298,41 @@
           },
           "emSaldo" : {
             "type" : "boolean"
+          },
+          "defeitoConhecido" : {
+            "type" : "boolean"
           }
         },
         "required" : [ "sku" ]
+      },
+      "ContribuicaoDto" : {
+        "type" : "object",
+        "properties" : {
+          "codigo" : {
+            "type" : "string"
+          },
+          "descricao" : {
+            "type" : "string"
+          },
+          "peso" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "valorAntes" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "valorDepois" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "aplicada" : {
+            "type" : "boolean"
+          },
+          "motivoNaoAplicada" : {
+            "type" : "string"
+          }
+        }
       },
       "DecisaoResponse" : {
         "type" : "object",
@@ -1302,6 +1417,13 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "incerteza" : {
+            "type" : "array",
+            "description" : "Avaliação da incerteza (docs/08); valores demonstrativos",
+            "items" : {
+              "$ref" : "#/components/schemas/GrauCrencaDto"
+            }
           }
         }
       },
@@ -1331,6 +1453,43 @@
             "format" : "date"
           },
           "registoExcecao" : {
+            "type" : "string"
+          }
+        }
+      },
+      "GrauCrencaDto" : {
+        "type" : "object",
+        "description" : "Grau de crença da camada de incerteza (valores demonstrativos)",
+        "properties" : {
+          "hipotese" : {
+            "type" : "string",
+            "enum" : [ "FRAUDE", "DEFEITO_FABRICO", "REVENDIBILIDADE", "RECOMENDACAO_CREDITO" ]
+          },
+          "metodo" : {
+            "type" : "string",
+            "enum" : [ "FATOR_CERTEZA", "BAYES", "FUZZY" ]
+          },
+          "artigoId" : {
+            "type" : "string"
+          },
+          "valor" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "classificacao" : {
+            "type" : "string",
+            "enum" : [ "RISCO_ALTO", "RISCO_MEDIO", "RISCO_BAIXO", "PROPOR_PC006", "REVER_DEFEITO", "DESGASTE", "REVENDIVEL", "REVENDIBILIDADE_INDETERMINADA", "NAO_REVENDIVEL", "CREDITO_RECOMENDADO", "CREDITO_A_CRITERIO", "CREDITO_NAO_RECOMENDADO" ]
+          },
+          "contribuicoes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ContribuicaoDto"
+            }
+          },
+          "demonstrativo" : {
+            "type" : "boolean"
+          },
+          "versaoParametros" : {
             "type" : "string"
           }
         }
@@ -1574,6 +1733,14 @@
           },
           "resumo" : {
             "type" : "string"
+          },
+          "terminal" : {
+            "type" : "boolean",
+            "description" : "Uma paragem obrigatória terminou a inferência: não é preciso mais nada"
+          },
+          "paragem" : {
+            "type" : "string",
+            "description" : "Regra de paragem que terminou a inferência, ou nula"
           }
         }
       },
@@ -1641,6 +1808,49 @@
           },
           "aValidar" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "ParametrosIncertezaResponse" : {
+        "type" : "object",
+        "description" : "Parâmetros da camada de incerteza (valores demonstrativos)",
+        "properties" : {
+          "versao" : {
+            "type" : "string"
+          },
+          "demonstrativo" : {
+            "type" : "boolean"
+          },
+          "fatoresCerteza" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "razoesVerosimilhanca" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "priorDefeito" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "limiares" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "ficheirosFcl" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
           }
         }
       },

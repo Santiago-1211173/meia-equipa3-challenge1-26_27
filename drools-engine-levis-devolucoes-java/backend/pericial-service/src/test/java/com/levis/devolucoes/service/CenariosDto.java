@@ -37,6 +37,7 @@ public final class CenariosDto {
       ColaboradorDto colaborador =
           JSON.treeToValue(pedido.get("colaborador"), ColaboradorDto.class);
       pedido.remove("colaborador");
+      respostasDoModeloParaODto(pedido);
       return new CenarioDto(
           numero,
           JSON.treeToValue(pedido, PedidoAvaliacaoRequest.class),
@@ -45,5 +46,30 @@ public final class CenariosDto {
     } catch (IOException e) {
       throw new UncheckedIOException(recurso, e);
     }
+  }
+
+  /**
+   * Os cenários usam o modelo (TRUE, FALSE ou null "Não sei"); a API recebe as respostas do
+   * colaborador como SIM, NAO ou NAO_SEI (docs/08 §7.1).
+   */
+  private static void respostasDoModeloParaODto(ObjectNode pedido) {
+    if (pedido.get("cliente") instanceof ObjectNode cliente && cliente.has("explicaOrigemCompra")) {
+      cliente.put("explicaOrigemCompra", resposta(cliente.get("explicaOrigemCompra")));
+    }
+    if (pedido.get("artigos") != null) {
+      for (JsonNode artigo : pedido.get("artigos")) {
+        JsonNode estado = artigo.get("estado");
+        if (estado != null && estado.get("inspecaoDefeito") instanceof ObjectNode inspecao) {
+          inspecao.properties().forEach(e -> inspecao.put(e.getKey(), resposta(e.getValue())));
+        }
+      }
+    }
+  }
+
+  private static String resposta(JsonNode valor) {
+    if (valor == null || valor.isNull()) {
+      return "NAO_SEI";
+    }
+    return valor.asBoolean() ? "SIM" : "NAO";
   }
 }

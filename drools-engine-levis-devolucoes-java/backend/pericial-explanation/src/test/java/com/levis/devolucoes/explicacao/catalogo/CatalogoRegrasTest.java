@@ -14,7 +14,10 @@ class CatalogoRegrasTest {
     assertThat(CATALOGO.regras())
         .hasSizeGreaterThan(90)
         .noneMatch(r -> r.nome().startsWith("decisao"));
-    assertThat(CATALOGO.ids()).contains("HS-006", "PT-003", "BW-004", "OUT-001").hasSize(76);
+    // 76 IDs da base de conhecimento (docs/01) e 19 regras da camada de incerteza (docs/08)
+    assertThat(CATALOGO.ids())
+        .contains("HS-006", "PT-003", "BW-004", "OUT-001", "IU-10")
+        .hasSize(95);
   }
 
   @Test

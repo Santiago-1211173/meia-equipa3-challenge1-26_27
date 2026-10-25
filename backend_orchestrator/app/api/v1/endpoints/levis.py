@@ -30,6 +30,7 @@ from app.schemas.levis import (
     ExplicacaoPorqueNaoResponse,
     ExplicacaoPorqueResponse,
     PaginaResponse,
+    ParametrosIncertezaResponse,
     PedidoAvaliacaoRequest,
     RegraDetalheDto,
     RegraResumoDto,
@@ -459,6 +460,34 @@ async def obter_regra(
     """Get rule specifications and concrete DRL variants."""
     try:
         return await levis_service.get_rule_detail(codigo)
+    except Exception as exc:
+        _handle_levis_exception(exc)
+
+
+@router.get(
+    "/incerteza/parametros",
+    response_model=ParametrosIncertezaResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Consultar os parâmetros da camada de incerteza",
+    description=(
+        "Devolve a versão e os parâmetros em vigor da camada de incerteza do motor Drools "
+        "(fatores de certeza, razões de verosimilhança, prior do defeito, limiares e ficheiros FCL). "
+        "Enquanto 'demonstrativo' for verdadeiro, os valores não estão calibrados."
+    ),
+    responses={
+        200: {
+            "description": "Parâmetros de incerteza obtidos com sucesso.",
+            "model": ParametrosIncertezaResponse,
+        },
+        503: {"description": "Service Unavailable: Motor Drools inacessível."},
+    },
+)
+async def obter_parametros_incerteza(
+    levis_service: LevisService = Depends(get_levis_service),
+) -> ParametrosIncertezaResponse:
+    """Get the uncertainty layer parameters in force."""
+    try:
+        return await levis_service.get_uncertainty_parameters()
     except Exception as exc:
         _handle_levis_exception(exc)
 

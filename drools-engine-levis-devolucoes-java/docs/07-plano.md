@@ -280,3 +280,55 @@ Desvios ao plano, todos registados em ADR:
 - Fornecedor OIDC de produção e a correspondência dos seus grupos com as funções (ADR 0008).
 - Explicar avaliações feitas com uma versão anterior da base de conhecimento (hoje recusado com 409, ADR 0007).
 - Textos da base de conhecimento (nomes e mensagens das regras, perguntas) em inglês (ADR 0009).
+
+## E. Fase 11 — Camada de tratamento da incerteza (`docs/08-incerteza.md`)
+
+Começa depois da Fase 10: precisa do `pericial-model` (com `Decisao.aplicar()` e `DecisaoArtigo`), das regras M3 e M5
+e do `RastreioListener`, que já existem. Todos os parâmetros numéricos são **demonstrativos**, ficam só no ficheiro de
+parâmetros e nos ficheiros FCL, e a camada nunca transforma um RECUSAR num PERMITIR. Decisões em ADR 0011
+(metodologia bayesiana, em análise) e ADR 0012 (camada de incerteza).
+
+### E1. Decisões do utilizador (2026-10-15)
+1. **Revendibilidade só recomenda.** REVENDIVEL e INDETERMINADA ficam como `GrauCrenca`; `revendivel` continua `null`
+   e PC-002/PC-003 ficam em REVER (a gestão decide). NAO_REVENDIVEL fixa `revendivel = FALSE`. Desvio ao `docs/08`
+   §4.1 e §8 (cenário 1 não passa a `revendivel = TRUE`).
+2. **Aprovação RESPONSAVEL_SENIOR** nas regras IU-12 e IU-21, sem acrescentar `GESTAO_LOJA` a `NivelAprovacao`:
+   o OUT-005 de `01` prevalece (como a A-19).
+3. **Motor fuzzy jFuzzyLogic**, fora do Maven Central: jar do SourceForge (LGPL-3.0) num repositório Maven dentro do
+   projeto (`backend/repo-local/`), atrás da interface `MotorFuzzy`.
+4. **O cálculo de um grau explica-se no "Como?"** (`conclusao=INCERTEZA.<HIPOTESE>`), coerente com a ADR 0006.
+   "Porque não?" e "E se?" seguem o `docs/08`.
+
+### E2. Decisões técnicas
+1. IU-20 a IU-23 (Bayes) correm no agenda-group **M3**, entre as HS-001..004 e a PC-004/PC-005: o §3.2 exige a porta
+   G2, e as HS estão no M3.
+2. EF-05 e EF-06 derivam dos factos (comprovativo ausente ou válido), não do disparo de PT-001/PT-002 (M4 corre
+   depois de EVIDENCIA).
+3. IU-50 atua sobre cada `DecisaoArtigo` (M8); a agregação OUT-001 (M9) propaga o resultado.
+4. As respostas de inspeção ficam no modelo (`EstadoProduto.inspecaoDefeito`, `Cliente.explicaOrigemCompra`,
+   `pedeNumerario`); as `Evidencia` são criadas por uma `FabricaEvidencias`, chamada pelo `ExecutorSessao`.
+5. Cenário 6: o indício manual (A-27) é substituído por `explicaOrigemCompra = NAO`, `pedeNumerario = true` e
+   `grauUso` 0/1/2; CF = 0,8354 e a IU-11 insere o `IndicadorFraude`.
+6. `grauUso` é independente de `condicaoUso`; A-17 (PT-004 "baixo risco") mantém-se.
+7. Regressão verificada: cenários 2, 5, 7, 8, 9 e 10 em RISCO_BAIXO, sem `grauUso` nem `alegaDefeito`.
+
+### E3. Passos
+
+| Passo | Ficheiros | Aceitação e testes |
+|---|---|---|
+| **11a Modelo** | `model/incerteza/{Evidencia, GrauCrenca, Contribuicao}`; enums `Hipotese`, `MetodoIncerteza`, `FonteEvidencia`, `ClassificacaoIncerteza`; `Modulo` + `EVIDENCIA`, `INCERTEZA` (entre M2 e M3); `EstadoProduto`, `Cliente`, `Decisao` (§5.1, E2.4); `docs/04` | `ArquiteturaModelTest` verde; `getIntegridadeEtiquetas()` = 1,0 / 0,6 / 0,0 |
+| **11b `pericial-uncertainty`** | `CombinadorFatoresCerteza`, `ModeloBayesiano`/`ModeloRazoesVerosimilhanca`, `MotorFuzzy`/`MotorFuzzyFcl`, `ParametrosIncerteza`/`CarregadorParametros`, `FabricaEvidencias`, `ServicoIncerteza`; `parametros-incerteza.yml`; `fcl/revendibilidade.fcl`, `fcl/credito-pt004.fcl`; `backend/repo-local/` | Testes primeiro. CF: 0,8354 (cenário 6), −0,4286, 0 sem evidências, comutatividade. Bayes: A 0,8955, B 0,3000, C 0,7742, regra de grupo. Fuzzy (±0,02): 0,844, 0,500, 0,325, 0,675; crédito (±2): 84,4, 50,0, 32,3, 15,6, 50,0, com regras ativas e forças. Parâmetros inválidos rejeitados. Nenhum valor demonstrativo em `.java`/`.drl`. JaCoCo ≥ 90 % |
+| **11c Regras** | `evidencia.drl` (IU-01..03, 05..07), `incerteza.drl` (IU-10..12, IU-30..33); IU-20..23 no M3, IU-40 no M5, IU-50 no M8; guarda na PC-004/PC-005 (§3.4) | `@Regra` por IU. Cenário 6: 0,8354 RISCO_ALTO, EX-008; não enviesamento (`agitado`/`contestaResultado`); cenário 3: 0,30 RISCO_BAIXO; cenário 4: sem `GrauCrenca` DEFEITO_FABRICO; variante sem bainha: 0,8955 PROPOR_PC006, final REVER; com defeito confirmado: PC-006; caso B: DESGASTE e PC-004; cenário 1: 0,844 REVENDIVEL, resultado REVER (E1.1); PT-004 casos A–E; HS mantêm RECUSAR; regressão 2, 5, 7, 8, 9, 10 |
+| **11d Explicações** | "Como?" `INCERTEZA.*`; "Porque não?" `INCERTEZA.*:<CLASSE>`; "E se?" com `grauUso`, `alegaDefeito`, `inspecaoDefeito`, `explicaOrigemCompra`; "O que falta?" sugere `grauUso` e perguntas ED; textos pt_PT/en com o aviso demonstrativo | Textos do §7.2 (cenário 6, caso C 0,77 < 0,80, revendibilidade 0,33 com RV3 0,5 e RV5 0,5); um CF nunca é apresentado como probabilidade |
+| **11e DTO, serviço e API** | `EstadoProdutoRequest`, `ClienteRequest`, `GrauCrencaDto`, `ContribuicaoDto`, `DecisaoResponse.incerteza`; `GET /api/v1/incerteza/parametros`; Flyway `V2` (versão dos parâmetros) | `CenariosApiIT` com os cenários 1, 3, 4 e 6; ArchUnit; `mvn clean verify` verde; OpenAPI atualizado no frontend |
+| **11f Frontend** | Perguntas de inspeção (grau de uso, alega defeito, ED-01/02/05/06/07) e do cliente; cartão "Avaliação da incerteza"; faixa "Valores demonstrativos — não usar para decisões reais" | Teste de cobertura do formulário, Vitest do cartão e da faixa, i18n pt-PT/en, E2E do cenário 6 e do caso A |
+
+### E4. Verificação
+`mvn clean verify` (8 módulos), `npm run verificar && npm test && npm run build && npx playwright test`,
+`docker compose up --build` com o cenário 6 na interface, e o CI verde.
+
+### E5. Estado (2026-10-16)
+Fase 11 concluída: 11a e 11b em `b8b167d`, 11c em `08ad826`, 11d em `c291037`, 11e em `49f7214` e 11f em
+`0b4cd90`. `mvn clean install` verde nos 8 módulos (Spotless, Checkstyle, ArchUnit, JaCoCo, Testcontainers); frontend
+com `npm run verificar`, 35 testes Vitest, `npm run build` e 17 testes Playwright verdes contra a API construída pelo
+`docker compose --build`. Os valores da camada continuam demonstrativos e as decisões E1 e A-32 a A-34 "a validar".

@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import type { EngineId } from "@/config/gateway";
-import type { ReturnRequest, DecisaoResponse } from "@/types/returns";
+import type { ReturnRequest, DecisaoResponse, Resposta } from "@/types/returns";
 
 export interface WizardState {
   engine: EngineId | null;
@@ -36,6 +36,19 @@ export interface WizardState {
     | "MANCHADO"
     | null;
   readyToResell: boolean | null;
+  // Camada de incerteza (só o motor Drools a calcula)
+  /** O colaborador não consegue decidir a revenda: a revendibilidade é estimada pelo grau de uso. */
+  resaleUndecided: boolean;
+  /** Grau de uso observado, de 0 (nenhum) a 4 (intenso). */
+  wearLevel: number | null;
+  /** O cliente alega defeito de fabrico que o colaborador não confirmou. */
+  defectClaimed: boolean | null;
+  /** Respostas às perguntas da inspeção do defeito alegado (ED-01, ED-02, ED-05, ED-06, ED-07). */
+  defectInspection: Partial<Record<string, Resposta>>;
+  /** O cliente explica onde e quando comprou (EF-04). */
+  purchaseOriginExplained: Resposta | null;
+  /** O cliente pede o reembolso em numerário (EF-05). */
+  asksForCash: boolean | null;
   requestType: "DEVOLUCAO" | "TROCA" | "GIFT" | "AJUSTE_PRECO" | null;
   proofOfPurchase:
     | "RECIBO_ORIGINAL"
@@ -89,6 +102,12 @@ export const defaultWizardState: WizardState = {
   manufacturingDefect: null,
   physicalCondition: null,
   readyToResell: null,
+  resaleUndecided: false,
+  wearLevel: null,
+  defectClaimed: null,
+  defectInspection: {},
+  purchaseOriginExplained: null,
+  asksForCash: null,
   requestType: null,
   proofOfPurchase: null,
   daysSincePurchase: null,
@@ -121,6 +140,38 @@ export function exigeEstadoDaConta(meio: WizardState["originalPaymentMethod"]): 
   return meio === "CREDITO" || meio === "DEBITO";
 }
 
+/** A camada de incerteza só existe no motor Drools: só nele se fazem as perguntas que a alimentam. */
+export function usaCamadaIncerteza(state: Pick<WizardState, "engine">): boolean {
+  return state.engine === "returns";
+}
+
+/** A revenda (IN-010) só se pergunta para artigos não usados sem etiquetas colocadas. */
+export function exigeDecisaoDeRevenda(state: Pick<WizardState, "physicalCondition">): boolean {
+  return (
+    state.physicalCondition === "NOVO_ETIQUETAS_SOLTAS" ||
+    state.physicalCondition === "NOVO_SEM_ETIQUETAS"
+  );
+}
+
+/**
+ * A revenda fica respondida com Sim/Não ou, no Drools, com "ainda não sei" e o grau de uso,
+ * a partir do qual a camada de incerteza estima a revendibilidade para a gestão.
+ */
+export function revendaRespondida(state: WizardState): boolean {
+  if (!exigeDecisaoDeRevenda(state)) return true;
+  if (state.readyToResell !== null) return true;
+  return usaCamadaIncerteza(state) && state.resaleUndecided && state.wearLevel !== null;
+}
+
+/** O defeito alegado só se avalia quando não está confirmado e o artigo não é bodywear (IU-20). */
+export function podeAlegarDefeito(state: WizardState): boolean {
+  return (
+    usaCamadaIncerteza(state) &&
+    state.manufacturingDefect === false &&
+    state.intimateUnderwear !== true
+  );
+}
+
 export function getFirstIncompleteStep(state: WizardState): number {
   // Passo 1: Motor de inferência é obrigatório
   if (!state.engine) return 1;
@@ -131,16 +182,12 @@ export function getFirstIncompleteStep(state: WizardState): number {
   }
 
   // Passo 3: Condição física e elegibilidade
-  const isResellRequired =
-    state.physicalCondition === "NOVO_ETIQUETAS_SOLTAS" ||
-    state.physicalCondition === "NOVO_SEM_ETIQUETAS";
-
   if (
     state.barcodeRecognized === null ||
     state.brandAllowed === null ||
     state.alteredOrHemmed === null ||
     !state.physicalCondition ||
-    (isResellRequired && state.readyToResell === null)
+    !revendaRespondida(state)
   ) {
     return 3;
   }
@@ -326,6 +373,28 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       // Ajustar automaticamente moeda se jurisdição mudar
       if (field === "marketJurisdiction") {
         updated.currency = value === "CA" ? "CAD" : "USD";
+      }
+      // Camada de incerteza: as respostas que deixam de se aplicar são limpas
+      if (field === "manufacturingDefect" && value !== false) {
+        updated.defectClaimed = null;
+        updated.defectInspection = {};
+      }
+      if (field === "defectClaimed" && value !== true) {
+        updated.defectInspection = {};
+      }
+      if (field === "readyToResell" && value !== null) {
+        updated.resaleUndecided = false;
+        updated.wearLevel = null;
+      }
+      if (field === "resaleUndecided" && value === true) {
+        updated.readyToResell = null;
+      }
+      if (field === "resaleUndecided" && value === false) {
+        updated.wearLevel = null;
+      }
+      if (field === "physicalCondition" && !exigeDecisaoDeRevenda(updated)) {
+        updated.resaleUndecided = false;
+        updated.wearLevel = null;
       }
       // Sincronização reativa de modalidade de troca com o tipo de pedido (IN-005 / M6)
       if (field === "requestType") {
@@ -556,6 +625,15 @@ function mapTipoPedidoToResolucaoPedida(
 
     const effectivePrice = state.totalPrice ?? 89.9;
 
+    // Camada de incerteza (Drools): só se envia o que o colaborador respondeu
+    const usaIncerteza = usaCamadaIncerteza(state);
+    const alegaDefeito = podeAlegarDefeito(state) && state.defectClaimed === true;
+    const inspecaoDefeito = Object.fromEntries(
+      Object.entries(state.defectInspection).filter(([, resposta]) => resposta !== undefined)
+    );
+    const grauUso =
+      usaIncerteza && state.resaleUndecided && state.wearLevel !== null ? state.wearLevel : undefined;
+
     return {
       id: "REQ-" + Date.now(),
       dataPedido: formattedToday,
@@ -584,6 +662,8 @@ function mapTipoPedidoToResolucaoPedida(
           state.customerSituation === "CONTESTA" ||
           state.customerSituation === "CHAMAR_GERENCIA",
         agitado: state.customerSituation === "CHAMAR_GERENCIA",
+        explicaOrigemCompra: usaIncerteza ? state.purchaseOriginExplained ?? undefined : undefined,
+        pedeNumerario: usaIncerteza && state.asksForCash === true,
       },
       compraOriginal: {
         idTransacao: isOnline
@@ -662,6 +742,9 @@ function mapTipoPedidoToResolucaoPedida(
             defeitoFabricoConfirmado: Boolean(state.manufacturingDefect),
             sujoOuInseguro: state.physicalCondition === "MANCHADO",
             danificado: state.physicalCondition === "MANCHADO",
+            grauUso,
+            alegaDefeito,
+            inspecaoDefeito: alegaDefeito && Object.keys(inspecaoDefeito).length > 0 ? inspecaoDefeito : undefined,
             bainhaFeitaOuAlterada: Boolean(state.alteredOrHemmed),
             temDefeitoFabrico: Boolean(state.manufacturingDefect),
             revendivel:

@@ -12,16 +12,23 @@ package com.levis.devolucoes.regras;
 import com.levis.devolucoes.model.decisao.Decisao;
 import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.enums.CategoriaProduto;
+import com.levis.devolucoes.model.enums.ClassificacaoIncerteza;
 import com.levis.devolucoes.model.enums.CondicaoUso;
 import com.levis.devolucoes.model.enums.Elegibilidade;
 import com.levis.devolucoes.model.enums.EstadoEtiquetas;
+import com.levis.devolucoes.model.enums.Hipotese;
 import com.levis.devolucoes.model.enums.Marca;
 import com.levis.devolucoes.model.enums.Modulo;
 import com.levis.devolucoes.model.enums.NivelAprovacao;
 import com.levis.devolucoes.model.enums.ProcessoObrigatorio;
 import com.levis.devolucoes.model.enums.TipoTransacao;
+import com.levis.devolucoes.model.incerteza.Evidencia;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import com.levis.devolucoes.model.pedido.PedidoDevolucao;
 import com.levis.devolucoes.model.produto.ArtigoDevolvido;
+import java.util.List;
+
+global com.levis.devolucoes.incerteza.ServicoIncerteza incerteza;
 
 // ---------------------------------------------------------------------------------------------
 // Paragens obrigatórias (G2)
@@ -355,8 +362,8 @@ end
 rule "PC-004 Claramente usado: rever troca pelo mesmo artigo"
     @id("PC-004")
     @modulo("M3")
-    @descricao("Usado sem defeito confirmado: recusar o reembolso; a gestão pode aprovar apenas uma troca pelo mesmo artigo. Decisão da gestão pendente [a validar: A-18, A-19, A-29].")
-    @condicoes("usado,semDefeito,naoBodywear,aprovacaoGestaoPendente")
+    @descricao("Usado sem defeito confirmado: recusar o reembolso; a gestão pode aprovar apenas uma troca pelo mesmo artigo. Decisão da gestão pendente. Não se aplica enquanto um defeito de fabrico for provável (docs/08 §3.4) [a validar: A-18, A-19, A-29].")
+    @condicoes("usado,semDefeito,naoBodywear,aprovacaoGestaoPendente,semSuspeitaDefeito")
     @conclusoes("OUT-001=REVER,OUT-005=RESPONSAVEL_SENIOR")
     agenda-group "M3"
     salience 50
@@ -366,6 +373,9 @@ when
     $a  : ArtigoDevolvido( produto != null, produto.categoria != CategoriaProduto.BODYWEAR,
                            estado != null, estado.defeitoFabricoConfirmado == false,
                            estado.condicaoUso == CondicaoUso.USADO )
+    not GrauCrenca( artigoId == $a.id, hipotese == Hipotese.DEFEITO_FABRICO,
+                    classificacao == ClassificacaoIncerteza.PROPOR_PC006
+                    || classificacao == ClassificacaoIncerteza.REVER_DEFEITO )
     $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false, disparou( "PC-004" ) == false )
 then
     modify( $da ) {
@@ -379,8 +389,8 @@ end
 rule "PC-004 Claramente usado: troca pelo mesmo artigo aprovada"
     @id("PC-004")
     @modulo("M3")
-    @descricao("Usado sem defeito confirmado e a gestão aprovou: só troca pelo mesmo artigo, sem numerário nem crédito de loja [a validar: A-18, A-29].")
-    @condicoes("usado,semDefeito,naoBodywear,aprovadoPelaGestao")
+    @descricao("Usado sem defeito confirmado e a gestão aprovou: só troca pelo mesmo artigo, sem numerário nem crédito de loja. Não se aplica enquanto um defeito de fabrico for provável (docs/08 §3.4) [a validar: A-18, A-29].")
+    @condicoes("usado,semDefeito,naoBodywear,aprovadoPelaGestao,semSuspeitaDefeito")
     @conclusoes("OUT-001=PERMITIR,OUT-002=TROCA_MESMO_ARTIGO,OUT-005=RESPONSAVEL_SENIOR")
     agenda-group "M3"
     salience 50
@@ -390,6 +400,9 @@ when
     $a  : ArtigoDevolvido( produto != null, produto.categoria != CategoriaProduto.BODYWEAR,
                            estado != null, estado.defeitoFabricoConfirmado == false,
                            estado.condicaoUso == CondicaoUso.USADO )
+    not GrauCrenca( artigoId == $a.id, hipotese == Hipotese.DEFEITO_FABRICO,
+                    classificacao == ClassificacaoIncerteza.PROPOR_PC006
+                    || classificacao == ClassificacaoIncerteza.REVER_DEFEITO )
     $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false, disparou( "PC-004" ) == false )
 then
     modify( $da ) {
@@ -403,8 +416,8 @@ end
 rule "PC-004 Claramente usado: recusado pela gestão"
     @id("PC-004")
     @modulo("M3")
-    @descricao("Usado sem defeito confirmado e a gestão não aprovou a troca pelo mesmo artigo: recusar [a validar: A-18, A-29].")
-    @condicoes("usado,semDefeito,naoBodywear,recusadoPelaGestao")
+    @descricao("Usado sem defeito confirmado e a gestão não aprovou a troca pelo mesmo artigo: recusar. Não se aplica enquanto um defeito de fabrico for provável (docs/08 §3.4) [a validar: A-18, A-29].")
+    @condicoes("usado,semDefeito,naoBodywear,recusadoPelaGestao,semSuspeitaDefeito")
     @conclusoes("OUT-001=RECUSAR,OUT-002=NENHUMA")
     agenda-group "M3"
     salience 50
@@ -414,6 +427,9 @@ when
     $a  : ArtigoDevolvido( produto != null, produto.categoria != CategoriaProduto.BODYWEAR,
                            estado != null, estado.defeitoFabricoConfirmado == false,
                            estado.condicaoUso == CondicaoUso.USADO )
+    not GrauCrenca( artigoId == $a.id, hipotese == Hipotese.DEFEITO_FABRICO,
+                    classificacao == ClassificacaoIncerteza.PROPOR_PC006
+                    || classificacao == ClassificacaoIncerteza.REVER_DEFEITO )
     $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false, disparou( "PC-004" ) == false )
 then
     modify( $da ) {
@@ -426,8 +442,8 @@ end
 rule "PC-005 Lavado sem defeito de fabrico confirmado"
     @id("PC-005")
     @modulo("M3")
-    @descricao("Recusar a devolução e a troca: produto lavado não é vendável.")
-    @condicoes("lavado,semDefeito,naoBodywear")
+    @descricao("Recusar a devolução e a troca: produto lavado não é vendável. Não se aplica enquanto um defeito de fabrico for provável (docs/08 §3.4).")
+    @condicoes("lavado,semDefeito,naoBodywear,semSuspeitaDefeito")
     @conclusoes("OUT-001=RECUSAR,OUT-002=NENHUMA")
     agenda-group "M3"
     salience 50
@@ -436,11 +452,110 @@ when
     $a  : ArtigoDevolvido( produto != null, produto.categoria != CategoriaProduto.BODYWEAR,
                            estado != null, estado.defeitoFabricoConfirmado == false,
                            estado.condicaoUso == CondicaoUso.LAVADO )
+    not GrauCrenca( artigoId == $a.id, hipotese == Hipotese.DEFEITO_FABRICO,
+                    classificacao == ClassificacaoIncerteza.PROPOR_PC006
+                    || classificacao == ClassificacaoIncerteza.REVER_DEFEITO )
     $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false, disparou( "PC-005" ) == false )
 then
     modify( $da ) {
         setTipoTransacao( TipoTransacao.NENHUMA ),
         aplicar( "PC-005", Modulo.M3, Elegibilidade.RECUSAR,
                  "Produto lavado sem defeito de fabrico confirmado: não é vendável; recusar a devolução e a troca." )
+    }
+end
+
+// ---------------------------------------------------------------------------------------------
+// Defeito de fabrico ou desgaste: probabilidade bayesiana (docs/08 §3). Corre no M3, depois das
+// paragens HS (porta G2, docs/08 §3.2) e antes da PC-004/PC-005 (ADR 0012). Prior, LR e limiares
+// demonstrativos; a decisão final é sempre da gestão: só a confirmação humana leva a PC-006.
+// ---------------------------------------------------------------------------------------------
+
+rule "IU-20 Calcular a probabilidade de defeito de fabrico"
+    @id("IU-20")
+    @modulo("M3")
+    @descricao("O cliente alega defeito num artigo que passou as paragens HS, não é bodywear e não tem o defeito confirmado: calcula a probabilidade de defeito de fabrico com razões de verosimilhança (docs/08 §3, ADR 0011). Valores demonstrativos [a validar: A-33].")
+    @condicoes("alegaDefeito,semDefeito,naoBodywear")
+    @conclusoes("")
+    agenda-group "M3"
+    salience 75
+when
+    $d   : Decisao( terminal == false )
+    $p   : PedidoDevolucao( id == $d.pedidoId )
+    $a   : ArtigoDevolvido( produto != null, produto.categoria != CategoriaProduto.BODYWEAR,
+                            estado != null, estado.alegaDefeito == true,
+                            estado.defeitoFabricoConfirmado == false )
+    $da  : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $a.id, terminal == false )
+    not GrauCrenca( pedidoId == $p.id, artigoId == $a.id, hipotese == Hipotese.DEFEITO_FABRICO )
+    $evs : List( ) from collect( Evidencia( pedidoId == $p.id, artigoId == $a.id,
+                                            hipotese == Hipotese.DEFEITO_FABRICO ) )
+then
+    GrauCrenca grau = incerteza.probabilidadeDefeito( $p.getId(), $a.getId(), (List<Evidencia>) $evs );
+    insert( grau );
+    modify( $d ) { acrescentarGrau( grau ) }
+    modify( $da ) { registar( "IU-20", Modulo.M3, "Calculada a " + incerteza.resumo( grau ) + "." ) }
+end
+
+rule "IU-21 Defeito de fabrico provável: propor PC-006 à gestão"
+    @id("IU-21")
+    @modulo("M3")
+    @descricao("Probabilidade de defeito alta: propor PC-006 à gestão, que confirma o defeito. Até lá o artigo fica em REVER e a PC-004 e a PC-005 não se aplicam (docs/08 §3.4). Limiar demonstrativo [a validar: A-34].")
+    @condicoes("defeitoProvavel")
+    @conclusoes("OUT-001=REVER,OUT-005=RESPONSAVEL_SENIOR")
+    agenda-group "M3"
+    salience 74
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.DEFEITO_FABRICO,
+                      classificacao == ClassificacaoIncerteza.PROPOR_PC006 )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $g.artigoId, terminal == false,
+                         disparou( "IU-21" ) == false )
+then
+    modify( $da ) {
+        exigirAprovacao( NivelAprovacao.RESPONSAVEL_SENIOR ),
+        aplicar( "IU-21", Modulo.M3, Elegibilidade.REVER,
+                 "Defeito de fabrico provável: propor PC-006 à gestão. O artigo fica em revisão; se a gestão confirmar o defeito, reavaliar com o defeito confirmado." )
+    }
+end
+
+rule "IU-22 Defeito de fabrico possível: inspeção adicional"
+    @id("IU-22")
+    @modulo("M3")
+    @descricao("Probabilidade de defeito intermédia: inspeção adicional pela gestão (EX-001). Até lá o artigo fica em REVER e a PC-004 e a PC-005 não se aplicam (docs/08 §3.4). Limiares demonstrativos [a validar: A-34].")
+    @condicoes("defeitoPossivel")
+    @conclusoes("OUT-001=REVER,OUT-005=RESPONSAVEL_SENIOR")
+    agenda-group "M3"
+    salience 74
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.DEFEITO_FABRICO,
+                      classificacao == ClassificacaoIncerteza.REVER_DEFEITO )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $g.artigoId, terminal == false,
+                         disparou( "IU-22" ) == false )
+then
+    modify( $da ) {
+        exigirAprovacao( NivelAprovacao.RESPONSAVEL_SENIOR ),
+        aplicar( "IU-22", Modulo.M3, Elegibilidade.REVER,
+                 "Defeito de fabrico possível: o artigo fica em revisão e a gestão faz uma inspeção adicional antes de decidir (EX-001)." )
+    }
+end
+
+rule "IU-23 Desgaste provável: aplicam-se as regras de uso"
+    @id("IU-23")
+    @modulo("M3")
+    @descricao("Probabilidade de defeito baixa: desgaste pelo uso, sem efeito na elegibilidade; a PC-004 ou a PC-005 aplicam-se normalmente. Limiar demonstrativo.")
+    @condicoes("desgasteProvavel")
+    @conclusoes("")
+    agenda-group "M3"
+    salience 74
+when
+    $d  : Decisao( terminal == false )
+    $g  : GrauCrenca( pedidoId == $d.pedidoId, hipotese == Hipotese.DEFEITO_FABRICO,
+                      classificacao == ClassificacaoIncerteza.DESGASTE )
+    $da : DecisaoArtigo( pedidoId == $d.pedidoId, artigoId == $g.artigoId, terminal == false,
+                         disparou( "IU-23" ) == false )
+then
+    modify( $da ) {
+        registar( "IU-23", Modulo.M3,
+                  "Desgaste provável: o dano é compatível com o uso; aplicam-se as regras do estado do artigo." )
     }
 end

@@ -5,7 +5,8 @@
 
 type Segmento = string | number;
 
-const SEGMENTO = /^([A-Za-z]\w*)(?:\[(\d+)\])?$/;
+// Aceita hífen para as chaves dos mapas (ex.: estado.inspecaoDefeito.ED-01)
+const SEGMENTO = /^([A-Za-z][\w-]*)(?:\[(\d+)\])?$/;
 
 export function segmentos(caminho: string): Segmento[] {
   const resultado: Segmento[] = [];

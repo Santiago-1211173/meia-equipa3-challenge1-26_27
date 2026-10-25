@@ -14,7 +14,7 @@ export interface Como$Params {
   id: string;
 
 /**
- * Campo de saída, ex.: OUT-001
+ * Campo de saída (ex.: OUT-001) ou grau da camada de incerteza (ex.: INCERTEZA.FRAUDE)
  */
   conclusao?: string;
 

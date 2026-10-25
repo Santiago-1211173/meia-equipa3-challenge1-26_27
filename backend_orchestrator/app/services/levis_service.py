@@ -24,6 +24,7 @@ from app.schemas.levis import (
     ExplicacaoPorqueNaoResponse,
     ExplicacaoPorqueResponse,
     PaginaResponse,
+    ParametrosIncertezaResponse,
     PedidoAvaliacaoRequest,
     RegraDetalheDto,
     RegraResumoDto,
@@ -297,6 +298,19 @@ class LevisService:
         """
         raw_detail = await self.levis_client.get_rule_detail(code)
         return RegraDetalheDto.model_validate(raw_detail)
+
+    # =========================================================================
+    # UNCERTAINTY LAYER
+    # =========================================================================
+
+    async def get_uncertainty_parameters(self) -> ParametrosIncertezaResponse:
+        """Retrieve the uncertainty layer parameters in force (demonstrative values).
+
+        Returns:
+            ParametrosIncertezaResponse with version, demonstrative flag, weights and thresholds.
+        """
+        raw_params = await self.levis_client.get_uncertainty_parameters()
+        return ParametrosIncertezaResponse.model_validate(raw_params)
 
     # =========================================================================
     # DEV COLLABORATORS & SCENARIOS

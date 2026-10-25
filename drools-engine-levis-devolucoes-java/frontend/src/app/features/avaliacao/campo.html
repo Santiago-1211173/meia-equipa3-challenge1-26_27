@@ -28,6 +28,15 @@
       }
     </select>
   }
+  @case ('escala') {
+    <label [for]="id()">{{ campo().rotulo }}</label>
+    <select [id]="id()" [value]="texto()" (change)="alterarTexto($event)" [attr.data-caminho]="caminho()">
+      <option value="" i18n="@@campo.escolher">— escolher —</option>
+      @for (opcao of opcoes(); track opcao[0]) {
+        <option [value]="opcao[0]" [selected]="opcao[0] === texto()">{{ opcao[1] }}</option>
+      }
+    </select>
+  }
   @case ('texto-longo') {
     <label [for]="id()">{{ campo().rotulo }}</label>
     <textarea [id]="id()" rows="2" [value]="texto()" (change)="alterarTexto($event)" [attr.data-caminho]="caminho()"></textarea>

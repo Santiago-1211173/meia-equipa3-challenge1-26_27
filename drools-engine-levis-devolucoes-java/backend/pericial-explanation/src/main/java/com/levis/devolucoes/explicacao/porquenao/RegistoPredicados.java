@@ -5,11 +5,13 @@ import com.levis.devolucoes.model.decisao.DecisaoArtigo;
 import com.levis.devolucoes.model.decisao.IndicadorFraude;
 import com.levis.devolucoes.model.enums.CanalCompra;
 import com.levis.devolucoes.model.enums.CategoriaProduto;
+import com.levis.devolucoes.model.enums.ClassificacaoIncerteza;
 import com.levis.devolucoes.model.enums.CondicaoUso;
 import com.levis.devolucoes.model.enums.Elegibilidade;
 import com.levis.devolucoes.model.enums.EstadoConta;
 import com.levis.devolucoes.model.enums.EstadoEtiquetas;
 import com.levis.devolucoes.model.enums.Funcao;
+import com.levis.devolucoes.model.enums.Hipotese;
 import com.levis.devolucoes.model.enums.Marca;
 import com.levis.devolucoes.model.enums.MeioPagamento;
 import com.levis.devolucoes.model.enums.MeioReembolso;
@@ -20,6 +22,7 @@ import com.levis.devolucoes.model.enums.TipoLoja;
 import com.levis.devolucoes.model.enums.TipoPedido;
 import com.levis.devolucoes.model.enums.TipoTransacao;
 import com.levis.devolucoes.model.enums.TipoVerificacao;
+import com.levis.devolucoes.model.incerteza.GrauCrenca;
 import com.levis.devolucoes.model.pedido.Colaborador;
 import com.levis.devolucoes.model.pedido.CompraOriginal;
 import com.levis.devolucoes.model.pedido.Comprovativo;
@@ -33,6 +36,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -55,6 +59,7 @@ public final class RegistoPredicados {
     registarClienteEColaborador();
     registarExcecoes();
     registarEstadoDaDecisao();
+    registarIncerteza();
   }
 
   public Optional<Predicado> predicado(String nome) {
@@ -181,6 +186,10 @@ public final class RegistoPredicados {
   }
 
   private static boolean fraudeRelevante(ContextoAvaliacao c) {
+    // O indício registado pela IU-11 a partir de um risco alto (docs/08 §2.3)
+    if (classe(c, Hipotese.FRAUDE, null) == ClassificacaoIncerteza.RISCO_ALTO) {
+      return true;
+    }
     for (IndicadorFraude f : c.fraudes()) {
       if (c.pedido().getId().equals(f.getPedidoId())
           && (f.getNivelRisco() == NivelRisco.SIGNIFICATIVO
@@ -1042,5 +1051,140 @@ public final class RegistoPredicados {
             (c.decisaoArtigo() != null
                     && c.decisaoArtigo().getElegibilidade() == Elegibilidade.RECUSAR)
                 || decisao(c).getElegibilidade() == Elegibilidade.RECUSAR);
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // Camada de incerteza (docs/08): evidências e graus de crença
+  // -------------------------------------------------------------------------------------------
+
+  /** Grau de crença da hipótese, no artigo indicado (ou do pedido, se for nulo). */
+  private static Optional<GrauCrenca> grau(
+      ContextoAvaliacao c, Hipotese hipotese, String artigoId) {
+    return c.decisao().getGrausCrenca().stream()
+        .filter(g -> g.getHipotese() == hipotese && Objects.equals(g.getArtigoId(), artigoId))
+        .findFirst();
+  }
+
+  private static ClassificacaoIncerteza classe(
+      ContextoAvaliacao c, Hipotese hipotese, String artigoId) {
+    return grau(c, hipotese, artigoId).map(GrauCrenca::getClassificacao).orElse(null);
+  }
+
+  private static ClassificacaoIncerteza classeDoArtigo(ContextoAvaliacao c, Hipotese hipotese) {
+    return classe(c, hipotese, c.artigo().getId());
+  }
+
+  private void registarIncerteza() {
+    pedido(
+        "semComprovativoQueConfirme",
+        "Sem comprovativo, ou o comprovativo não confirma a compra (EF-01)",
+        c -> comprovativo(c) == null || !comprovativo(c).isConfirmaCompra(),
+        c ->
+            comprovativo(c) == null
+                ? "sem comprovativo"
+                : "confirma a compra: " + comprovativo(c).isConfirmaCompra());
+    pedido(
+        "todosOsArtigosSemEtiquetas",
+        "Todos os artigos sem etiquetas (EF-02)",
+        c ->
+            !c.pedido().getArtigos().isEmpty()
+                && c.pedido().getArtigos().stream()
+                    .allMatch(
+                        a ->
+                            a.getEstado() != null
+                                && a.getEstado().getEtiquetas() == EstadoEtiquetas.AUSENTES),
+        null);
+    estadoPedido(
+        "estadosMuitoDiferentes",
+        "Artigos em estados muito diferentes (EF-03)",
+        c ->
+            grau(c, Hipotese.FRAUDE, null)
+                .map(
+                    g -> g.getContribuicoes().stream().anyMatch(k -> k.getCodigo().equals("EF-03")))
+                .orElse(false));
+    pedido(
+        "pedeNumerario",
+        "O cliente pede numerário (EF-05)",
+        c -> c.pedido().getCliente() != null && c.pedido().getCliente().isPedeNumerario(),
+        null);
+    artigo(
+        "alegaDefeito",
+        "O cliente alega um defeito",
+        c -> estado(c) != null && estado(c).isAlegaDefeito(),
+        null);
+    pedido(
+        "dataCompraConhecida",
+        "Data da compra conhecida",
+        c -> c.pedido().getDiasDesdeCompra() != null,
+        c -> String.valueOf(c.pedido().getDiasDesdeCompra()));
+    estadoPedido(
+        "riscoFraudeAlto",
+        "Risco de fraude alto",
+        c -> classe(c, Hipotese.FRAUDE, null) == ClassificacaoIncerteza.RISCO_ALTO);
+    estadoPedido(
+        "riscoFraudeMedio",
+        "Risco de fraude médio",
+        c -> classe(c, Hipotese.FRAUDE, null) == ClassificacaoIncerteza.RISCO_MEDIO);
+    pedido(
+        "semIndicioFraudeRelevante",
+        "Sem indício de fraude significativo ou confirmado registado pelo colaborador",
+        c ->
+            c.fraudes().stream()
+                .noneMatch(
+                    f ->
+                        f.getNivelRisco() == NivelRisco.SIGNIFICATIVO
+                            || f.getNivelRisco() == NivelRisco.CONFIRMADO),
+        null);
+    artigo(
+        "grauUsoConhecido",
+        "Grau de uso conhecido",
+        c -> estado(c) != null && estado(c).getGrauUso() != null,
+        c -> estado(c) == null ? null : String.valueOf(estado(c).getGrauUso()));
+    estadoArtigo(
+        "revendibilidadeAlta",
+        "Grau de revendibilidade alto",
+        c -> classeDoArtigo(c, Hipotese.REVENDIBILIDADE) == ClassificacaoIncerteza.REVENDIVEL);
+    estadoArtigo(
+        "revendibilidadeIndeterminada",
+        "Grau de revendibilidade intermédio",
+        c ->
+            classeDoArtigo(c, Hipotese.REVENDIBILIDADE)
+                == ClassificacaoIncerteza.REVENDIBILIDADE_INDETERMINADA);
+    estadoArtigo(
+        "revendibilidadeBaixa",
+        "Grau de revendibilidade baixo",
+        c -> classeDoArtigo(c, Hipotese.REVENDIBILIDADE) == ClassificacaoIncerteza.NAO_REVENDIVEL);
+    estadoArtigo(
+        "defeitoProvavel",
+        "Defeito de fabrico provável",
+        c -> classeDoArtigo(c, Hipotese.DEFEITO_FABRICO) == ClassificacaoIncerteza.PROPOR_PC006);
+    estadoArtigo(
+        "defeitoPossivel",
+        "Defeito de fabrico possível",
+        c -> classeDoArtigo(c, Hipotese.DEFEITO_FABRICO) == ClassificacaoIncerteza.REVER_DEFEITO);
+    estadoArtigo(
+        "desgasteProvavel",
+        "Desgaste provável",
+        c -> classeDoArtigo(c, Hipotese.DEFEITO_FABRICO) == ClassificacaoIncerteza.DESGASTE);
+    estadoArtigo(
+        "semSuspeitaDefeito",
+        "Sem defeito de fabrico provável nem possível por decidir",
+        c -> {
+          ClassificacaoIncerteza classe = classeDoArtigo(c, Hipotese.DEFEITO_FABRICO);
+          return classe != ClassificacaoIncerteza.PROPOR_PC006
+              && classe != ClassificacaoIncerteza.REVER_DEFEITO;
+        });
+    estadoPedido(
+        "pt004EmRevisao",
+        "A PT-004 deixou a devolução em revisão",
+        c -> c.decisao().disparouCom("PT-004", Elegibilidade.REVER));
+    estadoArtigo(
+        "artigoPermitidoOuPorDecidir",
+        "Artigo permitido ou ainda sem resultado",
+        c ->
+            c.decisaoArtigo() != null
+                && (c.decisaoArtigo().getElegibilidade() == null
+                    || c.decisaoArtigo().getElegibilidade() == Elegibilidade.PERMITIR
+                    || c.decisaoArtigo().disparou("IU-50")));
   }
 }

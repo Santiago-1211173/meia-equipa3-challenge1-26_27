@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import ResultCard from "@/components/ui/ResultCard";
 import ExplainTabs from "@/components/returns/ExplainTabs";
 import CertaintyFactorCard from "@/components/returns/CertaintyFactorCard";
+import UncertaintyPanel from "@/components/returns/UncertaintyPanel";
+import { classificacaoLabel, formatarGrau, hipoteseLabel } from "@/config/uncertaintyLabels";
 import {
   ELIGIBILITY,
   getEligibility,
@@ -237,6 +239,17 @@ export default function VerdictScreen({
   // Meio de pagamento original para contextualização pericial
   const originalTender = (request as unknown as { compraOriginal?: { pagamento?: { meio?: string } } })?.compraOriginal?.pagamento?.meio;
 
+  // Camada de incerteza: só o motor Drools calcula graus de crença
+  const grausIncerteza = engine === "returns" ? result.incerteza ?? [] : [];
+  const temIncerteza = grausIncerteza.length > 0;
+  const resumoIncerteza = grausIncerteza
+    .map(
+      (g) =>
+        `${hipoteseLabel(g.hipotese, locale)}${g.artigoId ? ` (${g.artigoId})` : ""}: ` +
+        `${classificacaoLabel(g.classificacao, locale)} (${formatarGrau(g, locale)})`
+    )
+    .join("; ");
+
   // Copiar resumo para a área de transferência
   const handleCopySummary = async () => {
     const text = locale === "en"
@@ -252,6 +265,7 @@ export default function VerdictScreen({
           `Immediate Action: ${opAction.action} (${opAction.hint})`,
           `Documentation: ${docDetails.label} - ${docDetails.subtext}`,
           `Normative Rationale: ${explanation}`,
+          ...(temIncerteza ? [`Uncertainty (demonstrative): ${resumoIncerteza}`] : []),
           `Inference Engine: ${engine === "prolog" ? "SWI-Prolog" : "Drools (DRL)"} (${durationMs} ms)`,
           `KB Version: ${result.versaoBaseConhecimento ?? "1.0.0"}`,
           `Evaluation ID: ${result.avaliacaoId ?? "N/A"}`,
@@ -268,6 +282,7 @@ export default function VerdictScreen({
           `Ação Imediata: ${opAction.action} (${opAction.hint})`,
           `Documentação: ${docDetails.label} - ${docDetails.subtext}`,
           `Justificação: ${explanation}`,
+          ...(temIncerteza ? [`Incerteza (demonstrativa): ${resumoIncerteza}`] : []),
           `Motor: ${engine === "prolog" ? "SWI-Prolog" : "Drools (DRL)"} (${durationMs} ms)`,
           `Versão BC: ${result.versaoBaseConhecimento ?? "1.0.0"}`,
           `ID Avaliação: ${result.avaliacaoId ?? "N/A"}`,
@@ -549,11 +564,36 @@ export default function VerdictScreen({
         </div>
       </div>
 
-      {/* 4. Secção 03: Módulo de Explicações do Motor (ACM) */}
+      {/* 4. Secção 03: Avaliação da Incerteza (camada de incerteza do Drools) */}
+      {temIncerteza && (
+        <div className="w-full flex flex-col gap-3">
+          <div className="flex items-center justify-between px-1 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-mono tabular-nums text-xs font-bold text-slate-400 select-none">03</span>
+              <span className="text-slate-300">/</span>
+              <h3 className="font-sans text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                {locale === "en" ? "Uncertainty Assessment" : "Avaliação da Incerteza"}
+              </h3>
+            </div>
+
+            <span className="font-sans text-xs text-slate-400">
+              {locale === "en"
+                ? "Certainty factors • Bayes • Fuzzy logic"
+                : "Fatores de certeza · Bayes · Lógica fuzzy"}
+            </span>
+          </div>
+
+          <UncertaintyPanel graus={grausIncerteza} evaluationId={result.avaliacaoId} base={baseEndpoint} />
+        </div>
+      )}
+
+      {/* 5. Secção 03/04: Módulo de Explicações do Motor (ACM) */}
       <div className="w-full flex flex-col gap-3">
         <div className="flex items-center justify-between px-1 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-mono tabular-nums text-xs font-bold text-slate-400 select-none">03</span>
+            <span className="font-mono tabular-nums text-xs font-bold text-slate-400 select-none">
+              {temIncerteza ? "04" : "03"}
+            </span>
             <span className="text-slate-300">/</span>
             <h3 className="font-sans text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               {locale === "en" ? "Inference Engine Explanations (ACM)" : "Explicações do Motor de Inferência (ACM)"}

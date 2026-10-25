@@ -25,6 +25,11 @@
       <groupId>com.levis.devolucoes</groupId>
       <artifactId>pericial-model</artifactId>
     </dependency>
+    <!-- Camada de incerteza (docs/08): global incerteza das regras IU -->
+    <dependency>
+      <groupId>com.levis.devolucoes</groupId>
+      <artifactId>pericial-uncertainty</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-engine</artifactId>
@@ -41,6 +46,12 @@
     <dependency>
       <groupId>com.levis.devolucoes</groupId>
       <artifactId>pericial-model</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.levis.devolucoes</groupId>
+      <artifactId>pericial-uncertainty</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

@@ -6,6 +6,7 @@ import static com.levis.devolucoes.explicacao.SuporteExplicacoes.pedidoDoCenario
 import static com.levis.devolucoes.model.teste.PedidoBuilder.umPedido;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 
 import com.levis.devolucoes.explicacao.emfalta.DadoEmFalta;
 import com.levis.devolucoes.explicacao.emfalta.DetetorDadosEmFalta;
@@ -15,6 +16,7 @@ import com.levis.devolucoes.explicacao.esenao.ResultadoSimulacao;
 import com.levis.devolucoes.explicacao.esenao.SimuladorCenario;
 import com.levis.devolucoes.explicacao.motor.ResultadoExecucao;
 import com.levis.devolucoes.explicacao.texto.GeradorTexto;
+import com.levis.devolucoes.model.enums.CondicaoUso;
 import com.levis.devolucoes.model.enums.Elegibilidade;
 import com.levis.devolucoes.model.enums.MeioPagamento;
 import com.levis.devolucoes.model.enums.TipoTransacao;
@@ -56,6 +58,44 @@ class SimulacaoEDadosEmFaltaTest {
       assertThat(simulacao.diferencas()).isNotEmpty();
       assertThat(simulacao.resumo()).contains("campo(s)");
       assertThat(pedido.isPortalOnlineDisponivel()).isFalse();
+    }
+
+    @Test
+    @DisplayName(
+        "E se a inspeção mostrasse um dano localizado? Propor PC-006 em vez de inspeção adicional")
+    void respostaDeInspecaoMudaAClasseDoDefeito() {
+      PedidoDevolucao pedido =
+          umPedido()
+              .artigo(
+                  a -> {
+                    a.getEstado().setCondicaoUso(CondicaoUso.USADO);
+                    a.getEstado().setAlegaDefeito(true);
+                    a.getEstado().setInspecaoDefeito(new HashMap<>(Map.of("ED-01", true)));
+                  })
+              .construir();
+      ResultadoExecucao original = avaliarCopia(pedido);
+
+      ResultadoSimulacao simulacao =
+          simulador.simular(
+              original, pedido, Map.of("artigos[0].estado.inspecaoDefeito.ED-02", true));
+
+      assertThat(simulacao.regrasNovas()).contains("IU-21");
+      assertThat(simulacao.regrasRemovidas()).contains("IU-22");
+      assertThat(pedido.getArtigos().getFirst().getEstado().getInspecaoDefeito())
+          .doesNotContainKey("ED-02");
+    }
+
+    @Test
+    @DisplayName("Cenário 1: e se o artigo estivesse moderadamente usado? Deixa de ser revendível")
+    void grauDeUsoMudaARevendibilidade() {
+      PedidoDevolucao pedido = pedidoDoCenario(1);
+      ResultadoExecucao original = avaliarCopia(pedido);
+
+      ResultadoSimulacao simulacao =
+          simulador.simular(original, pedido, Map.of("artigos[0].estado.grauUso", 2));
+
+      assertThat(simulacao.regrasNovas()).contains("IU-33");
+      assertThat(simulacao.regrasRemovidas()).contains("IU-31");
     }
 
     @Test
@@ -200,8 +240,33 @@ class SimulacaoEDadosEmFaltaTest {
     @Test
     void verificadaAposTrintaDiasPrecisaDaRevenda() {
       assertThat(detetor.detetar(umPedido().diasDesdeCompra(40).construir()))
-          .extracting(DadoEmFalta::codigo)
-          .containsExactly("IN-010");
+          .extracting(DadoEmFalta::codigo, DadoEmFalta::caminho)
+          .containsExactly(
+              tuple("IN-010", "artigos[0].revendivel"),
+              tuple("IN-008", "artigos[0].estado.grauUso"));
+    }
+
+    @Test
+    @DisplayName(
+        "Alegação de defeito: sugere as perguntas de inspeção por responder (docs/08 §3.3)")
+    void alegacaoDeDefeitoSugereAsPerguntasDeInspecao() {
+      PedidoDevolucao pedido =
+          umPedido()
+              .artigo(
+                  a -> {
+                    a.getEstado().setAlegaDefeito(true);
+                    a.getEstado().setInspecaoDefeito(new HashMap<>(Map.of("ED-01", true)));
+                    a.getEstado().getInspecaoDefeito().put("ED-05", null);
+                  })
+              .construir();
+
+      assertThat(detetor.detetar(pedido))
+          .extracting(DadoEmFalta::caminho)
+          .containsExactly(
+              "artigos[0].estado.inspecaoDefeito.ED-02",
+              "artigos[0].estado.inspecaoDefeito.ED-06",
+              "artigos[0].estado.inspecaoDefeito.ED-07");
+      assertThat(detetor.obrigatorios(pedido)).isEmpty();
     }
   }
 

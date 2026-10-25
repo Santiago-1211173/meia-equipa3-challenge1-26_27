@@ -8,6 +8,7 @@ interface Esquema {
   enum?: string[];
   items?: Esquema;
   properties?: Record<string, Esquema>;
+  additionalProperties?: Esquema;
 }
 
 const esquemas = (openapi as unknown as { components: { schemas: Record<string, Esquema> } })
@@ -45,15 +46,31 @@ const camposDoFormulario = new Map<string, Campo>(
 
 describe('formulário do pedido', () => {
   const api = folhas(esquemas['PedidoAvaliacaoRequest']);
+  /** Mapas da API (ex.: respostas de inspeção): um campo no formulário por chave. */
+  const mapas = [...api].filter(([, e]) => e.type === 'object' && e.additionalProperties);
+  const doMapa = (caminho: string) => mapas.find(([m]) => caminho.startsWith(`${m}.`))?.[0];
 
   it('tem um campo para cada dado do pedido da API, e só esses', () => {
-    expect([...camposDoFormulario.keys()].sort()).toEqual([...api.keys()].sort());
+    const doFormulario = new Set([...camposDoFormulario.keys()].map((c) => doMapa(c) ?? c));
+    expect([...doFormulario].sort()).toEqual([...api.keys()].sort());
+  });
+
+  it('pergunta cada chave dos mapas com os valores do enum da API', () => {
+    expect(mapas.length).toBeGreaterThan(0);
+    for (const [mapa, esquema] of mapas) {
+      const valores = resolver(esquema.additionalProperties!).enum!;
+      const campos = [...camposDoFormulario].filter(([c]) => c.startsWith(`${mapa}.`));
+      expect(campos.length, mapa).toBeGreaterThan(0);
+      for (const [caminho, campo] of campos) {
+        expect(Object.keys(campo.opcoes!).sort(), caminho).toEqual([...valores].sort());
+      }
+    }
   });
 
   it('oferece exatamente os valores de cada enum da API', () => {
     for (const [caminho, esquema] of api) {
-      const campo = camposDoFormulario.get(caminho)!;
-      if (esquema.enum) {
+      const campo = camposDoFormulario.get(caminho);
+      if (esquema.enum && campo) {
         expect(campo.tipo, caminho).toBe('opcoes');
         expect(Object.keys(campo.opcoes!).sort(), caminho).toEqual([...esquema.enum].sort());
       }
@@ -62,13 +79,13 @@ describe('formulário do pedido', () => {
 
   it('usa o tipo de controlo que corresponde ao tipo da API', () => {
     for (const [caminho, esquema] of api) {
-      const tipo = camposDoFormulario.get(caminho)!.tipo;
+      const tipo = camposDoFormulario.get(caminho)?.tipo;
       if (esquema.type === 'boolean') {
         expect(['booleano', 'booleano-opcional'], caminho).toContain(tipo);
       } else if (esquema.type === 'number') {
         expect(tipo, caminho).toBe('decimal');
       } else if (esquema.type === 'integer') {
-        expect(tipo, caminho).toBe('inteiro');
+        expect(['inteiro', 'escala'], caminho).toContain(tipo);
       } else if (esquema.type === 'array') {
         expect(tipo, caminho).toBe('lista');
       }
