@@ -12,8 +12,9 @@
 * **Desafio:** Desafio 1 — Sistema Pericial de Devoluções e Trocas no Retalho (Caso de Uso: *Levi Strauss & Co.*)
 * **Equipa 3:** SmartCloth AI
 * **Perito de Domínio Humano:** Dustin Hopper (Especialista em Políticas Globais de Retalho Levi's)
+* **Aplicação web em produção:** [https://challenge1.smbitsolutions.pt/](https://challenge1.smbitsolutions.pt/) (assistente de balcão que usa este motor Prolog através do orquestrador; no passo 1 escolhe-se o motor Prolog)
 
-Este pacote de entrega é **100% autónomo**, focado exclusivamente na programação lógica declarativa em **SWI-Prolog**, sem qualquer dependência de ferramentas externas (dispensa Java, Maven, Python, Node.js ou bases de dados relacionais).
+Este pacote de entrega é **100% autónomo**, focado exclusivamente na programação lógica declarativa em **SWI-Prolog**, sem qualquer dependência de ferramentas externas (dispensa Java, Maven, Python, Node.js ou bases de dados relacionais). A aplicação web é um complemento: a consola e os testes correm só com o SWI-Prolog.
 
 ---
 
@@ -24,7 +25,7 @@ Este pacote de entrega é **100% autónomo**, focado exclusivamente na programa�
   swipl --version
   ```
 
-Nenhuma biblioteca externa de terceiros é necessária: todas as funcionalidades recorrem exclusivamente a bibliotecas nativas do SWI-Prolog (`lists`, `plunit`, `http/http_server`, `http/http_json`).
+Nenhuma biblioteca externa de terceiros é necessária: todas as funcionalidades recorrem exclusivamente a bibliotecas nativas do SWI-Prolog (`lists`, `plunit`, `http/thread_httpd`, `http/http_dispatch`, `http/http_json`).
 
 ---
 
@@ -74,7 +75,8 @@ Ativa o modo dialógico concebido segundo a metodologia de interrogação dinâm
 * São apresentadas sugestões de valores aceites entre parênteses.
 * Em perguntas binárias, aceita: `sim`, `nao`, `s`, `n`, `true`, `false`.
 * Conclusões diagnósticas nunca são questionadas diretamente (apenas atributos observáveis da loja declarados em `perguntavel/1`).
-* Prevenção estrita de ciclos (`ja_perguntado/1`): nenhum atributo é questionado mais do que uma vez na mesma sessão.
+* Prevenção estrita de ciclos (`ja_perguntado/1`): nenhum atributo é questionado mais do que uma vez na mesma sessão. Se a resposta não servir à regra que a pediu, essa regra não dispara e a pergunta não se repete.
+* Nas perguntas sobre dias só é aceite um número inteiro igual ou superior a 0; outra resposta mostra um aviso e a pergunta repete-se.
 
 ### 4.2 Inquirição Bidirecional: Resposta ao "Porquê?"
 A qualquer momento durante a triagem, o utilizador pode responder com `porquê?` (ou `porque`, `why`). O motor suspende momentaneamente a interrogação e apresenta a justificação normativa da pergunta:
@@ -161,7 +163,7 @@ swipl -s src/main.pl
 ```
 O servidor arranca por defeito na porta `8080`.
 
-### 7.2 Catálogo dos 7 Endpoints REST HTTP
+### 7.2 Catálogo dos 8 Endpoints REST HTTP
 
 | Rota | Método | Função |
 |:---|:---:|:---|
@@ -169,7 +171,8 @@ O servidor arranca por defeito na porta `8080`.
 | `/retail/interactive` | POST | Execução ou simulação passo-a-passo de triagem dialógica com perguntas estruturadas. |
 | `/retail/whatif` | POST | Simulação contrafactual What-If com factos a adicionar e remover em sandbox volátil. |
 | `/retail/how` | POST | Rasto dedutivo completo em JSON para qualquer facto inferido. |
-| `/retail/whynot` | POST | Árvore estruturada de falha contrafactual para decisões não atingidas. |
+| `/retail/whynot` | POST | Análise de falha contrafactual para decisões não atingidas, devolvida como lista de linhas de texto. |
+| `/retail/why` | POST | Porquê da pergunta: regras que dependem de um dado e as que estão à espera dele para disparar. |
 | `/retail/facts` | GET | Listagem de todos os factos ativos na memória de trabalho. |
 | `/retail/reset` | POST | Reinicialização atómica da sessão e histórico de diálogo. |
 
@@ -184,6 +187,9 @@ docker run -d --name prolog-engine -p 8080:8080 prolog-engine
 # Teste de saúde
 curl -s http://127.0.0.1:8080/retail/facts
 ```
+
+### 7.4 Aplicação Web em Produção
+O sistema completo (interface de balcão, orquestrador e os motores Prolog e Drools) está disponível em [https://challenge1.smbitsolutions.pt/](https://challenge1.smbitsolutions.pt/). No passo 1 do assistente escolhe-se o **Motor Prolog**; o veredito e as explicações (Como, Porque Não e E Se) vêm deste motor através dos endpoints acima.
 
 ---
 
@@ -203,7 +209,7 @@ prolog_engine/
 │   │   ├── server.pl                    # Servidor HTTP nativo SWI-Prolog
 │   │   ├── routes.pl                    # Rotas preliminares de validação
 │   │   ├── inference_routes.pl          # Rotas do motor de veículos (sp_exp2)
-│   │   └── retail_routes.pl             # 7 rotas REST especializadas de retalho Levi's
+│   │   └── retail_routes.pl             # 8 rotas REST especializadas de retalho Levi's
 │   │
 │   └── core/                            # Camada de domínio e inferência
 │       ├── retail_engine/               # Motor de inferência pericial de retalho

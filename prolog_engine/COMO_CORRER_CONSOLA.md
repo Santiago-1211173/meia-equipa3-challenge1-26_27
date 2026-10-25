@@ -20,13 +20,16 @@ Basta um terminal. Escolhe o que costumas usar.
 ### PowerShell (recomendado no Windows)
 
 ```powershell
-chcp 65001
 cd "<pasta do projeto>\prolog_engine"
 & "C:\Program Files\swipl\bin\swipl.exe" -s run_console.pl
 ```
 
-- `chcp 65001` põe os acentos a aparecer bem. Sem ele, "Decisão" pode aparecer como "DecisÃ£o".
 - Substitui `<pasta do projeto>` pela pasta onde tens o repositório.
+- Para escreveres só `swipl` nesta janela, acrescenta-o primeiro ao PATH (vale até fechares a janela):
+
+  ```powershell
+  $env:Path += ";C:\Program Files\swipl\bin"
+  ```
 
 ### Git Bash
 
@@ -44,11 +47,7 @@ swipl -s run_console.pl
 
 Aparece o menu com os comandos disponíveis e a consola fica à espera, com o prompt `?-`.
 
-> Se o Prolog mostrar o menu e fechar logo, a tua cópia do `run_console.pl` ainda tem `:- initialization(iniciar, main).` na última linha. Abre o Prolog sem argumentos (`swipl`) e carrega a consola à mão:
->
-> ```prolog
-> ?- consult('run_console.pl').
-> ```
+> Se alterares o código ou fizeres `git pull`, sai com `halt.` e volta a abrir a consola. O `make.` recarrega os ficheiros, mas a base de conhecimento fica num módulo errado e aparecem avisos "Local definition of retail_rules:… overrides weak import".
 
 ## 3. Acrescentar o SWI-Prolog ao PATH (Windows, opcional)
 
@@ -80,7 +79,8 @@ Cada comando termina com um **ponto final**, seguido de Enter.
 - Responde com um dos valores sugeridos entre parênteses (por exemplo `sim`, `nao`, `mainline`).
 - `porquê?` mostra a regra que está a pedir esse dado, o objetivo que está a tentar provar e o fundamento.
 - `nao_sei` (ou `?`) regista que não sabes. O motor não cria nenhum facto e segue por outras regras.
-- Às perguntas sobre dias responde **só com um número**: uma resposta como `credito` termina a sessão com um erro.
+- Às perguntas sobre dias responde com um número inteiro (0 ou mais). Outra resposta, como `abc` ou `-3`, mostra um aviso e a pergunta repete-se.
+- Cada pergunta é feita uma só vez. Se a resposta não servir à regra que a pediu, essa regra não dispara e o motor segue para as seguintes.
 
 ## 5. Exemplo de demonstração
 
@@ -97,7 +97,7 @@ Cada comando termina com um **ponto final**, seguido de Enter.
 Notas:
 
 - No cenário 1, `whynot(decisao(permitir))` gera uma árvore muito longa. Para mostrar o "Porque não?", usa o cenário 4.
-- O cenário 2 mostra "esperada: recusar", mas o motor dá **encaminhar**, que é o resultado correto: recusa-se a exceção ao meio Afterpay, não a devolução (é também o resultado esperado no cenário oficial do Drools). O rótulo da consola está desatualizado.
+- As 5 primeiras perguntas da triagem (colaborador, SKU, categoria, estado da peça e comprovativo) são os dados de partida, pedidos antes de o motor arrancar. Nelas, `porquê?` dá uma explicação genérica, porque ainda não há nenhuma regra a pedi-las. Para mostrar o "porquê?" com regra, usa a pergunta dos dias.
 
 ## 6. Correr os testes
 
@@ -109,4 +109,4 @@ swipl run_tests.pl
 
 Corre todas as suites PLUnit e termina com o código de saída 0 se passarem todas. No Windows sem PATH, usa o caminho completo do `swipl.exe`, como na secção 2.
 
-O comando `testar.` dentro da consola também corre os testes, mas não inclui todas as suites e anuncia sucesso sem verificar o resultado. Usa `swipl run_tests.pl`.
+Dentro da consola, o comando `testar.` corre as mesmas 8 suites (150 testes) e diz no fim se passaram todos ou se houve falhas.
